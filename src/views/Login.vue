@@ -48,7 +48,8 @@
 
 <script>
 import firebase from "firebase";
-
+import user_api from "@/firebase/user_api.js"; 
+import Vue from "vue";
 export default {
   name: "login",
   methods: {
@@ -58,6 +59,7 @@ export default {
         .auth()
         .signInWithPopup(provider)
         .then(() => {
+          this.createUser();
           this.$router.replace("home");
         })
         .catch(err => {
@@ -71,6 +73,7 @@ export default {
         .auth()
         .signInWithPopup(provider)
         .then(() => {
+          this.createUser();
           this.$router.replace("home");
         })
         .catch(err => {
@@ -79,7 +82,15 @@ export default {
         });
     },
     loginWithInstagram() {
+      this.createUser();
       this.$router.replace("InstagramAuth");
+    },
+    createUser () {
+      user_api.api.createWidthAuth(()=>{
+        this.$store.dispatch('init',()=>{
+          console.log(this.$store.getters);
+        });
+      });
     }
   }
 };

@@ -1,16 +1,19 @@
 <template>
   <div id="app">
-
-    <link rel="stylesheet" 
-            href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" 
-            integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" 
-            crossorigin="anonymous">
-
-    <router-view/>
-
+  	 <my-navbar ></my-navbar>
+	 <my-navbarFooter ></my-navbarFooter>
+  	
+    	<router-view>
+		</router-view>
+	
   </div>
 </template>
 
 <style>
-@import "~bulma/css/bulma.css";
+	.container {
+		padding-top: 10px;
+	}
+	body {
+		overflow-y: hidden;
+	}
 </style>

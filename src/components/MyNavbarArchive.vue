@@ -14,8 +14,13 @@
   </div>
 
   <div id="navbarMenu" :class="!openDrop ? dropdown : dropdownActive" >
-    <div class="navbar-start"  v-if="existUser() && existAgence()">
-      
+    <div class="navbar-start"  v-if="existUser()">
+      <div :class="!openSubDrop ? subdropdown : subdropdownActive">
+         <a class="navbar-link" v-on:click="openSubDrop=!openSubDrop">
+          <div class="s-item-menu">Clients</div>
+        </a>
+     
+        <div class="navbar-dropdown is-boxed" v-on:click="openSubDrop=!openSubDrop">
             <a class="navbar-item" v-on:click="rout('/listClient')">
               <i class="fas fa-users"></i><div class="s-item-menu">Liste des clients</div>
             </a>
@@ -25,10 +30,8 @@
             <a class="navbar-item"  v-on:click="rout('/impaye')">
               <i class="fas fa-file-invoice-dollar"></i><div class="s-item-menu">Liste des impayés</div>
             </a>
-            <a class="navbar-item"  v-on:click="rout('/impaye')">
-              <i class="fas fa-chart-line"></i><div class="s-item-menu">Reporting</div>
-            </a>
-       
+        </div>
+      </div>
       
     </div>
 
@@ -37,12 +40,8 @@
           <a class="navbar-item" v-on:click="rout('/login')" v-if="!existUser()">
                <i class="fas fa-user"></i>Se loguer
             </a>
-            <a class="navbar-item" v-on:click="rout('/config')" v-if="existUser() && existAgence()">
+            <a class="navbar-item" v-on:click="rout('/config')" v-if="existUser()">
                   <i class="fas fa-warehouse"></i><div class="s-item-menu">{{$store.getters.getAgence.nom}}</div>
-            </a>
-             <a class="navbar-item" v-on:click="rout('/config')" v-if="existUser() && !existAgence()">
-                  <s-button icon="fas fa-warehouse" theme="is-warning is-normal" label="Créer votre agence" v-on:click="rout('/config')">
-                  </s-button>
             </a>
             <div :class="!openSubDropProfil ? subdropdownProfil : subdropdownProfilActive">
               <a class="navbar-link" v-on:click="openSubDropProfil=!openSubDropProfil">
@@ -94,15 +93,9 @@ export default {
     rout(nav) {
       this.$router.push(nav).catch(error=>{})
     },
-    existAgence() {
-      if (this.$store.getters.getAgence != null) {
-        return this.$store.getters.getAgence.finish == this.$steps;
-      }
-      else
-        return false;
-
-    },
+    
     existUser() {
+      
       return firebase.auth().currentUser != null;
     },
     getDisplayName () {
