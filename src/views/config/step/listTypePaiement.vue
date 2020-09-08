@@ -1,6 +1,6 @@
 <template>
 	<div class="contain">
-		
+			<input type="hidden" :value="refresh"/>
 			<s-button theme="is-primary" icon="plus" label="Ajouter un mode de paiement"  @onclick="AddTypePaiement"></s-button>&nbsp;&nbsp;<br/><br/>
 			<s-button theme="is-primary" icon="info" label=""  @onclick="infoPaiement=!infoPaiement"></s-button>
 			<div class="notification is-warning" v-show="infoPaiement">
@@ -11,15 +11,16 @@
 			
 			
 			<ul >
-				<li v-for="(typePaiement, index) in typePaiements">
-					<input type="text" class="input" style="width:200px" v-model="typePaiement.libelle" placeholder="Mettre un libelle de paiement" />&nbsp;
-					<s-button theme="is-primary" icon="trash" label="Supprimer" @onclick="deletePaiement(index)"></s-button>
+				<li v-for="typePaiement in agence.typePaiements">
+					<input type="text" class="input" style="width:200px" v-model="typePaiement.nom" placeholder="Mettre un libelle de paiement" />&nbsp;
+					<s-button theme="is-primary" icon="trash" label="Supprimer" @onclick="deletePaiement(typePaiement.id)"></s-button>
 					<br/><br/>
 				</li>				
 			</ul>
 			<div class="notification is-danger" v-show="error">
 			  <button class="delete" v-on:click="error=false"></button>
 			  Il faut au moins un moyen de paiement !
+			  Le libellé est obligatoire
 			</div>
 			
    <br/>
@@ -30,46 +31,43 @@ import agence_api from '@/firebase/agence_api'
 import user_api from '@/firebase/user_api'
 import Vue from 'vue'
 export default {
+	props:["agence","refresh"],
 	data : function () {
 		return {
 			infoPaiement: false,
-			typePaiements: [],
 			error: false
 		}
 	},
 	methods : {
 		AddTypePaiement() {
 			var paiement = {
-				libelle: ""				
+				nom: "",
+				id: this.$uuid()				
 			}
-			agence_api.api.AddTypePaiement(this.$store, paiement,()=>{
-				this.typePaiements = this.$store.getters.getAgence.typePaiements;
-			});
+			this.agence.typePaiements[paiement.id] = paiement;
+			this.$emit("refresh")	
 		},
-		deletePaiement(index) {
-			this.typePaiements.splice(index,1);
-			this.save();
+		deletePaiement(idPaiement) {
+			delete this.agence.typePaiements[idPaiement];
+			this.$emit("refresh")		
 		},
 		save(fct) {
 			this.error = false;
-			
-			if (this.typePaiements.length > 0) { 
-				agence_api.api.saveTypePaiement(this.$store, this.typePaiements,()=>{
-					this.typePaiements = this.$store.getters.getAgence.typePaiements;
-					fct(true);
-				});
-			}
-			else {
-				this.error = true;
-				fct(false);
-			}
+			var nb=0;
+				for (var key in this.agence.typePaiements) {
+					this.error =  this.agence.typePaiements[key].nom =="" || this.error
+					nb++;
+				}
+				if (nb==0)
+					this.error = true;
+				if (!this.error)
+					agence_api.api.saveTypePaiement(this.agence, ()=>{
+						fct(true);
+					});	
+				else
+					fct(false);
 		}
 
-	},
-	mounted() {
-		if (typeof(this.$store.getters.getAgence.typePaiements) != "undefined") 
-			this.typePaiements = this.$store.getters.getAgence.typePaiements;
-		
 	}
 	
 }

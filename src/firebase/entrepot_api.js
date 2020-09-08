@@ -5,7 +5,7 @@ const const_entrepot = {
 	json: {
 		id: "0",
 		nom: '',
-		stocks: []
+		stocks: {}
 	},
 	json_stock: {
 		nom: '',
@@ -13,41 +13,19 @@ const const_entrepot = {
 		fige: false
 	},
 	
-	addOrUpdate (docAgence, entrepot, fct) {
-		console.log(entrepot);
-		var docRef = docAgence.collection('entrepots').doc(entrepot.id);
-		docRef.get().then(querySnapshot => {
-			if (!querySnapshot.exists)  {
-				docAgence.collection('entrepots').add({
-					nom: entrepot.nom,					
-					stocks: entrepot.stocks
-				}).then(entrepot => {
-					fct(entrepot);
-				});
-			}
-			else {
-				console.log("UPDATE");
-				console.log(entrepot.nom);
-				docRef.update ({
-					nom: entrepot.nom,					
-					stocks: entrepot.stocks
-				}).then (()=>{fct()})
-			}
-		});		
+	save (agence, entrepot, fct) {
+		agence.entrepots[entrepot.id] = entrepot;
+		firebase.api.getDb().collection('agence').doc(agence.id).update({
+			entrepots: agence.entrepots
+		}).then(()=>{fct()})
 	},
-	getAll(docAgence, fct) {		
-		docAgence.collection('entrepots').get().then(querySnapshot=> {
-    		var docs = querySnapshot.docs.map(function (doc) {
-					    const eventData = doc.data()
-	    				eventData.id = doc.id
-	    				return eventData
-					})			
-    		fct(docs);
-    	})
+	getAll(agence, fct) {		
+		return agence.entrepots;
 	},
-	delete(store, idEntrepot, fct) {
-		store.getters.getDocAgence.collection('entrepots').doc(idEntrepot).delete().then(()=>{
-			fct();
+	delete(agence, entrepot, fct) {
+		delete agence.entrepots[entrepot.id];
+		this.save (agence, entrepot, ()=>{
+			fct()
 		})
 	}
 }

@@ -30,18 +30,11 @@
 		},
 		methods: {			
 			save(fct) {
-				if (this.agence.nom.length > 0 )
-					agence_api.api.save(this.$store, this.agence, ()=>{
-						//console.log("AFTER SAVE");
-						//console.log(JSON.parse(JSON.stringify(this.agence)));
-						var params = {
-							idAgence: this.agence.id,
-							fct: ()=>{								
-								fct(true);
-							}
-						}
-						this.$store.dispatch("setAgence", params);
-					});
+				if (this.agence.nom.length > 0 ) {
+					agence_api.api.save(this.$store, this.agence, (docRef)=>{
+						fct(true);		    
+					})
+				}
 				else {
 					this.errorNom = true;
 					fct(false); 

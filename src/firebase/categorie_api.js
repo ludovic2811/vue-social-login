@@ -7,8 +7,9 @@ const const_categorie = {
 	},
 	json_type: {
 		nom: "",
-		prix: 0
+		prix: ""
 	},
+	/*
 	save(docAgence, categorie, fct) {
 		if (typeof(categorie.id) == "undefined") {
 			docAgence.collection("categories").doc().set(categorie).then(()=>{
@@ -25,6 +26,20 @@ const const_categorie = {
 				}			
 			})
 		}
+	},*/
+	save (dataAgence, categorie, fct) {
+		// probablement qu'on va devoir mettre en place les calculs ici ou pas
+		dataAgence.categories[categorie.id] = categorie;
+		console.log(dataAgence.categories)
+		firebase.api.getDb().collection("agence").doc(dataAgence.id).update({
+			categories: dataAgence.categories
+		}).then(()=>{fct()});
+	},
+	delete (dataAgence, categorie, fct) {
+		delete dataAgence.categories[categorie.id];
+		firebase.api.getDb().collection("agence").doc(dataAgence.id).update({
+			categories: dataAgence.categories
+		}).then(()=>{fct()});
 	},
 	getAllCategories(docAgence, fct) {
 			var docRef = docAgence.collection('categories');
@@ -36,11 +51,6 @@ const const_categorie = {
 					})			
     			fct(docs);
 			})
-	},
-	delete(docAgence, idCategorie, fct) {
-		docAgence.collection("categories").doc(idCategorie).delete().then(()=>{
-			fct()
-		});
 	}
 	
 

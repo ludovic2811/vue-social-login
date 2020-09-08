@@ -8,7 +8,7 @@
       		<s-button label="" :theme="getTheme(index)" :icon="iconEtap.icon" @onclick="setEtape(index)"></s-button>      		
       	</span>
       	<br/><br/>
-      	
+      	{{initEtape}}
   	  	<i :class="'fas fa-'+steps[etape].icon"></i>
       		&nbsp;&nbsp;{{steps[etape].label}}		
       	<div style="float:left;">
@@ -30,12 +30,26 @@
 		<transition  :name="transition"  >
 			<p  v-if="show" id="slide" >
 				<edit-agence 		v-show="etape==0" :agence="agence" :steps="steps" ref="editAgence"></edit-agence>
-		  		<list-entrepot 		v-show="etape==1"  @hideNaviguation="hideNaviguation" ref="listEntrepot"></list-entrepot>
-		  		<list-state 		v-show="etape==2" ref="listEtat"></list-state>
-		  		<list-categories	v-show="etape==3" ref="listCategories"></list-categories>
-		  		<list-type-paiement v-show="etape==4" ref="typePaiement"></list-type-paiement>
-		  		<manage-user 		v-show="etape==5" ref="manageUser"></manage-user>
-		  		<subscription		v-show="etape==6" ref="subscription"></subscription>
+				<list-categories	
+					:agence="agence" 
+					:refresh="refresh"
+					 v-if="etape==1" 
+					 @refresh="refresh=!refresh"
+					 ref="listCategories"></list-categories>
+		  		<list-entrepot 		
+		  			v-if="etape==2"  
+		  			:agence="agence"
+		  			@hideNaviguation="hideNaviguation" 
+		  			
+		  			ref="listEntrepot"
+
+		  			>
+	  			</list-entrepot>
+		  		<list-state :refresh="refresh"	 @refresh="refresh=!refresh" :agence="agence"	v-if="etape==3" ref="listEtat"></list-state>
+		  		
+		  		<list-type-paiement :agence="agence" :refresh="refresh"	 @refresh="refresh=!refresh"  v-if="etape==4" ref="typePaiement"></list-type-paiement>
+		  		<manage-user 	:agence="agence" 	v-if="etape==5" ref="manageUser"></manage-user>
+		  		<subscription :agence="agence" :save="saveSubscription"	:refresh="refresh"	v-if="etape==6" ref="subscription"></subscription>
 		  	</p>
 		</transition>
 		</div>
@@ -70,6 +84,7 @@
 </template>
 <script>
 import agence_api 		from '@/firebase/agence_api'	
+import user_api			from "@/firebase/user_api"; 
 import etat_api 		from '@/firebase/etat_api'	
 
 import ListEntrepot 	from "@/views/config/step/listEntrepot.vue";
@@ -79,7 +94,7 @@ import ManageUser 		from "@/views/config/step/manageUser.vue";
 import ListTypePaiement from "@/views/config/step/listTypePaiement.vue";
 import EditAgence 		from "@/views/config/step/editAgence.vue";
 import Subscription     from "@/views/config/step/subscription.vue";
-
+import firebase from "@/firebase/firebase_api";
 export default {
 
 	props:["agence","initEtape"],	
@@ -94,14 +109,17 @@ export default {
 	},
 	watch: {
 		initEtape: function (val) {
-			
+			console.log(this.initEtape);
 			if (this.agence.finish == this.$steps) {
 				this.etape = this.initEtape;
 			}
+			else
+				this.etape = this.agence.finish;
 		}
 	},
 	data: function() {
 			return {
+				refresh: false,
 				show: true,
 				etape: 0,
 				errorFinish: false,
@@ -115,6 +133,12 @@ export default {
 						ref: "editAgence"
 					},
 					{
+						icon: "cogs",
+						label: "Créer vos catégories",
+						description : "Créer les catégories de vos articles",
+						ref: "listCategories"
+					},
+					{
 						icon: "industry",
 						label: "Créer vos entrepots",
 						description : "Créer vos entrepots",
@@ -126,12 +150,7 @@ export default {
 						description : "Créer les états de vos articles",
 						ref: "listEtat"
 					},
-					{
-						icon: "cogs",
-						label: "Créer vos catégories",
-						description : "Créer les catégories de vos articles",
-						ref: "listCategories"
-					},
+					
 					{
 						icon: "money-bill-wave-alt",
 						label: "Créer vos types de paiement",
@@ -155,11 +174,15 @@ export default {
 			}
 	},			
 	methods: {
+		saveSubscription(abonnement) {
+			this.agence.abonnement = abonnement;
+			this.refresh=!this.refresh;
+		},
 		termine() {
 			this.agence.finish = this.$steps;
-			agence_api.api.updateFinish(this.$store, this.agence.finish, ()=>{
-				this.$emit('close');
-			});
+			agence_api.api.updateFinish(this.agence);
+			this.$emit('checkAgence', this.agence);
+			this.$emit('close');
 		},
 		getTheme(index) {
 			var theme = 'is-rounded is-small';
@@ -196,8 +219,9 @@ export default {
 			this.$refs[this.steps[this.etape].ref].save((ok)=>{
 				if (ok) {
 					fct();
-				}
-			})
+					}
+				})
+			
 		},
 		save() {
 			this.$refs[this.steps[this.etape].ref].save((ok)=>{
@@ -208,12 +232,9 @@ export default {
 			//console.log(this.$refs.editAgence.ref]);
 
 			this.checkEtape(()=> {
-				
-				if (this.etape == 0)
-					this.$emit("refresh");
 				if (this.agence.finish != this.$steps) {
 					this.agence.finish ++;
-					agence_api.api.updateFinish(this.$store, this.agence.finish);
+					agence_api.api.updateFinish(this.agence);
 				}
 				this.transition = 'fade';
 				this.errorFinish = false;
@@ -226,8 +247,8 @@ export default {
 		beforeEtape() {
 			this.$refs[this.steps[this.etape].ref].save((ok)=>{
 				if (this.agence.finish != this.$steps) {
-						this.agence.finish --;
-						agence_api.api.updateFinish(this.$store, this.agence.finish);
+					this.agence.finish--;
+					agence_api.api.updateFinish(this.agence);
 				}
 				this.transition = 'fadeOut';
 				this.errorFinish = false;

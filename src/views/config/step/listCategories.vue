@@ -2,16 +2,19 @@
 	<div>
 		<br/>
 		
-		<s-button theme="is-primary" label="Ajouter une categorie" icon="plus" @onclick="addCategorie"></s-button><br/><br/>
-		<ul>
-			<li v-for="(categorie,index) in  $store.getters.getCategories">
-				<s-button theme="is-primary" label="" icon="cog" @onclick="editCategorie(index)"/>
-				&nbsp;<i :class="categorie.icon"/>
-				&nbsp;
-				{{categorie.nom}}<br/><br/>
-				
-			</li>
-		</ul>
+		<s-button  theme="is-primary" label="Ajouter une categorie" icon="plus" @onclick="addCategorie"></s-button><br/><br/>
+		<s-draggable :refresh="refreshDrag" draggable=".itemDraggable" :datas="dataCollectionArray" @sortData="sort">
+		    <div v-for="categorie in dataCollectionArray" :key="categorie.id" class="itemDraggable">
+		        <s-button theme="is-primary" label="" icon="cog" @onclick="editCategorie(categorie.id)"/>
+				<div class="itemCategory">
+					<i :class="categorie.object.icon"/>
+					&nbsp;{{categorie.object.nom}}	
+				</div>
+				<s-button theme="" label="" icon="arrows-alt" @onclick=""/>
+				 <br/><br/>
+		    </div>
+		    
+		</s-draggable>
 		<div class="notification is-danger" v-show="error">
 		  <button class="delete" v-on:click="error=false"></button>
 		  Il faut au moins une catégorie
@@ -115,13 +118,14 @@
 	</div>
 </template>
 <script>
-	import etat_api from '@/firebase/etat_api'
 	import categorie_api from '@/firebase/categorie_api'
 	import library_icons from "@/firebase/library_icon"
+	
 	export default {
-		props: ["isTunnel"],
+		props: ["agence", "refresh"],		
 		data: function() {
 			return {
+				dataCollectionArray: [],
 				fields: ['label', 'value', 'icon'],
 				categorie: categorie_api.api.json_categorie,
 				type: categorie_api.api.json_type,
@@ -134,10 +138,20 @@
 					type: false
 				},
 				infoType: false	,
-				error: false		
+				error: false,
+				refreshDrag: false		
+			}
+		},
+		watch: {
+			refresh: function(val) {
+				this.dataCollectionArray = 	this.$orderJson(this.agence.categories);
 			}
 		},
 		methods: {  
+			sort(myArray) {
+				this.$updateRang(myArray, this.dataCollectionArray);
+				this.refreshDrag = !this.refreshDrag;
+			},
 			setIcon(item) {
 				this.categorie.icon = item.value;
 			},
@@ -164,33 +178,48 @@
 				var error = this.errorCategorie.nom  || this.errorCategorie.nbType || this.errorCategorie.icon || this.errorCategorie.type;
 				
 				if (!error) {
-					categorie_api.api.save(this.$store.getters.getDocAgence, this.categorie,()=>{
+					
+					categorie_api.api.save (this.agence, this.categorie, ()=>{
+						this.$emit("refresh");
 						this.modalEditCategorie='modal';
 					})
+					/*categorie_api.api.save(this.$store.getters.getDocAgence, this.categorie,()=>{
+						
+					})*/
+					//if (this.agence
 				}
 			},
-			editCategorie(index) {
-				this.categorie = this.$store.getters.getCategories[index];
+			editCategorie(idCategorie) {
+				this.categorie = this.agence.categories[idCategorie]
 				this.modalEditCategorie='modal is-active';
 			},
 			addCategorie() {				
 				this.categorie = JSON.parse(JSON.stringify(categorie_api.api.json_categorie));
+				this.categorie.id = this.$uuid();
 				this.modalEditCategorie='modal is-active';
 			},
 			deleteCategorie() {
-				categorie_api.api.delete(this.$store.getters.getDocAgence, this.categorie.id, ()=>{
+
+				categorie_api.api.delete(this.agence, this.categorie, ()=>{
+					//this.$store.getters.getDocAgence, this.categorie.id, ()=>{
 					this.modalEditCategorie='modal';
 				});
 			},
 			save(fct) {
 				this.error = false;
-				if (this.$store.getters.getCategories.length > 0)
+				
+				
+				if (Object.keys(this.agence.categories).length > 0)
 					fct(true)
 				else {
 					this.error = true;
 					fct(false)
 				}
 			}
+		},
+		mounted() {
+
+			this.dataCollectionArray = 	this.$orderJson(this.agence.categories);
 		}
 	}
 </script>
@@ -227,5 +256,11 @@
 	width: 5%;
 	text-align: center;
 	
+}
+.itemCategory {
+	display: inline-block;
+	margin-top: 10px;
+	width: 150px;
+	padding-left: 15px;
 }
 </style>

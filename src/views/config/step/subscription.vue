@@ -13,11 +13,11 @@
               Limiter à 5 clients !
           </div>
           <div>C'est gratuit ! 
-          </div>          <button class="button is-primary" v-on:click="abonner('BABY')" v-if="$store.getters.getAgence.abonnement != 'BABY'">
+          </div>          <button class="button is-primary" v-on:click="abonner('BABY')" v-if="agence.abonnement != 'BABY'">
               <i class="fas fa-check"/>&nbsp;
               <span>Je souscris</span>
           </button>
-          <b v-if="$store.getters.getAgence.abonnement == 'BABY'">
+          <b v-if="agence.abonnement == 'BABY'">
             Vous avez choisi cet abonnement !
           </b>
       </div>
@@ -32,11 +32,11 @@
           <div>
             10€ par mois
           </div><br/>
-          <button class="button is-primary" v-on:click="abonner('DOVE')" v-if="$store.getters.getAgence.abonnement != 'DOVE'">
+          <button class="button is-primary" v-on:click="abonner('DOVE')" v-if="agence.abonnement != 'DOVE'">
               <i class="fas fa-check"/>&nbsp;
               <span>Je souscris</span>
           </button>
-           <b v-if="$store.getters.getAgence.abonnement == 'DOVE'">
+           <b v-if="agence.abonnement == 'DOVE'">
             Vous avez choisi cet abonnement le 
           </b>
       </div>
@@ -50,11 +50,11 @@
           <div>
             25€ par mois
           </div><br/>
-          <button class="button is-primary" v-on:click="abonner('SPIDER')" v-if="$store.getters.getAgence.abonnement != 'SPIDER'">
+          <button class="button is-primary" v-on:click="abonner('SPIDER')" v-if="agence.abonnement != 'SPIDER'">
               <i class="fas fa-check"/>&nbsp;
               <span>Je souscris</span>
           </button>
-           <b v-if="$store.getters.getAgence.abonnement == 'SPIDER'">
+           <b v-if="agence.abonnement == 'SPIDER'">
             Vous avez choisi cet abonnement le 
           </b>
       </div>
@@ -70,11 +70,11 @@
             <div>
             100€ par mois
           </div><br/>
-           <button class="button is-primary" v-on:click="abonner('DRAGON')" v-if="$store.getters.getAgence.abonnement != 'DRAGON'">
+           <button class="button is-primary" v-on:click="abonner('DRAGON')" v-if="agence.abonnement != 'DRAGON'">
               <i class="fas fa-check"/>&nbsp;
               <span>Je souscris</span>
           </button>
-           <b v-if="$store.getters.getAgence.abonnement == 'DRAGON'">
+           <b v-if="agence.abonnement == 'DRAGON'">
             Vous avez choisi cet abonnement le 
           </b>
       </div>
@@ -90,6 +90,7 @@ import agence_api from '@/firebase/agence_api'
 //import MyNavbarFooter from "@/components/MyNavbarFooter.vue";
 
 export default {
+  props:["agence"],
   name: "home",
   components: {
     MyNavbar    /*,
@@ -97,7 +98,7 @@ export default {
   },
   methods:  {    
     abonner(type) {
-      agence_api.api.abonner (this.$store, type);      
+      agence_api.api.abonner (this.agence, type);      
     },
     convertDate(timestamp) {
       var maDate  =new Date(timestamp.seconds * 1000);
@@ -109,6 +110,7 @@ export default {
         .map(n => n < 10 ? `0${n}` : `${n}`).join('/');
     },
     save(fct) {
+      this.$emit("save", "abonnement");
       fct(true);
     }
   }

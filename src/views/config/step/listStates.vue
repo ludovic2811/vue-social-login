@@ -1,6 +1,6 @@
 <template>
 	<div   class="contain"><br/>
-		
+		<input type="text" :value="refresh"/>
 		<s-button theme="is-primary" icon="plus" label="Ajouter un état"  @onclick="addEtat"></s-button>&nbsp;&nbsp;
 		<s-button theme="is-primary is-small" icon="info" label=""  @onclick="infoEtat=!infoEtat"></s-button>
 		
@@ -14,19 +14,19 @@
 		</div>
 		<br/><br/>
 		<ul>
-			<li v-for="(etat,index) in $store.getters.getEtats">
+			<li v-for="etat in agence.etats">
 				<s-select :list="iconsEtats" :valueSelected="etat.icon" :change="etat" attributChange="icon" :fields="fields" @selected="" labelNotSelected="Icon"/>
 				&nbsp;&nbsp;
 				<input type="text"class="input" v-model="etat.nom" style="width:100px" placeholder="Libelle" />
 				&nbsp;&nbsp;<input type="hidden" v-model="etat.icon"/>
-				&nbsp;&nbsp;Sortie ?&nbsp;<input type="checkbox" v-model="etat.sorti"/>
-				&nbsp;&nbsp;
+				
 				<s-button theme="is-danger" icon="trash" label="" @onclick="deleteEtat(etat.id)"></s-button><br/><br/>
 			</li>
 		</ul>
 		<div class="notification is-danger" v-show="error">
 	      <button class="delete" v-on:click="error=false"></button>
 	      Il faut au moins un état !
+	      Leur nom est oblitaoire !
 	    </div>
 		
 	
@@ -38,6 +38,7 @@
 	
 	import library_icons from "@/firebase/library_icon"
 	export default {
+		props : ["agence","refresh"],
 		data: function() {
 			return {
 				fields: ['label', 'value', 'icon'],				
@@ -48,30 +49,36 @@
 		},
 		methods: {  
 			addEtat() {
-				this.etat =  JSON.parse(JSON.stringify(etat_api.api.json_etat));
-				etat_api.api.save(this.$store.getters.getDocAgence, this.etat, ()=>{
-				
-				});				
+				var etat =  JSON.parse(JSON.stringify(etat_api.api.json_etat));
+				etat.id = this.$uuid();
+				this.agence.etats[etat.id] = etat;
+				this.$emit("refresh");
+							
 			},
 			deleteEtat(idEtat) {
-				etat_api.api.delete(this.$store.getters.getDocAgence, idEtat,()=>{
-				
+				etat_api.api.delete(this.agence, idEtat,()=>{
+					
 				});
 			},
 			save(fct) {
 				this.error = false;
-				if (this.$store.getters.getEtats.length > 0) {
-					this.$store.getters.getEtats.forEach(etat=>{
-						etat_api.api.save(this.$store.getters.getDocAgence, etat, ()=>{
-							
-						});
-					})
-					fct(true);
+				
+				var nb=0;
+				
+				for (var key in this.agence.etats) {					
+					this.error =  this.agence.etats[key].nom =="" || this.error					
+					nb++;
 				}
-				else {
+				if (nb==0)
 					this.error = true;
+				if (!this.error)
+					etat_api.api.save(this.agence, ()=>{
+						fct(true);
+					});	
+				else
 					fct(false);
-				}
+				
+				
 			}
 		}
 	}

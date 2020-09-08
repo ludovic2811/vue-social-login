@@ -7,21 +7,54 @@ const const_agence = {
 		roles: {},
 		abonnement: "BABY",
 		id: -1,
-		finish: 0
+		finish: 0,
+		categories: {},
+		entrepots: {},
+		etats:{},
+		typePaiements: {}
 	},
-	abonner(store, abonnement) {
-		store.getters.getDocAgence.update({
+	save (store, agence, fct) {
+		if (agence.id == -1) {
+			var uid = firebase.api.getUser().uid;
+			agence.roles[uid] = "write";
+			
+			firebase.api.getDb().collection("agence").add(agence).then(function(docRef) {
+				agence.id = docRef.id;
+				user.api.addAgence(store, docRef.id, fct);		    
+			})
+			.catch(function(error) {
+			    console.error("Error adding document: ", error);
+			});
+		}
+		else {
+			
+			firebase.api.getDb().collection("agence").doc(agence.id).set(
+				agence
+			).then(()=>{
+				fct();
+			})
+		}
+	},
+	abonner(agence, abonnement) {
+		agence.abonnement = abonnement;
+		firebase.api.getDb().collection("agence").doc(agence.id).update({
 			abonnement: abonnement
 		})
 	},
-	updateFinish(store, finish, fct) {
+	updateFinish(agence) {
 		
+			firebase.api.getDb().collection("agence").doc(agence.id).update({
+				finish: agence.finish
+			})
+		
+		/*
 		store.getters.getDocAgence.update({
 			finish: finish
 		}).then(()=>{
 			fct()
-		})
+		})*/
 	},
+	/*
 	addSubCollection(docAgence, collectionAdd, fct) {
 		docAgence.collection(collectionAdd).get().then(querySnapshot=>{
 
@@ -32,8 +65,8 @@ const const_agence = {
 					});
 				fct(docs)				
 		});
-	},
-	initCollections(agence, fct) {
+	},*/
+	/*initCollections(agence, fct) {
 		var docAgence = firebase.api.getDb().collection("agence").doc(agence.id);	
 		this.addSubCollection(docAgence, "etats", etats=> {
 			agence['etats'] = etats;
@@ -46,26 +79,7 @@ const const_agence = {
 			});			
 		});
 	},
-	save (store, agence, fct) {
-		if (agence.id == -1) {
-			var uid = firebase.api.getUser().uid;
-			agence.roles[uid] = "write";
-			firebase.api.getDb().collection("agence").add(agence).then(function(docRef) {
-				agence.id = docRef.id;
-				user.api.addAgence(store, docRef.id, fct);		    
-			})
-			.catch(function(error) {
-			    console.error("Error adding document: ", error);
-			});
-		}
-		else {
-			firebase.api.getDb().collection("agence").doc(agence.id).update({
-				nom: agence.nom
-			}).then(()=>{
-				fct();
-			})
-		}
-	},
+	*/
 	getAll(store, fct) {
 		var currentUser = store.getters.getUser;	
 		currentUser.agences.forEach(idAgence=>{				
@@ -78,32 +92,12 @@ const const_agence = {
 				})	
 		})
 	},
-	saveTypePaiement(store, typePaiements, fct) {
-		var currentAgence = store.getters.getAgence;
-		var docAgence = store.getters.getDocAgence;		
-		if (typeof(currentAgence.typePaiements) != "undefined") {
-			currentAgence.typePaiements = typePaiements;
-		}
-		else
-			currentAgence["typePaiements"] = typePaiements;
-		docAgence.update(currentAgence).then(()=>{
+	saveTypePaiement(agence, fct) {
+		firebase.api.getDb().collection("agence").doc(agence.id).update({
+			typePaiements: agence.typePaiements
+		}).then(()=>{
 			fct();
 		});		
-	},
-	AddTypePaiement(store,  typePaiement, fct) {
-		var currentAgence = store.getters.getAgence;
-		var docAgence = store.getters.getDocAgence;
-		if (typeof(currentAgence.typePaiements) != "undefined") {
-			currentAgence.typePaiements.push (typePaiement);
-		}
-		else {
-			currentAgence["typePaiements"] = [];
-			currentAgence["typePaiements"].push(typePaiement);
-		}
-
-		docAgence.update(currentAgence).then(()=>{
-			fct();
-		});
 	}
 	
 

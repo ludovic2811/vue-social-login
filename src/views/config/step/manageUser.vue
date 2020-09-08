@@ -138,6 +138,7 @@
 import user_api from "@/firebase/user_api"; 
 import Vue from "vue"
 	export default {
+		props:["agence"],
 		name: "user",
 		data: function() {
 			return {
@@ -157,10 +158,10 @@ import Vue from "vue"
 			},
 			refresh() {
 				this.users=[];
-				user_api.api.getUsersByAgence(this.$store.getters.getAgence, this.users );
+				user_api.api.getUsersByAgence(this.agence, this.users );
 			},
 			deleteUser(userId) {
-				user_api.api.deleteAgence(this.$store.getters.getUser.id, this.$store.getters.getAgence, this.$store.getters.getDocAgence, userId, () => {
+				user_api.api.deleteAgence(this.$store.getters.getUser.id, agence, this.$store.getters.getDocAgence, userId, () => {
 					this.refresh();		
 				});
 			},

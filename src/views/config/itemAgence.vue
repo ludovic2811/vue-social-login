@@ -2,7 +2,7 @@
 	<div class="itemAgence">
 		<span class="label">{{agence.nom}}
 
-			<div class="subscription">
+			<div class="subscription" v-show="agence.finish==$steps">
 				<s-button theme="is-success" :icon="getIconAbonnement()" @onclick="$emit('editSubscription',agence)" :label="agence.abonnement"/>
 			</div>
 		</span>
@@ -11,7 +11,7 @@
 			<s-button @onclick="checkAgence(agence)" :icon="icon" :label="label" :theme="theme" /> 
 		</div>
 		
-		<s-button v-show="isAgenceSelected" @onclick="editAgence(agence)" label="Configurer" :theme="theme" icon="edit">
+		<s-button  @onclick="editAgence(agence)" label="Configurer" :theme="theme" icon="edit">
 			
 		</s-button>
 		

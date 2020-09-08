@@ -1,50 +1,37 @@
 <template>
 	<div>
-	 <test :article="article" :refresh="refresh" @addData="addData()"/>
+		{{refresh}}
+	 <button class="add-button" id="btnAdd" v-on:click="$emit('addData')">Add to home screen</button>
+		}
+	@import "~bulma/css/bulma.css";
+		<draggable  draggable=".item"  @end="onEnd">
+		    <div v-for="element in dataCollectionArray" :key="element.rang" class="item">
+		        {{element.id}} / {{element.rang}} : <input v-model="element.object.rang" /> 
+		    </div>
+		    <button slot="header">Add</button>
+		</draggable>
+		
+		{{article.dataCollection}}
 	</div>
 </template>
 <script>
-	import test from "./testIn"; 
+	import draggable from 'vuedraggable'
 	
 	export default {
-		components :{
-			test
+		props: ["article","refresh"],
+		components: {
+			draggable
 		},
 		data() {
 			return {
-				refresh: false,
 				dataCollectionArray: [],
-				article: {
-					dataCollection: {
-					"3-12345": 
-						{
-							rang: 3,
-							data: "Ludo"
-						},
-					"1-456789":
-						{
-							rang: 1,
-							data: "COCO"
-						},
-					"2-7890": {
-							rang: 2,
-							data: "buloute"
-						},
-					"4-7FFC0": {
-							rang: 4,
-							data: "choux"
-						},
-					"5-DDF90": {
-							rang: 4,
-							data: "choux"
-						}
-					}}
-				}
+				
 			}
-		,
+		},
 		watch: {
-			article: function(val) {
-				dataCollectionArray = 	this.orderFunction(this.article.dataCollection);
+			refresh: function(val) {
+				this.dataCollectionArray = 	this.orderFunction(this.article.dataCollection);
+				console.log(this.dataCollectionArray);
 			}
 		},
 		/*computed: {
@@ -53,12 +40,16 @@
 			}
 		},*/
 		methods: {
+			onEnd(event) {
+				console.log(event);
+			},
 			orderFunction(jsonParam) {
 				var arrayReturn = []
 				
 				for (var key in jsonParam) {
 					var jsonObject = jsonParam[key];
 					jsonObject.id = key;
+					jsonObject.rang = jsonObject.rang;
 					arrayReturn.push(jsonObject)
 
 				}
@@ -70,6 +61,7 @@
 					jsonParam[obj.id].rang = index;
 					newObject = {
 						id: obj.id,
+						rang: index,
 						object: jsonParam[obj.id]
 					}
 					
@@ -85,7 +77,6 @@
 				}
 				delete this.article.dataCollection["2-7890"];
 				console.log(this.article.dataCollection);
-				this.refresh = !this.refresh;
 			},
 			showAlert()  {
 				var Pouette = {}
@@ -177,3 +168,11 @@
 		}
 	}*/
 </script>
+<style>
+	.item {
+		background-color: white;
+		color: block;
+		border: solid black thin;
+		height: 40px;
+	}
+</style>

@@ -74,48 +74,35 @@ const store = new Vuex.Store({
       }
   	}),
   	setAgence: firestoreAction((context, params)=> {
+      console.log("setAgence");
   		user_api.api.setAgenceSelected(
   				firebase.api.getDb().collection('user').doc(firebase.api.getUser().uid), 
   				params.idAgence,
   				user=>{
+            console.log("setAgence");
+            console.log(params.idAgence);
   					context.dispatch("initAgence", params);
   				}
   		)
   	}),
   	initAgence: firestoreAction((context, params)=>{
+      console.log("INIT AGENCE");
+      console.log(params.idAgence);
   		context.bindFirestoreRef('agence', firebase.api.getDb().collection('agence').doc(params.idAgence), {wait: true})
   		.then(res=>{
-  			context.state.docAgence = firebase.api.getDb().collection('agence').doc(params.idAgence);
+        context.state.docAgence = firebase.api.getDb().collection('agence').doc(params.idAgence); 
+        params.fct();
+        // if autoriser(resource, ['read','write'])
+  			/*context.state.docAgence = firebase.api.getDb().collection('agence').doc(params.idAgence);
   			context.dispatch("initEtat", ()=> {
           context.dispatch("initCategories", ()=>{
             context.dispatch("initCategories", ()=>{
               context.dispatch("initEntrepots", params.fct);  
             })
           })           
-  		  })
+  		  })*/
       })
-  	}),
-  	initEtat: firestoreAction((context, fct) => {
-  		context.bindFirestoreRef("etats", 
-  			firebase.api.getDb().collection('agence').doc(context.getters.getUser.idAgenceSelected).collection("etats")
-  			).then(res=>{      
-         fct();
-        })
-  	}),
-  	initCategories: firestoreAction((context, fct) => {
-  		context.bindFirestoreRef("categories", 
-  			firebase.api.getDb().collection('agence').doc(context.getters.getUser.idAgenceSelected).collection("categories")
-  		).then(res=>{
-         fct();
-        })
-  	}),
-  	initEntrepots: firestoreAction((context, fct) => {
-  		context.bindFirestoreRef("entrepots", 
-  			firebase.api.getDb().collection('agence').doc(context.getters.getUser.idAgenceSelected).collection("entrepots")
-  		).then(res=>{
-         fct();
-        })
-  	}),
+  	})
   }
 })
 

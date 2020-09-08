@@ -1,14 +1,12 @@
 <template>
 	<div class="container">
-	
-		
 			<s-button @onclick="createAgence" icon="plus" label="Créer une nouvelle agence" theme="is-primary">
 			</s-button>
 			<br/><br/>
 			<ul>
 				<li v-for="agence in agences">
 					<item-agence 
-						:label="(agence.id == $store.getters.getUser.idAgenceSelected) ? 'Sélectionnée' : 'Cliquez pour la sélectioner'" 
+						:label="(agence.id == $store.getters.getUser.idAgenceSelected) ? 'Sélectionnée' : 'Sélectioner'" 
 						:icon="(agence.id == $store.getters.getUser.idAgenceSelected) ? 'check' : 'ban'"
 						:theme="(agence.id == $store.getters.getUser.idAgenceSelected) ? 'is-primary' : 'is-danger'"
 						:agence="agence"
@@ -23,9 +21,9 @@
 				<tunnel-create-agence 
 					:initEtape = "etape"
 					:agence="agence" 					
-					@close="classModal='modal'"
+					@close="refresh"
 					@checkAgence="checkAgence"
-					@refresh="refresh" >
+					 >
 				</tunnel-create-agence>
 			</div>
 		
@@ -76,15 +74,22 @@
 						return 'Agence non sélectionnée'
 			},
 			editAgence(agence) {
-				this.etape = 0;
+				this.agence = agence;				
+				if (this.agence.finish == this.$steps)
+					this.etape = 0;
+				else
+					this.etape = this.agence.finish;
+				console.log(this.agence.finish);
+				console.log(this.etape);
 				if (this.classModal == "modal")
 					this.classModal = "modal is-active";
 				else
 					this.classModal = "modal";
-				this.agence = agence;				
+				
 			},				
 			createAgence() {
 				this.agence= JSON.parse(JSON.stringify(agence_api.api.json));
+				this.etape = 0;
 				if (this.classModal == "modal")
 					this.classModal = "modal is-active";
 				else
@@ -95,7 +100,9 @@
 				agence_api.api.getAll(this.$store, agence=> {
 					var agenceData = agence;
 					this.agences.push(agence);
+					this.classModal='modal'
 				});
+
 			}
 		},
 		mounted() {

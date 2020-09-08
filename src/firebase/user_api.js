@@ -16,10 +16,13 @@ const const_user = {
 	docRef: null,
 	
 	setAgenceSelected(doc, idAgence, fct) {		
-		
+		console.log("setAgenceSelected");
+		console.log(idAgence);
+
 		doc.update({
 			idAgenceSelected: idAgence
 		}).then((user)=>{
+			console.log("ca a marche quand même")
 			fct();
 		})
 	},
