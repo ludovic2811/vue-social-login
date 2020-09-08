@@ -20,11 +20,13 @@ import MyNavbarFooter 	from "@/components/MyNavbarFooter.vue";
 
 import VCalendar 		from 'v-calendar';
 import SDraggable 		from "@/components/SDraggable"
-
+import UUID from "vue-uuid";
+const { v4: uuidv4 } = require('uuid');
 var currentUser = null;
 
 Vue.use(VCalendar);
 Vue.use(VueFirestore);
+Vue.use(UUID);
 
 Vue.component("SModal", SModal);
 Vue.component("SButton", SButton);
@@ -39,8 +41,8 @@ Vue.component("MyNavbarFooter", MyNavbarFooter);
 
 Vue.config.productionTip = false
 Vue.prototype.$steps = 7;
-Vue.prototype.$uuid = function() {
-	return util.util.uuid();
+Vue.prototype.$uuid = ()=> {
+	return uuidv4(); //util.util.uuid();
 }
 Vue.prototype.$orderJson = function(jsonParam) {
 	  return util.util.order(jsonParam);

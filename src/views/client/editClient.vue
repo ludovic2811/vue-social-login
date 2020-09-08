@@ -157,7 +157,7 @@
 			},
 			saveArticle() {		
 				
-				this.client.articles[this.article.id] = this.article;
+				this.client.articles[this.article.numero] = this.article;
 				
 				article_api.api.save(this.$store, this.client,()=>{
 					this.addViewMateriel = "modal";
@@ -166,13 +166,11 @@
 			},
 			editArticle(article) {
 				this.article= JSON.parse(JSON.stringify(article));
-				
 				this.addViewMateriel='modal is-active';
 			},
 			openAddMartiel() {
 				
-				this.article = JSON.parse(JSON.stringify(article_api.api.json_article))
-				this.article.id = this.$uuid();
+				this.article = JSON.parse(JSON.stringify(article_api.api.json_article));
 				this.addViewMateriel='modal is-active';
 
 			}
