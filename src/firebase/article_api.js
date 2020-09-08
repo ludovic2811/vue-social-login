@@ -13,24 +13,19 @@ const const_article = {
 		paiement: {}
 	}
 	,
-	save(store, idClient, article, fct) {
+	save(store, client, fct) {
 		
-		store.getters.getDocAgence.collection("clients").doc(idClient).collection("articles").doc(article.numero)
-		.set(article).then(()=>{
+		store.getters.getDocAgence.collection("clients").doc(this.client[".key"])
+		.update({
+			articles : this.client.articles
+		}).then(()=>{
 			console.log("ALORS ?")
 			fct();
 		})
 		.catch(error=>{
 			console.log(error)
 		})
-	},
-	delete(store, idClient, article, fct) {
-		store.getters.getDocAgence.collection("clients").doc(idClient).collection("articles").doc(article.numero)
-		.delete().then(()=>{
-			console.log("delete");
-			fct();
-		})
-	}
+	}	
 	
 }
 

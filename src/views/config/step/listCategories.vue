@@ -78,7 +78,7 @@
 				 			<th>Place </th>
 				 			<th></th>
 				 		</tr>
-				  		<tr v-for="(type, indexType) in categorie.types">
+				  		<tr v-for="type in categorie.types">
 				  			<td class="nom">
 				  			 <input type="text"  class="input is-rounded" style="width:100%" v-model="type.nom" placeholder="Mettre le nom du type" />
 				  			 </td>
@@ -98,7 +98,7 @@
 								<input type="number" placeholder="Nb place" v-model="type.espace" class="input is-rounded"style="width:100%" />							
 							</td>
 							<td class="trash">
-								<s-button icon="trash" label="" theme="is-small is-danger" @onclick="deleteType(indexType)"/>
+								<s-button icon="trash" label="" theme="is-small is-danger" @onclick="deleteType(type.id)"/>
 							</td>
 				  		</tr>
 				  </table>
@@ -157,24 +157,26 @@
 			},
 			newType() {
 				var type= JSON.parse(JSON.stringify(this.type));
-				this.categorie.types.push(type)
+				type.id = this.$uuid();
+				this.categorie.types[type.id]  = type;
 			},
-			deleteType(index) {
-				this.categorie.types.splice(index,1);
+			deleteType(idType) {
+				delete this.categorie.types[idType]
 			},
 			
 			saveCategorie() {
 				
 				this.errorCategorie.nom  = this.categorie.nom == ""
-				this.errorCategorie.nbType = this.categorie.types.length == 0	
-				this.errorCategorie.icon = this.categorie.icon == ''
 				
+				this.errorCategorie.icon = this.categorie.icon == ''
+				var nbTypes = 0;
 				this.errorCategorie.type = false;
-				this.categorie.types.forEach(type=>{
-					this.errorCategorie.type = (type.nom == "") || this.errorCategorie.type;
-					this.errorCategorie.type = (type.prix == "") || this.errorCategorie.type;		
-				})
-
+				for (var key in this.categories.types) {
+					this.errorCategorie.type = (this.categories.types[key].nom == "") || this.errorCategorie.type;
+					this.errorCategorie.type = (this.categories.types[key].prix == "") || this.errorCategorie.type;
+					nbTypes++;		
+				}
+				this.errorCategorie.nbType = nbTypes == 0	
 				var error = this.errorCategorie.nom  || this.errorCategorie.nbType || this.errorCategorie.icon || this.errorCategorie.type;
 				
 				if (!error) {

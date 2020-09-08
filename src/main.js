@@ -6,10 +6,10 @@ import './registerServiceWorker'
 
 import firebase 		from 'firebase'
 import 'firebase/firestore'
-import util 	from '@/firebase/util'
+import util 			from '@/firebase/util'
 import firebase_api 	from '@/firebase/firebase_api'
 import vuefire 			from "@/firebase/vuefire"
-
+import VueFirestore from 'vue-firestore'
 import SButton 			from '@/components/SButton.vue'
 import SSelect 			from '@/components/SSelect.vue'
 import SModal  			from '@/components/SModal.vue'	
@@ -19,11 +19,12 @@ import MyNavbar 		from "@/components/MyNavbar.vue";
 import MyNavbarFooter 	from "@/components/MyNavbarFooter.vue";
 
 import VCalendar 		from 'v-calendar';
-import SDraggable from "@/components/SDraggable"
+import SDraggable 		from "@/components/SDraggable"
 
 var currentUser = null;
 
 Vue.use(VCalendar);
+Vue.use(VueFirestore);
 
 Vue.component("SModal", SModal);
 Vue.component("SButton", SButton);

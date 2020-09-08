@@ -1,23 +1,23 @@
 <template>
 	<div >
 		<div class="item">
-	  		<div v-show="client.articles.length>1 && !visuArticle" class="articleList">
-	  			<div  v-for="(article, index) in client.articles" class="itemArticleList">
+	  		<div v-show="Object.keys(this.client.articles).length >1 && !visuArticle" class="articleList">
+	  			<div  v-for="article in client.articles" class="itemArticleList">
 						<i :class="getClassCategorie(article.idCategorie)"></i>
 				 				&nbsp;&nbsp;
 						<div style="width:200px;display:inline-block">
 							<p class="subtitle is-6">{{article.numero}}</p>
 						</div>
-						<s-button label="" icon="eye" theme="is-primary is-small" @onclick="setVisuArticle(index)"/> 
+						<s-button label="" icon="eye" theme="is-primary is-small" @onclick="setVisuArticle(article.id)"/> 
 					
 				</div>
 	  		</div>
-	  		<div v-if="client.articles.length==1 || visuArticle">
+	  		<div v-if="Object.keys(this.client.articles).length==1 || visuArticle">
 	  			<div >
 	  					<nav class="level is-mobile">
 							<div class="level-left"> 
 								<div class="level-item">
-									<s-button v-show="client.articles.length!=1" @onclick="visuArticle=false" label="" icon="list" theme="is-primary is-small">
+									<s-button v-show="Object.keys(this.client.articles).length!=1" @onclick="visuArticle=false" label="" icon="list" theme="is-primary is-small">
 									</s-button>&nbsp;&nbsp;
 									<p class="subtitle is-6">
 										<i :class="getClassCategorie(client.articles[indexArticle].idCategorie)"/>
@@ -28,7 +28,7 @@
 							<div class="level-rigth">
 								<s-button label="" :icon="getClassEtat(client.articles[indexArticle].indexEtat)" theme="is-primary " @onclick="openModalEtat=true"/>
 								<s-select-etat :open="openModalEtat" :article="client.articles[indexArticle]"
-									@save="save(client.articles[indexArticle])" @cancel="openModalEtat=false"
+									@save="save(client.articles[indexArticle], "etat")" @cancel="openModalEtat=false"
 								>
 								</s-select-etat>
 							</div>
@@ -46,14 +46,13 @@
 					<br/>
 	  				<s-button :label="getLabelEntrepot(client.articles[indexArticle].idEntrepot, client.articles[indexArticle].indexType)" icon="industry" theme="is-primary is-normal" @onclick="openModalEntrepot=true"/>
 	  				<s-select-entrepot :open="openModalEntrepot" :article="client.articles[indexArticle]"
-									@save="save(client.articles[indexArticle])" @cancel="openModalEntrepot=false">
+									@save="save(client.articles[indexArticle], "entrepot")" @cancel="openModalEntrepot=false">
 								</s-select-entrepot>
 	  				<div class="dates">
 	  					
-	  					<div>Parti le :</div>
-	  					<input type="date" v-model="client.articles[indexArticle].partirle" class="input is-danger is-normal is-rounded"  style="width:160px" @change="save(client.articles[indexArticle])"/><br/>
-	  					<div>Revient le :</div>
-	  					<input type="date" v-model="client.articles[indexArticle].rentrele" style="width:160px" class="input is-normal is-primary  is-rounded"  @change="save(client.articles[indexArticle])"/>	
+	  					<div>Parti le : {{client.articles[indexArticle].partirle}}</div>
+	  					<div>Revient le : {{client.articles[indexArticle].rentrele}}</div>
+	  					<s-button theme="is-primary" label="" icon="calendar-alt" @onclick=""/> 
 	  				</div>
 	  			</div>
 	  		
@@ -110,33 +109,35 @@
 					})
 				})
 			},
-			setVisuArticle(index) {
+			setVisuArticle(idArticle) {
 				this.visuArticle = true;
 				this.indexArticle = index;
 			},
 			getClassCategorie(idCategorie) {
-				var index = this.$store.getters.getCategories.findIndex(elt=>elt.id == idCategorie);
-				if (index!=-1) {
-					return this.$store.getters.getCategories[index].icon;
-				}
-				return "";
+				if (typeof(this.agence.categories[idCategorie]) != "undefined")
+					return this.agence.categories[idCategorie].icon;
+				else
+					return "";
 			},
-			getClassEtat(indexEtat) {
-				var index = this.$store.getters.getEtats.findIndex(elt=>elt.id == indexEtat);
-				if (index!=-1) {
-					return this.$store.getters.getEtats[index].icon;
-				}
-				return "";
+			getClassEtat(idEtat) {
+				if (typeof(this.agence.etats[idEtat]) != "undefined")
+					return this.agence.etats[idEtat].icon;
+				else
+					return "";
 			},
-			getLabelEntrepot(idEntrepot, indexType) {
-				var index = this.$store.getters.getEntrepots.findIndex(elt=>elt.id == idEntrepot);
-				if (index!=-1) {
-					var entrepot = this.$store.getters.getEntrepots[index].nom;
-					var type = this.$store.getters.getEntrepots[indexType].stocks[indexType].nom;
-					return entrepot + " / " + type;
+			getLabelEntrepot(idEntrepot, idType) {
+				if (typeof(this.agence.entrepots[idCategorie]) != "undefined") {
+					if (typeof(this.agence.entrepots[idCategorie].types[idType]) != "undefined") {
+						var nom = this.agence.entrepots[idCategorie].nom
+						return nom + " " + this.agence.entrepots[idCategorie].types[idType.icon].nom;
+					}
+					else
+						return "";	
+				}
+				else
+					return "";
 
-				}
-				return "";
+				
 			},
 			edit() {
 				this.visuArticle = false;

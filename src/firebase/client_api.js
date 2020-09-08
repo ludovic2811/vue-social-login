@@ -40,7 +40,9 @@ const const_client = {
 			fct (users);
 		})
 	},
-	getAll(docAgence, fct) {		
+	getDocAll(docAgence) {		
+		return docAgence.collection('clients').orderBy('search')
+		/*
     	docAgence.collection('clients').orderBy('search').get().then(querySnapshot=> {
     		var docs = querySnapshot.docs.map(function (doc) {
 					    const eventData = doc.data()
@@ -48,7 +50,7 @@ const const_client = {
 	    				return eventData
 					})			
     		fct(docs);
-    	})
+    	})*/
 	},
 	getSearchByPhone(docAgence, search, fct) {		
     	docAgence.collection('clients').orderBy('tel1').startAt(search).endAt(search+'\uf8ff').get().then(querySnapshot=> {
@@ -109,7 +111,7 @@ const const_client = {
 
 	update(docAgence, client, fct) {
 		var search = client.nom.toUpperCase()
-		docAgence.collection('clients').doc(client.id).update(
+		docAgence.collection('clients').doc(client[".key"]).update(
 		{
 			nom: client.nom,
 			prenom: client.prenom,
@@ -118,14 +120,13 @@ const const_client = {
 			tel3: client.tel3,
 			mail: client.mail,
 			adresse: client.adresse,
-			search: search,
-			articles: client.articles		
+			search: search
 		}).then(success => {
 				fct(success);
 			})
 	},
 	add(docAgence, client, fct) {
-		console.log(client);
+		
 		var search = client.nom.toUpperCase()
 		docAgence.collection('clients').add(
 			{

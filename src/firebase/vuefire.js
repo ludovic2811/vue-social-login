@@ -74,20 +74,18 @@ const store = new Vuex.Store({
       }
   	}),
   	setAgence: firestoreAction((context, params)=> {
-      console.log("setAgence");
+      
   		user_api.api.setAgenceSelected(
   				firebase.api.getDb().collection('user').doc(firebase.api.getUser().uid), 
   				params.idAgence,
   				user=>{
-            console.log("setAgence");
-            console.log(params.idAgence);
+            
   					context.dispatch("initAgence", params);
   				}
   		)
   	}),
   	initAgence: firestoreAction((context, params)=>{
-      console.log("INIT AGENCE");
-      console.log(params.idAgence);
+     
   		context.bindFirestoreRef('agence', firebase.api.getDb().collection('agence').doc(params.idAgence), {wait: true})
   		.then(res=>{
         context.state.docAgence = firebase.api.getDb().collection('agence').doc(params.idAgence); 

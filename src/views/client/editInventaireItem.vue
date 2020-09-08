@@ -25,7 +25,7 @@
 					
 					<div class="tile is-child box">
 						<span class="label">Ajouter :</span>
-						<s-select :list="$store.getters.getCategories" :fields="fieldsCategories" :valueSelected="article.idCategorie" @selected="setCategorie" labelNotSelected="Selectionner"/>
+						<s-select :list="$store.getters.getAgence.categories" :fields="fieldsCategories" :valueSelected="article.idCategorie" @selected="setCategorie" labelNotSelected="Selectionner"/>
 						<br/>
 						<div class="notification is-danger" v-show="error.categorie">
 							<button class="delete" v-on:click="error.categorie=false"></button>
@@ -35,7 +35,7 @@
 						<label class="label">Type :</label>
 						<select class='select' v-model="article.indexType" v-on:change="setType" >
 							<option value="" disabled="" selected="">Sélectionner le type</option>
-							<option v-for="(type, index) in types" :value="index">{{type.nom}}</option>			
+							<option v-for="type in types" :value="type.id">{{type.nom}}</option>			
 								</select>
 						<br/>
 						<span class="label">Tarif à l'année :</span>
@@ -57,7 +57,7 @@
 					<div class="tile is-child box">
 						<br/>
 						<label class="label">Etat :</label>
-						<s-select :list="$store.getters.getEtats" :fields="fieldsEtat" :valueSelected="article.indexEtat" @selected="setEtat" labelNotSelected="Selectionner"></s-select>
+						<s-select :list="$store.getters.getAgence.etats" :fields="fieldsEtat" :valueSelected="article.idEtat" @selected="setEtat" labelNotSelected="Selectionner"></s-select>
 						<div class="notification is-danger" v-show="error.etat">
 							<button class="delete" v-on:click="error.etat=false"></button>
 							Il faut sélectionner une catégorie !
@@ -67,16 +67,16 @@
 						
 						<select class='select' v-model="article.idEntrepot" v-on:change="setEntrepot">
 							<option value="" disabled="" selected="">Sélectionner l'entrepot</option>
-							<option v-for="entrepot in $store.getters.getEntrepots" :value="entrepot.id">
+							<option v-for="entrepot in $store.getters.getAgence.entrepots" :value="entrepot.id">
 								{{entrepot.nom}} ({{entrepot.reste}})</option>
 						</select><br/>
 						<div class="notification is-danger" v-show="error.entrepot">
 							<button class="delete" v-on:click="error.entrepot=false"></button>
 							Il faut sélectionner une catégorie !
 						</div><br/>
-						<select class='select' v-if="stocks.length!=0" v-model="article.indexStock" >
+						<select class='select' v-if="stocks.length!=0" v-model="article.idStock" >
 							<option value="" disabled="" selected="">Sélectionner le lieu de stockage</option>
-							<option v-for="(stock,indexStock) in stocks" :value="indexStock">
+							<option v-for="stock in stocks" :value="indexStock">
 								{{stock.nom}} ({{stock.reste}})</option>
 						</select>
 						<br/>
@@ -158,17 +158,23 @@
 				return now.getFullYear();
 			},
 			setCategorie (item) {
-				var indexCategorie = this.$store.getters.getCategories.findIndex(categorie=>categorie.id === item.id);
-				this.article.idCategorie = this.$store.getters.getCategories[indexCategorie].id;
-				this.types = this.$store.getters.getCategories[indexCategorie].types;
-				this.article.prix = this.types[this.article.indexType].prix;
+				this.article.idCategorie = item.id;
+				this.types = [];
+				this.article.prix;
+				if (typeof(this.$store.getters.getAgence.categories[item.id]) != "undefined")
+					if (typeof(this.$store.getters.getAgence.categories[item.id]).types != "undefined") {
+						console.log(this.$store.getters.getAgence.categories[item.id].types);
+						this.types = this.$store.getters.getAgence.categories[item.id].types;
+						
+					}
 			},
 			setType() {		
-				this.article.prix = this.types[this.article.indexType].prix;
+				this.article.prix = this.types[this.article.idType].prix;
 			},
-			setEntrepot() {
-				var indexEntrepot = this.$store.getters.getEntrepots.findIndex(entrepot=>entrepot.id === this.article.idEntrepot);
-				this.stocks = this.$store.getters.getEntrepots[indexEntrepot].stocks;
+			setEntrepot(item) {
+				if (typeof(this.$store.getters.getAgence.entrepots[item.id]) != "undefined")
+					if (typeof(this.$store.getters.getAgence.entrepots[item.id].stocks) != "undefined")
+						this.stocks = this.$store.getters.getAgence.entrepots[item.id].stocks;
 			},
 			setEtat(item) {				
 				this.article.indexEtat = item.id;
@@ -179,20 +185,10 @@
 				this.error.etat = this.article.indexEtat == 0
 				this.error.entrepot = this.article.idEntrepot == 0
 				var error = this.error.numero || this.error.categorie || this.error.etat || this.error.stock;
-				console.log(JSON.parse(JSON.stringify(this.article)));
+				
 				if (!error)
 					this.$emit("save");
 			}
-		},
-		mounted() {
-			var indexCategorie = this.$store.getters.getCategories.findIndex(categorie=>categorie.id === this.article.idCategorie);
-			if (indexCategorie!=-1)
-				this.types = this.$store.getters.getCategories[indexCategorie].types;
-
-			var indexEntrepot = this.$store.getters.getEntrepots.findIndex(entrepot=>entrepot.id === this.article.idEntrepot);
-			if (indexEntrepot!=-1)
-				this.stocks = this.$store.getters.getEntrepots[indexEntrepot].stocks;
-
 		}
 	}
 </script>

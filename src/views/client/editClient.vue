@@ -106,7 +106,7 @@
 	import article_api from "@/firebase/article_api";
 	export default {
 		name: 'edit_client',
-		props: ["client", "account","change"],
+		props: ["client", "change"],
 		components: {
 			editInventaireItem
 		},
@@ -124,9 +124,9 @@
 		methods: {
 			save() {
 				
-				if (typeof(this.client.id) =="undefined") {
+				if (typeof(this.client[".key"]) =="undefined") {
 					client.api.add(this.$store.getters.getDocAgence, this.client, (ref)=> {
-						this.client.id = ref.id
+						
 					});
 				}
 				else {
@@ -136,7 +136,6 @@
 				}
 			},
 			archiver() {
-				this.client.account = this.account.id;
 				client.api.archiver(this.$store.getters.getDocAgence, this.client, ()=> {
 						this.$emit("back",true)
 			
@@ -153,36 +152,16 @@
 				this.save();
 			},
 			deleteArticle() {
-				this.modalDeleteArticle = false;
-				this.addViewMateriel = "modal";				
-				
-				article_api.api.delete(this.$store, this.client.id, this.article,()=>{
-					var indexOfArticle = this.client.articles.findIndex(elt=>elt.numero == this.article.numero)
-					if (indexOfArticle != -1) {
-						this.client.articles.splice(indexOfArticle,1);
-						this.save();
-					}
-
-				});
+				delete this.client.articles[this.article.id]
+				this.saveArticle();
 			},
 			saveArticle() {		
-				this.addViewMateriel = "modal";
-				if (typeof(this.client.articles) != "undefined") {
-					var indexOfArticle = this.client.articles.findIndex(elt=>elt.numero === this.article.numero)
-					if (indexOfArticle == -1) {
-						this.client.articles.push(this.article);
-					}
-					else {
-						this.client.articles[indexOfArticle] = this.article;
-					}					
-				}
-				else {
-					this.client.articles = [];
-					this.client.articles.push(this.article);
-				}
 				
-				article_api.api.save(this.$store, this.client.id, this.article,()=>{
-					this.save();
+				this.client.articles[this.article.id] = this.article;
+				
+				article_api.api.save(this.$store, this.client,()=>{
+					this.addViewMateriel = "modal";
+					this.modalDeleteArticle = false;
 				});
 			},
 			editArticle(article) {
@@ -191,9 +170,9 @@
 				this.addViewMateriel='modal is-active';
 			},
 			openAddMartiel() {
-				console.log("OPEN");
+				
 				this.article = JSON.parse(JSON.stringify(article_api.api.json_article))
-				console.log(this.article);
+				this.article.id = this.$uuid();
 				this.addViewMateriel='modal is-active';
 
 			}

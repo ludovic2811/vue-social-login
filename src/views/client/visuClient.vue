@@ -6,7 +6,7 @@
 	  			<visu-item-client :client="client" @edit="edit(client)" :modif="true" ></visu-item-client>
 	    	</div> 
 	    </div> 
-	    	<edit-client  :client="clientData" v-if="nav=='editClient'" @back="refresh" @refreshClient="refreshClient()"></edit-client>
+	    	<edit-client  :client="clientData" v-if="nav=='editClient'" @back="refresh" @refreshClient=""></edit-client>
 		
 		
 </div>
@@ -17,7 +17,8 @@
 	
 	import VisuItemClient from '@/views/client/visuItemClient.vue'
 	import EditClient from '@/views/client/editClient.vue'
-	import firebase from "@/firebase/firebase_api"; 
+	import firebase_api from "@/firebase/firebase_api"; 
+
 	export default {
 		components: {
 			VisuItemClient,
@@ -38,11 +39,7 @@
 		},
 
 		methods: {
-			refreshClient() {
-				client.api.get(this.$store, this.clientData.id, client=>{
-					this.clientData = client;
-				})
-			},
+			
 			search (search) {
 				if (isNaN(search))
 					client.api.getSearch(this.$store.getters.getDocAgence, search, clients=>{						
@@ -66,15 +63,23 @@
 				this.clientData = JSON.parse(JSON.stringify(client.api.json));
 				this.nav = 'editClient';			
 			},
-			refresh() {				
+			refresh() {	/*			
 		    	client.api.getAll(this.$store.getters.getDocAgence, clients=>{
 		    		this.clients = clients;		
 		    		this.nav= 'list';
 		    		
-		    	});		    
+		    	});		 */   
+		    	this.nav= 'list';
 			}
 		},
-		mounted: function() {			
+		mounted: function() {	
+
+			  this.$binding("clients", firebase_api.api.getDb().collection("agence")
+			  		.doc(this.$store.getters.getAgence.id).collection("clients").orderBy("search"))
+			  .then((clients) => {
+			  	console.log(this.clients);	
+			  });
+			  /*		
 				if (typeof(this.$route.query.search) == "undefined") {
 					client.api.getAll(this.$store.getters.getDocAgence, clients=>{
 		    			this.clients = clients;		   
@@ -83,6 +88,7 @@
 		    	{
 					this.search(this.$route.query.search);
 		    	}
+		    	*/
 		}
 	}
 </script>

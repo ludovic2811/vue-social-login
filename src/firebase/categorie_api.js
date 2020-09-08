@@ -1,11 +1,13 @@
 import firebase from "@/firebase/firebase_api"; 
 const const_categorie = {
 	json_categorie : {
+		id: '',
 		nom: '',
 		icon: '',
 		types:[]
 	},
 	json_type: {
+		id: '',
 		nom: "",
 		prix: ""
 	},
