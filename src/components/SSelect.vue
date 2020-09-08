@@ -13,12 +13,12 @@
 	  </div>
 	  <div class="dropdown-menu" id="dropdown-menu-sselect" role="menu">
 	    <div class="dropdown-content">
-	      <a href="#" class="dropdown-item" v-for="itemList in list" v-on:click="selectItem(itemList)">
-	      		<span class="icon" v-if="itemList[fields[2]]">
-	      			<i :class="itemList[fields[2]]"></i>
+	      <a href="#" class="dropdown-item" v-for="itemList in listOrder" v-on:click="selectItem(itemList)">
+	      		<span class="icon" v-if="itemList.object[fields[2]]">
+	      			<i :class="itemList.object[fields[2]]"></i>
 	      		</span>
 	      		<span>
-	      			{{itemList[fields[0]]}}
+	      			{{itemList.object[fields[0]]}}
 	      		</span>
 	        	
 	      </a>
@@ -37,20 +37,21 @@
 					value: "",
 					icon: ""
 				},
-				classMenu: "dropdown"
+				classMenu: "dropdown",
+				listOrder: []
 			}
 		},
 		methods: {
 			selectItem(item) {
 				
-				this.itemSelected.label = item[this.fields[0]];
-				this.itemSelected.value = item[this.fields[1]];
+				this.itemSelected.label = item.object.[this.fields[0]];
+				this.itemSelected.value = item.object.[this.fields[1]];
 				if (this.fields.length == 3)
-					this.itemSelected.icon = item[this.fields[2]];
+					this.itemSelected.icon = item.object.[this.fields[2]];
 				this.classMenu = "dropdown";
 				
 				if (typeof(this.change)!="undefined") {
-					this.change[this.attributChange] = item[this.fields[1]]					
+					this.change[this.attributChange] = item.object.[this.fields[1]]					
 				}
 				
 				this.$emit("selected",item); 
@@ -62,45 +63,33 @@
 				else
 					this.classMenu='dropdown is-active';
 				
-			}
-			
-		},
-		watch: {
-			valueSelected: function(val) {
-				var index = this.list.findIndex(elt => elt[this.fields[1]] === this.valueSelected);
+			},
+			setSelected() {
+				this.listOrder = this.$orderJson(this.list);
+				var index = this.listOrder.findIndex(elt => elt.object[this.fields[1]] === this.valueSelected);
 				if (index != -1) {
-					this.itemSelected.label = this.list[index][this.fields[0]];
-					this.itemSelected.value = this.list[index][this.fields[1]];
+					this.itemSelected.label = this.listOrder[index].object[this.fields[0]];
+					this.itemSelected.value = this.listOrder[index].object[this.fields[1]];
 					if (this.fields.length == 3)
-						this.itemSelected.icon = this.list[index][this.fields[2]];
-				}
-				else
-				{
-					this.itemSelected.label = this.list[0][this.fields[0]];
-					this.itemSelected.value = this.list[0][this.fields[1]];
-					if (this.fields.length == 3)
-						this.itemSelected.icon = this.list[0][this.fields[2]];
-				}
-			}
-		},
-		mounted() {
-
-			var index = this.list.findIndex(elt => elt[this.fields[1]] === this.valueSelected);
-				if (index != -1) {
-					this.itemSelected.label = this.list[index][this.fields[0]];
-					this.itemSelected.value = this.list[index][this.fields[1]];
-					if (this.fields.length == 3)
-						this.itemSelected.icon = this.list[index][this.fields[2]];
+						this.itemSelected.icon = this.listOrder[index].object[this.fields[2]];
 				}
 				else
 				{
 					this.itemSelected.label = this.labelNotSelected;
-					/*
-					this.itemSelected.label = this.list[0][this.fields[0]];
-					this.itemSelected.value = this.list[0][this.fields[1]];
-					if (this.fields.length == 3)
-						this.itemSelected.icon = this.list[0][this.fields[2]];*/
+					
 				}
+			}
+			
+		},
+		watch: {
+			
+			valueSelected: function(val) {
+				this.setSelected();
+			}
+			
+		},
+		mounted() {
+			this.setSelected();
 		}
 		
 	}

@@ -1,57 +1,60 @@
 <template>
 	<div >
 		<div class="item">
-	  		<div v-show="Object.keys(this.client.articles).length >1 && !visuArticle" class="articleList">
+	  		<div v-show="!visuArticle" class="articleList">
 	  			<div  v-for="article in client.articles" class="itemArticleList">
 						<i :class="getClassCategorie(article.idCategorie)"></i>
 				 				&nbsp;&nbsp;
 						<div style="width:200px;display:inline-block">
 							<p class="subtitle is-6">{{article.numero}}</p>
 						</div>
-						<s-button label="" icon="eye" theme="is-primary is-small" @onclick="setVisuArticle(article.id)"/> 
+						<s-button label="" icon="eye" theme="is-primary is-small" @onclick="setVisuArticle(article)"/> 
 					
 				</div>
 	  		</div>
-	  		<div v-if="Object.keys(this.client.articles).length==1 || visuArticle">
+	  		<div v-if=" visuArticle">
 	  			<div >
 	  					<nav class="level is-mobile">
 							<div class="level-left"> 
 								<div class="level-item">
+									
 									<s-button v-show="Object.keys(this.client.articles).length!=1" @onclick="visuArticle=false" label="" icon="list" theme="is-primary is-small">
 									</s-button>&nbsp;&nbsp;
 									<p class="subtitle is-6">
-										<i :class="getClassCategorie(client.articles[indexArticle].idCategorie)"/>
-	  									&nbsp;&nbsp;<b>{{client.articles[indexArticle].numero}}</b>
+										<i :class="getClassCategorie(article.idCategorie)"/>
+	  									&nbsp;&nbsp;<b>{{article.numero}}</b>
 									 </p>
 								</div>
 							</div>
 							<div class="level-rigth">
-								<s-button label="" :icon="getClassEtat(client.articles[indexArticle].indexEtat)" theme="is-primary " @onclick="openModalEtat=true"/>
-								<s-select-etat :open="openModalEtat" :article="client.articles[indexArticle]"
-									@save="save(client.articles[indexArticle], "etat")" @cancel="openModalEtat=false"
+								<s-button label="" :icon="getClassEtat(article.idEtat)" theme="is-primary " @onclick="openModalEtat=true"/>
+								<s-select-etat :open="openModalEtat" :article="article"
+									@save="save(article, 'etat')" @cancel="openModalEtat=false"
 								>
 								</s-select-etat>
 							</div>
 						</nav>
-	  					<s-button-paiement :change="modalTypePaiement" :article="client.articles[indexArticle]" @onclick="modalTypePaiement = true">
+	  					<s-button-paiement :change="modalTypePaiement" :article="article" @onclick="modalTypePaiement = true">
 	  					</s-button-paiement>&nbsp;
 						<histoPaiement 
-						:article="client.articles[indexArticle]" 
+						:article="article" 
 						:open="modalTypePaiement" 
-						@save="save(client.articles[indexArticle])"
+						@save="save(article)"
 						:cancel="0==1" 
 						@cancel="modalTypePaiement=false"
 						>
 						</histoPaiement>
 					<br/>
-	  				<s-button :label="getLabelEntrepot(client.articles[indexArticle].idEntrepot, client.articles[indexArticle].indexType)" icon="industry" theme="is-primary is-normal" @onclick="openModalEntrepot=true"/>
-	  				<s-select-entrepot :open="openModalEntrepot" :article="client.articles[indexArticle]"
-									@save="save(client.articles[indexArticle], "entrepot")" @cancel="openModalEntrepot=false">
-								</s-select-entrepot>
+	  				<s-button :label="getLabelEntrepot(article.idEntrepot, article.idStock)" icon="industry" theme="is-primary is-normal" @onclick="openModalEntrepot=true"/>
+	  				<s-select-entrepot 
+	  					:open="openModalEntrepot" :article="article"
+						@save="save(article, 'entrepot')" 
+						@cancel="openModalEntrepot=false">
+					</s-select-entrepot>
 	  				<div class="dates">
 	  					
-	  					<div>Parti le : {{client.articles[indexArticle].partirle}}</div>
-	  					<div>Revient le : {{client.articles[indexArticle].rentrele}}</div>
+	  					<div>Parti le : {{article.partirle}}</div>
+	  					<div>Revient le : {{article.rentrele}}</div>
 	  					<s-button theme="is-primary" label="" icon="calendar-alt" @onclick=""/> 
 	  				</div>
 	  			</div>
@@ -82,7 +85,7 @@
 	import client_api from "@/firebase/client_api"
 	export default {
 			
-		props: ["client","modif"],
+		props: ["agence","client","modif"],
 		components: {
 			histoPaiement,
 			SButtonPaiement,
@@ -92,44 +95,45 @@
 		data: function() {
 			return {
 				materiel: {},
-				modalTypePaiement: false,
-				indexArticle : 0,
+				modalTypePaiement: false,				
 				visuArticle : false,
 				openModalEtat: false,
-				openModalEntrepot: false
+				openModalEntrepot: false,
+				article: null
 			}
 		},
 		methods: {
-			save(article) {
-				article_api.api.save(this.$store, this.client.id, article, ()=> {
-					client_api.api.update(this.$store.getters.getDocAgence, this.client, ()=> {
-						this.openModalEntrepot=false;
-						this.modalTypePaiement=false;
-						this.openModalEtat=false;
+			save(article, type) {
+					this.openModalEntrepot=false;
+					this.modalTypePaiement=false;
+					this.openModalEtat=false;
+					article_api.api.save(this.$store, this.client, ()=> {
+											
 					})
-				})
+				
 			},
-			setVisuArticle(idArticle) {
+			setVisuArticle(article) {
 				this.visuArticle = true;
-				this.indexArticle = index;
+				this.article = article;				
 			},
 			getClassCategorie(idCategorie) {
-				if (typeof(this.agence.categories[idCategorie]) != "undefined")
-					return this.agence.categories[idCategorie].icon;
+				if (typeof(this.$store.getters.getAgence.categories[idCategorie]) != "undefined")
+					return this.$store.getters.getAgence.categories[idCategorie].icon;
 				else
 					return "";
 			},
 			getClassEtat(idEtat) {
-				if (typeof(this.agence.etats[idEtat]) != "undefined")
-					return this.agence.etats[idEtat].icon;
+				if (typeof(this.$store.getters.getAgence.etats[idEtat]) != "undefined")
+					return this.$store.getters.getAgence.etats[idEtat].icon;
 				else
 					return "";
 			},
-			getLabelEntrepot(idEntrepot, idType) {
-				if (typeof(this.agence.entrepots[idCategorie]) != "undefined") {
-					if (typeof(this.agence.entrepots[idCategorie].types[idType]) != "undefined") {
-						var nom = this.agence.entrepots[idCategorie].nom
-						return nom + " " + this.agence.entrepots[idCategorie].types[idType.icon].nom;
+			getLabelEntrepot(idEntrepot, idStock) {
+				if (typeof(this.$store.getters.getAgence.entrepots[idEntrepot]) != "undefined") {
+					console.log(this.$store.getters.getAgence.entrepots[idEntrepot]);
+					if (typeof(this.$store.getters.getAgence.entrepots[idEntrepot].stocks[idStock]) != "undefined") {
+						var nom = this.$store.getters.getAgence.entrepots[idEntrepot].nom
+						return nom + " " + this.$store.getters.getAgence.entrepots[idEntrepot].stocks[idStock].nom;
 					}
 					else
 						return "";	
@@ -141,9 +145,20 @@
 			},
 			edit() {
 				this.visuArticle = false;
-				this.indexArticle = 0;
+				
 				this.$emit('edit')
 			}
+		},
+		mounted() {
+			
+			if (Object.keys(this.client.articles).length==1) {
+				for (var key in this.client.articles) {
+					this.article = this.client.articles[key];
+					this.visuArticle = true;					
+					break;
+				}
+			}
+
 		}
 	}
 </script>

@@ -4,7 +4,7 @@ const const_categorie = {
 		id: '',
 		nom: '',
 		icon: '',
-		types:[]
+		types:{}
 	},
 	json_type: {
 		id: '',

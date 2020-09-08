@@ -159,6 +159,8 @@
 				var type= JSON.parse(JSON.stringify(this.type));
 				type.id = this.$uuid();
 				this.categorie.types[type.id]  = type;
+				console.log(this.categorie);
+				this.$emit("refresh");
 			},
 			deleteType(idType) {
 				delete this.categorie.types[idType]
@@ -171,9 +173,9 @@
 				this.errorCategorie.icon = this.categorie.icon == ''
 				var nbTypes = 0;
 				this.errorCategorie.type = false;
-				for (var key in this.categories.types) {
-					this.errorCategorie.type = (this.categories.types[key].nom == "") || this.errorCategorie.type;
-					this.errorCategorie.type = (this.categories.types[key].prix == "") || this.errorCategorie.type;
+				for (var key in this.categorie.types) {
+					this.errorCategorie.type = (this.categorie.types[key].nom == "") || this.errorCategorie.type;
+					this.errorCategorie.type = (this.categorie.types[key].prix == "") || this.errorCategorie.type;
 					nbTypes++;		
 				}
 				this.errorCategorie.nbType = nbTypes == 0	

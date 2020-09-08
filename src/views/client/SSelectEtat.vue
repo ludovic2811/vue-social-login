@@ -6,8 +6,8 @@
 		:cancel="false" 
 		@save="" 
 		@cancel="">
-		<div v-for="etat in $store.getters.getEtats">
-			<s-button :theme="etat.id == article.indexEtat ? 'is-success': ''" :label="etat.nom" :icon="etat.icon" @onclick="setEtat(etat)"/><br/><br/>
+		<div v-for="etat in $store.getters.getAgence.etats">
+			<s-button :theme="etat.id == article.idEtat ? 'is-success': ''" :label="etat.nom" :icon="etat.icon" @onclick="setEtat(etat)"/><br/><br/>
 		</div>		
 	</s-modal>
 </template>
@@ -18,7 +18,7 @@
 		
 		methods: {
 			setEtat(item) {				
-				this.article.indexEtat = item.id;
+				this.article.idEtat = item.id;
 				this.$emit("save");
 			}
 		}

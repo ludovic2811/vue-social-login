@@ -25,6 +25,7 @@
 					
 					<div class="tile is-child box">
 						<span class="label">Ajouter :</span>
+						{{article.idCategorie}}
 						<s-select :list="$store.getters.getAgence.categories" :fields="fieldsCategories" :valueSelected="article.idCategorie" @selected="setCategorie" labelNotSelected="Selectionner"/>
 						<br/>
 						<div class="notification is-danger" v-show="error.categorie">
@@ -33,8 +34,8 @@
 						</div>
 
 						<label class="label">Type :</label>
-						<select class='select' v-model="article.indexType" v-on:change="setType" >
-							<option value="" disabled="" selected="">Sélectionner le type</option>
+						<select class='select' v-model="article.idType" v-on:change="setType" >
+							<option value="" disabled="" >Sélectionner le type</option>
 							<option v-for="type in types" :value="type.id">{{type.nom}}</option>			
 								</select>
 						<br/>
@@ -75,8 +76,8 @@
 							Il faut sélectionner une catégorie !
 						</div><br/>
 						<select class='select' v-if="stocks.length!=0" v-model="article.idStock" >
-							<option value="" disabled="" selected="">Sélectionner le lieu de stockage</option>
-							<option v-for="stock in stocks" :value="indexStock">
+							<option value="" disabled="" >Sélectionner le lieu de stockage</option>
+							<option v-for="stock in stocks" :value="stock.id">
 								{{stock.nom}} ({{stock.reste}})</option>
 						</select>
 						<br/>
@@ -158,37 +159,48 @@
 				return now.getFullYear();
 			},
 			setCategorie (item) {
+				console.log(item);
 				this.article.idCategorie = item.id;
 				this.types = [];
 				this.article.prix;
 				if (typeof(this.$store.getters.getAgence.categories[item.id]) != "undefined")
 					if (typeof(this.$store.getters.getAgence.categories[item.id]).types != "undefined") {
-						console.log(this.$store.getters.getAgence.categories[item.id].types);
+						
 						this.types = this.$store.getters.getAgence.categories[item.id].types;
 						
 					}
 			},
 			setType() {		
+				console.log(this.types);
 				this.article.prix = this.types[this.article.idType].prix;
 			},
-			setEntrepot(item) {
-				if (typeof(this.$store.getters.getAgence.entrepots[item.id]) != "undefined")
-					if (typeof(this.$store.getters.getAgence.entrepots[item.id].stocks) != "undefined")
-						this.stocks = this.$store.getters.getAgence.entrepots[item.id].stocks;
+			setEntrepot() {
+				if (typeof(this.$store.getters.getAgence.entrepots[this.article.idEntrepot]) != "undefined")
+					if (typeof(this.$store.getters.getAgence.entrepots[this.article.idEntrepot].stocks) != "undefined")
+						this.stocks = this.$store.getters.getAgence.entrepots[this.article.idEntrepot].stocks;
 			},
 			setEtat(item) {				
-				this.article.indexEtat = item.id;
+				this.article.idEtat = item.id;
 			},
 			saveArticle() {
 				this.error.numero = this.article.numero == ''
 				this.error.categorie = this.article.idCategorie == 0
-				this.error.etat = this.article.indexEtat == 0
+				this.error.etat = this.article.idEtat == 0
 				this.error.entrepot = this.article.idEntrepot == 0
-				var error = this.error.numero || this.error.categorie || this.error.etat || this.error.stock;
-				
+				var error = this.error.numero || this.error.categorie || this.error.etat || this.error.entrepot;
+
 				if (!error)
-					this.$emit("save");
+					this.$emit("save", this.article);
 			}
+		},
+		mounted() {
+			if (typeof(this.$store.getters.getAgence.entrepots[this.article.idEntrepot]) != "undefined")
+					if (typeof(this.$store.getters.getAgence.entrepots[this.article.idEntrepot].stocks) != "undefined")
+						this.stocks = this.$store.getters.getAgence.entrepots[this.article.idEntrepot].stocks;
+			if (typeof(this.$store.getters.getAgence.categories[this.article.idCategorie]) != "undefined")
+					if (typeof(this.$store.getters.getAgence.categories[this.article.idCategorie]).types != "undefined") {
+						this.types = this.$store.getters.getAgence.categories[this.article.idCategorie].types;
+					}
 		}
 	}
 </script>

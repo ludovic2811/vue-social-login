@@ -99,11 +99,13 @@
 	 </div>
 </template>
 <script>
+	
 	import client from "@/firebase/client_api"
 	import entrepot_api from '@/firebase/entrepot_api'	 
 	import categorie_api from '@/firebase/categorie_api'
 	import editInventaireItem from "@/views/client/editInventaireItem.vue";
 	import article_api from "@/firebase/article_api";
+	import conso from "@/firebase/client_consolidation"; 
 	export default {
 		name: 'edit_client',
 		props: ["client", "change"],
@@ -155,14 +157,17 @@
 				delete this.client.articles[this.article.id]
 				this.saveArticle();
 			},
-			saveArticle() {		
+			saveArticle(articleModif) {		
+				conso.api.calculEspaceEntrepot (this.$store.getters.getAgence, articleModif, this.client.articles[articleModif.numero], ()=>{
+					this.client.articles[articleModif.numero] = articleModif;
 				
-				this.client.articles[this.article.numero] = this.article;
-				
-				article_api.api.save(this.$store, this.client,()=>{
-					this.addViewMateriel = "modal";
-					this.modalDeleteArticle = false;
+					article_api.api.save(this.$store, this.client,()=>{
+						this.addViewMateriel = "modal";
+						this.modalDeleteArticle = false;
+					});
+
 				});
+				
 			},
 			editArticle(article) {
 				this.article= JSON.parse(JSON.stringify(article));

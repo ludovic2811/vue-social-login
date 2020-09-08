@@ -138,7 +138,7 @@ const const_client = {
 				mail: client.mail,
 				adresse: client.adresse,
 				search: search,
-				articles:[]
+				articles:{}
 			}).then(success => {
 				fct(success);
 			})
