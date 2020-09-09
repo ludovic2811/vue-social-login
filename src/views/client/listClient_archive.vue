@@ -2,10 +2,7 @@
 <span>
 	<h1 class="subtitle">&nbsp;Gestion de vos clients</h1>
 	
-	
-
-	
-  	
+ 	
   	<div v-if="nav=='list'">
 	<v-client-table :data="clients" :columns="columns" :options="options" >
 	     <template slot="call" slot-scope="props">

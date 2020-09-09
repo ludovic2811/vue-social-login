@@ -34,16 +34,23 @@ const api = {
 		var majCategorie = false ;
 		var majStock = false;
 		
-		if (articleNew.idEntrepot != articleOld.idEntrepot)
-			majEntrepot = true;
-		 if (articleNew.idStock != articleOld.idStock)
-			majStock = true;
-
-		if (articleNew.idCategorie != articleOld.idCategorie ||
-			articleNew.idType != articleOld.idType)
-			majCategorie = true;
+		console.log(articleOld);
+		if (typeof(articleOld) != "undefined") {
+			if (articleNew.idEntrepot != articleOld.idEntrepot)
+				majEntrepot = true;
+		 	if (articleNew.idStock != articleOld.idStock)
+				majStock = true;
+			if (articleNew.idCategorie != articleOld.idCategorie ||
+				articleNew.idType != articleOld.idType)	
+				majCategorie = true;
+			maj = majCategorie || majEntrepot || majStock;
+		}
+		else {
+			maj = true;
+			majEntrepot= false;
+			majStock = false;
+		}
 		
-		maj = majCategorie || majEntrepot || majStock;
 		
 		if (maj) {
 			if (typeof(agence.entrepots[articleNew.idEntrepot].stocks[articleNew.idStock].articles) == "undefined")
@@ -63,8 +70,6 @@ const api = {
 				this.subCalculEntrepot (agence.entrepots[articleOld.idEntrepot], agence.categories);
 			}
 			this.subCalculEntrepot (agence.entrepots[articleNew.idEntrepot], agence.categories);
-
-
 
 			firebase.api.getDb().collection("agence").doc(agence.id).update({
 				entrepots: agence.entrepots

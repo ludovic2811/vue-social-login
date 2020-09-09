@@ -65,6 +65,7 @@
 						@delete="modalDeleteArticle=true"
 						@cancel="addViewMateriel='modal'"
 						:article="article" 
+						:client="client"
 						v-if="addViewMateriel=='modal is-active'">
 					</editInventaireItem>  	
 					<s-confirm :open="modalDeleteArticle" title="Supprimer l'article" @yes="deleteArticle" @no="modalDeleteArticle=false">

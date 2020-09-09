@@ -22,7 +22,7 @@
 						></s-button>
 					</div>
 					</div>
-					<div v-for="(histo,index) in paiement.histo" class="itemHistorique" v-show="showIndex == indexPaiement">
+					<div v-for="(histo,index) in paiement.histos" class="itemHistorique" v-show="showIndex == indexPaiement">
 						
 						<span>{{histo.echeance}} : </span>&nbsp;
 						<span>{{histo.prix}} €</span>&nbsp;
@@ -46,7 +46,7 @@
 					Mauvaise année !!
 				</div>
 			</label>
-			<input style="width:200px" type="text" class="input is-primary is-rounded" placeholder="Mettre l'échéance" v-model="paiementData.echeance"/>
+			<input style="width:200px" type="text" class="input is-primary is-rounded" placeholder="Mettre l'échéance" v-model="echeanceData.echeance"/>
 			<div class="notification is-danger" v-show="error.echeance">
 					<button class="delete" v-on:click="error.echeance=false"></button>
 					Il faut renseigner une échéance ... comme en une fois ou encore 1/2 ...
@@ -54,14 +54,14 @@
 				</div>
 			&nbsp;
 			<span class="control has-icons-right"  style="width:100px">
-				<input type="number" class="input is-primary is-rounded" style="width:100px" v-model="paiementData.prix"/>
+				<input type="number" class="input is-primary is-rounded" style="width:100px" v-model="echeanceData.prix"/>
 				<span class="icon is-right">
 				    <i class="fas fa-euro-sign"></i>
 				  </span>
 			</span>
 			&nbsp;
 			en <div class="select is-primary is-rounded ">
-			<select v-model="paiementData.typePaiement" >
+			<select v-model="echeanceData.typePaiement" >
 				<option disabled="">Mode paiement</option>				
 				<option v-for="(typePaiement,index) in $store.getters.getAgence.typePaiements" :value="index">
 					{{typePaiement.libelle}}
@@ -69,15 +69,17 @@
 			</select>
 			
 		</div>&nbsp;&nbsp;<br/><br/>
-			<s-button label="Ajouter" theme="is-primary" icon="plus" @onclick="addPaiement"/>
+			<s-button label="Ajouter" theme="is-primary" icon="plus" @onclick="addEcheance"/>
 		</div>
 
 	</s-modal>
 </template>
 <script >
-	import SModal from '@/components/SModal.vue'	
+	import SModal from '@/components/SModal.vue'
+	import paiement_api from '@/firebase/paiement_api'
+
 	export default {
-		props: ["open","article","cancel"],
+		props: ["open","client", "article","cancel"],
 		components: {
 			SModal
 		},
@@ -85,12 +87,7 @@
 			return {
 				listPaiements: [],
 				year: this.getYear(),
-				paiementData: {  
-					typePaiement: 0,
-					user: this.$store.getters.getUser.displayName,
-					prix : null,
-					echeance: ""
-				},
+				echeanceData: paiement_api.api.json_echeance,
 				showIndex: -1,
 				error: {
 					echeance: false,
@@ -101,7 +98,7 @@
 		},
 		watch: {
 			open: function(val) {
-				this.paiementData.prix = this.article.prix;
+				this.echeanceData.prix = this.article.prix;
 				this.init();
 			}
 		},
@@ -138,7 +135,7 @@
 				this.error.echeance = false;
 				this.error.year = false;
 
-				this.error.echeance  = (this.paiementData.echeance == "");
+				this.error.echeance  = (this.echeanceData.echeance == "");
 				
 				this.error.year = isNaN(parseInt(this.year));
 				
@@ -147,73 +144,38 @@
 					this.error.year = !(yearInt >= 2000 && yearInt <= 3000)
 				}
 				
-
 				var error = this.error.echeance || this.error.libelle || this.error.year;
 				
 				return !error;
 			},
-			addPaiement() {
+			addEcheance () {
 				if (this.checkPaiement()) {
-					var histos = [];
-					var total = 0;
-					if (typeof(this.article.paiements) == "undefined") {
-						this.article["paiements"] = {};
+					var index = this.listPaiements.indexOf(this.year);
+					if (index == -1) {
+						var paiement = paiement_api.api.json_paiement;
+						paiement.estimate_price = this.article.prix;
+						paiement.year = this.year;
 					}
+					else
+						var paiement = this.listPaiements[index];
 					
-					if (typeof(this.article.paiements[this.year])=="undefined") {
-						this.article.paiements[this.year] = {} ;
-						this.article.paiements[this.year].confirm = false;
-						this.article.paiements[this.year].prix = this.article.prix;
-						total = 0;
-					}
-					else {
-						total  = parseFloat(this.article.paiements[this.year].total);
-					}
-					total += parseFloat(this.paiementData.prix);
-					
-					this.article.paiements[this.year].confirm = parseFloat(this.article.paiements[this.year].prix) == total;
-					
-					this.article.paiements[this.year].total = total;
-					
-					
-					if (typeof(this.article.paiements[this.year].histos)=="undefined")
-						this.article.paiements[this.year].histos = [];
-
-					var paiementData = JSON.parse(JSON.stringify(this.paiementData))
-					this.article.paiements[this.year].histos.push(paiementData);
-					this.init();
+					paiement_api.api.set(this.$store, this.client, paiement, 
+					this.echeanceData, ()=>{
+							this.init();
+						})
 				}
 			},
 			init() {
 				this.listPaiements = [];
-				
-			
-				
-				if (this.article != null) {
-					this.numero = this.article.numero;
-//					this.paiementData.prix = this.article.prix;
-					if (typeof(this.article.paiements) != "undefined") {
-						Object.keys(this.article.paiements).forEach(year=> 
-						 {
-
-						 	var paiement  = {};
-						 	paiement['year'] = year;
-						 	paiement['total'] = parseFloat(this.article.paiements[year].total);
-						 	paiement['prix'] = parseFloat(this.article.paiements[year].prix);
-						 	paiement['confirm'] = this.article.paiements[year].confirm;
-						 	var histos = this.article.paiements[year].histos;
-						 	paiement['histo'] = histos;
-						 	var paiementData = JSON.parse(JSON.stringify(paiement))
-							this.listPaiements.push(paiementData)
-							
-						});
-					}
-				}
+				paiement_api.api.getAll(this.$store, this.client, docs=> {
+					console.log(docs);
+					this.listPaiements = docs;
+				})
 			}
 		},
 		
 		mounted() {
-			
+			this.echeanceData.prix = this.article.prix;
 			this.init();
 
 		}

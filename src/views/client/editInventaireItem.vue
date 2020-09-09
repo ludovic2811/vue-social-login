@@ -83,6 +83,7 @@
 						<br/>
 						<histoPaiement 
 							:article="article" 
+							:client="client"
 							:open="modalTypePaiement" 
 							@save="modalTypePaiement=false"
 							:cancel="0==1" 
@@ -115,7 +116,7 @@
 	import SButtonPaiement from '@/views/client/SButtonPaiement.vue'	 
 	export default {
 
-		props: ["article"],
+		props: ["article","client"],
 		components: {
 			histoPaiement,
 			SButtonPaiement
@@ -171,7 +172,7 @@
 					}
 			},
 			setType() {		
-				console.log(this.types);
+				
 				this.article.prix = this.types[this.article.idType].prix;
 			},
 			setEntrepot() {
