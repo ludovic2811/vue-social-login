@@ -83,6 +83,7 @@
 	import SSelectEntrepot from '@/views/client/SSelectEntrepot.vue'
 	import article_api from "@/firebase/article_api"
 	import client_api from "@/firebase/client_api"
+	import conso from "@/firebase/client_consolidation"; 
 	export default {
 			
 		props: ["agence","client","modif"],
@@ -103,18 +104,22 @@
 			}
 		},
 		methods: {
-			save(article, type) {
-					this.openModalEntrepot=false;
-					this.modalTypePaiement=false;
-					this.openModalEtat=false;
-					article_api.api.save(this.$store, this.client, ()=> {
-											
-					})
+			save(articleModif, type) {
+				this.openModalEntrepot=false;
+				this.modalTypePaiement=false;
+				this.openModalEtat=false;
+				conso.api.calculEspaceEntrepot (this.$store.getters.getAgence, 
+							articleModif, this.client.articles[articleModif.numero], ()=>{
+					this.client.articles[articleModif.numero] = articleModif;
 				
+					article_api.api.save(this.$store, this.client,()=>{
+					
+					});
+				});
 			},
 			setVisuArticle(article) {
 				this.visuArticle = true;
-				this.article = article;				
+				this.article = JSON.parse(JSON.stringify(article));				
 			},
 			getClassCategorie(idCategorie) {
 				if (typeof(this.$store.getters.getAgence.categories[idCategorie]) != "undefined")
@@ -130,7 +135,7 @@
 			},
 			getLabelEntrepot(idEntrepot, idStock) {
 				if (typeof(this.$store.getters.getAgence.entrepots[idEntrepot]) != "undefined") {
-					console.log(this.$store.getters.getAgence.entrepots[idEntrepot]);
+					
 					if (typeof(this.$store.getters.getAgence.entrepots[idEntrepot].stocks[idStock]) != "undefined") {
 						var nom = this.$store.getters.getAgence.entrepots[idEntrepot].nom
 						return nom + " " + this.$store.getters.getAgence.entrepots[idEntrepot].stocks[idStock].nom;
@@ -153,7 +158,7 @@
 			
 			if (Object.keys(this.client.articles).length==1) {
 				for (var key in this.client.articles) {
-					this.article = this.client.articles[key];
+					this.article = JSON.parse(JSON.stringify(this.client.articles[key]));
 					this.visuArticle = true;					
 					break;
 				}

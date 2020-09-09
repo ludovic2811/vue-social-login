@@ -1,5 +1,5 @@
 <template>
-	<button :class="'button ' + theme" v-on:click="click" >
+	<button :class="'button is-rounded ' + theme" v-on:click="click" >
 		<span class="icon" v-if="icon">
 			<i :class="'fas fa-' + icon"></i>			
 		</span>
