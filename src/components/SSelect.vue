@@ -82,7 +82,6 @@
 			
 		},
 		watch: {
-			
 			valueSelected: function(val) {
 				this.setSelected();
 			}

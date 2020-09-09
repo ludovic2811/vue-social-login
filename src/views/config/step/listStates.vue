@@ -1,6 +1,6 @@
 <template>
 	<div   class="contain"><br/>
-		<input type="text" :value="refresh"/>
+		<input type="hidden" :value="refresh"/>
 		<s-button theme="is-primary" icon="plus" label="Ajouter un état"  @onclick="addEtat"></s-button>&nbsp;&nbsp;
 		<s-button theme="is-primary is-small" icon="info" label=""  @onclick="infoEtat=!infoEtat"></s-button>
 		

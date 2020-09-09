@@ -47,7 +47,11 @@
 				  </label>
 				 	
 
-				   <s-select :list="iconsArticles" :valueSelected="categorie.icon" :fields="fields" @selected="setIcon" labelNotSelected="Selectionner"/>
+				   <s-select :list="iconsArticles" 
+				   		:valueSelected="categorie.icon" 
+					    :fields="fields" 
+						@selected="setIcon" 
+						labelNotSelected="Selectionner"/>
 				   <br/><br/>
 				   <div class="notification is-danger" v-show="errorCategorie.icon">
 					  <button class="delete" v-on:click="errorCategorie.icon=false"></button>
@@ -153,13 +157,13 @@
 				this.refreshDrag = !this.refreshDrag;
 			},
 			setIcon(item) {
-				this.categorie.icon = item.value;
+				console.log(item);
+				this.categorie.icon = item.object.value;
 			},
 			newType() {
 				var type= JSON.parse(JSON.stringify(this.type));
 				type.id = this.$uuid();
 				this.categorie.types[type.id]  = type;
-				console.log(this.categorie);
 				this.$emit("refresh");
 			},
 			deleteType(idType) {
@@ -167,9 +171,7 @@
 			},
 			
 			saveCategorie() {
-				
-				this.errorCategorie.nom  = this.categorie.nom == ""
-				
+				this.errorCategorie.nom  = this.categorie.nom == ""				
 				this.errorCategorie.icon = this.categorie.icon == ''
 				var nbTypes = 0;
 				this.errorCategorie.type = false;
@@ -180,17 +182,13 @@
 				}
 				this.errorCategorie.nbType = nbTypes == 0	
 				var error = this.errorCategorie.nom  || this.errorCategorie.nbType || this.errorCategorie.icon || this.errorCategorie.type;
-				
-				if (!error) {
-					
+				console.log("Save Categorie");
+				if (!error) {					
 					categorie_api.api.save (this.agence, this.categorie, ()=>{
+						console.log("after save");
 						this.$emit("refresh");
 						this.modalEditCategorie='modal';
 					})
-					/*categorie_api.api.save(this.$store.getters.getDocAgence, this.categorie,()=>{
-						
-					})*/
-					//if (this.agence
 				}
 			},
 			editCategorie(idCategorie) {
@@ -205,14 +203,11 @@
 			deleteCategorie() {
 
 				categorie_api.api.delete(this.agence, this.categorie, ()=>{
-					//this.$store.getters.getDocAgence, this.categorie.id, ()=>{
 					this.modalEditCategorie='modal';
 				});
 			},
 			save(fct) {
 				this.error = false;
-				
-				
 				if (Object.keys(this.agence.categories).length > 0)
 					fct(true)
 				else {
@@ -222,49 +217,48 @@
 			}
 		},
 		mounted() {
-
 			this.dataCollectionArray = 	this.$orderJson(this.agence.categories);
 		}
 	}
 </script>
 <style scoped>
-.arrayType {
-	width: 100%;
-	
-}
-.arrayType tr th {
-	
-	text-align: center;
-}
-.arrayType tr td.nom {
-	width: 35%;
-	text-align: center;
+	.arrayType {
+		width: 100%;
+		
+	}
+	.arrayType tr th {
+		
+		text-align: center;
+	}
+	.arrayType tr td.nom {
+		width: 35%;
+		text-align: center;
 
-}
-.arrayType tr td.prix {
-	width: 30%;
-	text-align: center;
-	
-}
-.arrayType tr td.place {
-	width: 25%;
-	text-align: center;
-	
-}
-.arrayType tr td.fige {
-	width: 5%;
-	text-align: center;
-	padding-top: 10px;
-}
-.arrayType tr td.trash {
-	width: 5%;
-	text-align: center;
-	
-}
-.itemCategory {
-	display: inline-block;
-	margin-top: 10px;
-	width: 150px;
-	padding-left: 15px;
-}
+	}
+	.arrayType tr td.prix {
+		width: 30%;
+		text-align: center;
+		
+	}
+	.arrayType tr td.place {
+		width: 25%;
+		text-align: center;
+		
+	}
+	.arrayType tr td.fige {
+		width: 5%;
+		text-align: center;
+		padding-top: 10px;
+	}
+	.arrayType tr td.trash {
+		width: 5%;
+		text-align: center;
+		
+	}
+	.itemCategory {
+		display: inline-block;
+		margin-top: 10px;
+		width: 150px;
+		padding-left: 15px;
+	}
 </style>

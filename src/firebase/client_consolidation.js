@@ -1,12 +1,19 @@
 import firebase from "@/firebase/firebase_api"; 
 
 const api = {
-	subCalculEntrepot (entrepot, article, categories) {
-		var espacePris = 0;
-		entrepot.reste = entrepot.capacite;
+	resetCalculEntrepot (entrepots, categories, fct) {
+		for (var key in entrepots) {			
+			this.subCalculEntrepot (entrepots[key], categories);
+		}
+		console.log(entrepots);
+		fct();
+	},
+	subCalculEntrepot (entrepot, categories) {
+		
+		entrepot.reste = 0;
 		for (var key in entrepot.stocks) {
 			var stock = entrepot.stocks[key];
-			espacePris = 0;
+			var espacePris = 0;
 			for (var keyArticle in entrepot.stocks[key].articles) {
 				
 				var idCategorie = stock.articles[keyArticle].idCategorie;
@@ -53,9 +60,9 @@ const api = {
 			}
 
 			if (majEntrepot) {
-				this.subCalculEntrepot (agence.entrepots[articleOld.idEntrepot], articleOld, agence.categories);
+				this.subCalculEntrepot (agence.entrepots[articleOld.idEntrepot], agence.categories);
 			}
-			this.subCalculEntrepot (agence.entrepots[articleNew.idEntrepot], articleNew, agence.categories);
+			this.subCalculEntrepot (agence.entrepots[articleNew.idEntrepot], agence.categories);
 
 
 

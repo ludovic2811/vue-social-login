@@ -1,4 +1,5 @@
 import firebase from "@/firebase/firebase_api"; 
+import conso from "@/firebase/client_consolidation"; 
 const const_categorie = {
 	json_categorie : {
 		id: '',
@@ -11,31 +12,17 @@ const const_categorie = {
 		nom: "",
 		prix: ""
 	},
-	/*
-	save(docAgence, categorie, fct) {
-		if (typeof(categorie.id) == "undefined") {
-			docAgence.collection("categories").doc().set(categorie).then(()=>{
-					fct();
-				})
-		}
-		else {
-			var docRef = docAgence.collection("categories").doc(categorie.id);
-			docRef.get().then(querySnapshot=>{
-				if (querySnapshot.exists) {
-					docRef.update(categorie).then(docRef=>{
-						fct();
-					})
-				}			
-			})
-		}
-	},*/
 	save (dataAgence, categorie, fct) {
-		// probablement qu'on va devoir mettre en place les calculs ici ou pas
+		
 		dataAgence.categories[categorie.id] = categorie;
-		console.log(dataAgence.categories)
-		firebase.api.getDb().collection("agence").doc(dataAgence.id).update({
-			categories: dataAgence.categories
-		}).then(()=>{fct()});
+		conso.api.resetCalculEntrepot(dataAgence.entrepots, dataAgence.categories, ()=>{
+			
+			firebase.api.getDb().collection("agence").doc(dataAgence.id).update({
+				categories: dataAgence.categories,
+				entrepots: dataAgence.entrepots
+			}).then(()=>{fct()});
+		})
+		
 	},
 	delete (dataAgence, categorie, fct) {
 		delete dataAgence.categories[categorie.id];

@@ -8,7 +8,7 @@
       		<s-button label="" :theme="getTheme(index)" :icon="iconEtap.icon" @onclick="setEtape(index)"></s-button>      		
       	</span>
       	<br/><br/>
-      	{{initEtape}}
+      	
   	  	<i :class="'fas fa-'+steps[etape].icon"></i>
       		&nbsp;&nbsp;{{steps[etape].label}}		
       	<div style="float:left;">

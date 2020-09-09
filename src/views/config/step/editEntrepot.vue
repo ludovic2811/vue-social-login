@@ -105,9 +105,7 @@ export default {
 
 			if (error == false) {
 				
-				for (var key in this.entrepot.stocks) {
-					this.entrepot.stocks[key].capacite = parseFloat(this.entrepot.stocks[key].capacite);
-				}
+				
 				entrepot_api.api.save (this.agence, this.entrepot, (entrepot)=>{
 					this.errorEntrepot.nom = false;
 					}
