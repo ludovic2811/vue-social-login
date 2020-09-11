@@ -1,7 +1,7 @@
 <template>
 
-	<div>
-	<input type="hidden" :value="change"/>
+	
+	
 	<s-button 
 		:theme="getTheme()" 
 		:label="getLabel()" 
@@ -9,11 +9,11 @@
 		:icon="getIcon()">				
 	</s-button>
 
-</div>
+
 </template>
 <script>
 export default {
-	props:["article","change"],
+	props:["article"],
 	methods: {
 		
 		getYear() {
@@ -22,11 +22,11 @@ export default {
 		},
 		getLabel() {			
 			if (this.payer() == 0)
-				return "N'a pas payé pour " + this.getYear();
+				return "Non payé " + this.getYear();
 			if (this.payer() == 1)
-				return "payé en partie pour " + this.getYear();
+				return "En parti " + this.getYear();
 			if (this.payer() == 2)
-				return "Payé pour " + this.getYear();			
+				return "Payé " + this.getYear();			
 		},
 		getTheme() {
 			if (this.payer() == 0)
@@ -47,6 +47,7 @@ export default {
 		payer() {
 			var year  =this.getYear();
 			var payer = 0;
+			
 			if (typeof(this.article.paiements) != "undefined") {
 				if (typeof(this.article.paiements[year]) != "undefined") {
 					if (!this.article.paiements[year].confirm)

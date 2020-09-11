@@ -77,22 +77,15 @@
 			<nav class="navbar is-fixed-bottom" role="navigation" aria-label="main navigation">
   			<div class="navbar-brand">
 				<div class="navbar-item">
-					<button class="button is-warning is-small" v-on:click="$emit('back')">
-				 	<i class="fas fa-undo" ></i>
-					&nbsp;&nbsp;Retourner à la liste
-					</button>
+					<s-button theme="is-warning" icon="save" label="Retour" @onclick="$emit('back')"/>
 				</div>
 				<div class="navbar-item">
-					<button class="button is-success  is-small" v-on:click="save">
-					 <i class="fas fa-save"></i>
-					&nbsp;&nbsp;Enregistrer
-					</button>
+					<s-button theme="is-success" icon="save" label="Enregistrer" @onclick="save"/>
+					
 				</div>
 				<div class="navbar-item">
-					<button class="button is-danger  is-small" v-on:click="archiver">
-					 <i class="fas fa-trash"></i>
-					&nbsp;&nbsp;Archiver
-					</button>
+					<s-button theme="is-danger" icon="save" label="" @onclick="archiver"/>
+					
 				</div>
 			</div>
 		</nav>		
@@ -155,12 +148,23 @@
 				this.save();
 			},
 			deleteArticle() {
-				delete this.client.articles[this.article.id]
-				this.saveArticle();
+				console.log(this.client.articles[this.article.numero]);
+				var articleDelete = JSON.parse(JSON.stringify(this.client.articles[this.article.numero]));
+				// il faut supprimer dans historique de paiement & dans le planning
+				
+				article_api.api.delete(this.$store, this.client, this.article);
+				console.log(articleDelete);
+				this.saveArticle(this.client.articles[this.article.id], articleDelete);
 			},
-			saveArticle(articleModif) {		
-				conso.api.calculEspaceEntrepot (this.$store.getters.getAgence, articleModif, this.client.articles[articleModif.numero], ()=>{
-					this.client.articles[articleModif.numero] = articleModif;
+			saveArticle(articleModif, articleDelete) {		
+				var articleOld;
+				if (typeof(articleDelete) != "undefined")
+					articleOld = articleDelete;
+				else
+					articleOld = this.client.articles[articleModif.numero];
+				conso.api.calculEspaceEntrepot (this.$store.getters.getAgence, articleModif, articleOld, ()=>{
+					if (typeof(articleModif) != "undefined")
+						this.client.articles[articleModif.numero] = articleModif;
 				
 					article_api.api.save(this.$store, this.client,()=>{
 						this.addViewMateriel = "modal";

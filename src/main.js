@@ -44,6 +44,9 @@ Vue.prototype.$steps = 7;
 Vue.prototype.$uuid = ()=> {
 	return uuidv4(); //util.util.uuid();
 }
+Vue.prototype.$util = function() {
+	return util.util;
+}
 Vue.prototype.$orderJson = function(jsonParam) {
 	  return util.util.order(jsonParam);
 }

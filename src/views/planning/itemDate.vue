@@ -2,7 +2,8 @@
 	<s-modal :open="open" :title="date" :save="false" :cancel="false" :close="true" @save="" @cancel="" @close="$emit('close')">
 		<div class="tabs is-large is-boxed is-toggle-rounded is-fullwidth">
 		  <ul>
-		    <li :class=" (InOut=='rentrele') ? 'is-active' : ''" v-on:click="InOut = 'rentrele'">
+		    <li :class=" (InOut=='rentreLe') ? 'is-active' : ''" 
+				v-on:click="changeTab('rentreLe')">
 		    	<a >
 		    		<span class="icon is-small">
 		    			<i class="fa fa-arrow-circle-right"/>&nbsp;&nbsp;
@@ -10,7 +11,8 @@
 		    		</span>
 		    	</a>
 		    </li>
-		    <li :class=" (InOut=='partirle') ? 'is-active' : ''"  v-on:click="InOut = 'partirle'">
+		    <li :class=" (InOut=='departLe') ? 'is-active' : ''"  
+				v-on:click="changeTab('departLe')">
 		    	<a>
 		    		<span class="icon is-small">
 		    			<i class="fa fa-arrow-circle-left"/>&nbsp;&nbsp;
@@ -20,89 +22,102 @@
 		    </li>
 		  </ul>
 		</div>
-		<div class="item">
-			<ul>
-				<li v-for="client in clients[InOut]">
-					<div v-for="article in client.articles" class="itemArticle">
-						<span v-if="article[InOut]==date">
-							<s-button icon="eye" label="" theme="is-primary" @onclick="openClientItem(client)"/>&nbsp;&nbsp;&nbsp;
-							<div style="width:100px;display:inline-block">
-								{{client.nom}} {{client.prenom}} :
-							</div>
-							<i :class="getClassCategorie(article.idCategorie)"/> {{article.numero}}</span>
-
-							<div style="float:right">
-							<s-button :label="getLabelEtat(article.indexEtat)" :icon="getClassEtat(article.indexEtat)" theme="is-primary " @onclick="openModalEtat=true"/>
-							<s-select-etat :open="openModalEtat" :article="article"
-								@save="save(client)" @cancel="openModalEtat=false"
-							>
-							</s-select-etat>
-							</div>
-					</div>
-				</li>
-			</ul>
+		
+		<div class="listClients">
+				<div v-for="(itemInOut) in inouts[InOut]">
+						<item-list-client :itemInOut="itemInOut" @openClientItem="openClientItem" />
+				</div>
+					
 		</div>
-		<s-modal :open="openClient" title="Client" :save="false" :cancel="false" :close="true" @save="" @cancel="" @close="openClient=false">
-		<visu-item-client :client="client" @edit="" v-if="client!=null" :modif="false">
-		</visu-item-client>
+			
+		</div>
+		<s-modal :open="openClient" title="Client" :save="false" :cancel="false" :close="true" 
+			@save="" @cancel="" @close="openClient=false">
+			<visu-item-client  :client="client" @edit="" v-if="openClient" :modif="false">
+			</visu-item-client>
 		</s-modal>
 	</s-modal>
 </template>
 <script>
 	import VisuItemClient from '@/views/client/visuItemClient.vue'
-	import SSelectEtat from '@/views/client/SSelectEtat.vue'
+	import ItemListClient from '@/views/planning/itemListClient.vue'
 	import client_api from "@/firebase/client_api"
+	
+	
 	export default {
-		props:["date","clients", "open"],
+		props:["open"],
 		data: function() {
 			return {
-				InOut: "rentrele",
+				InOut: 1, // 0 rentreLe 1 departLe
 				openModalEtat: false,
 				client: null,
-				openClient: false
+				openClient: false,
+				date: "",
+				inouts: [],
+				clients: [],
+				tabClients: []
+			}
+		},
+		watch: {
+			open: function() {
+				this.InOut = "rentreLe";
 			}
 		},
 		components: {
-			SSelectEtat,
-			VisuItemClient
+			VisuItemClient,
+			ItemListClient
 		},
 		methods: {
 			openClientItem(client) {
 				this.client = client;
 				this.openClient = true;
 			},
-			getClassCategorie(idCategorie) {
-				var index = this.$store.getters.getCategories.findIndex(elt=>elt.id == idCategorie);
-				if (index!=-1) {
-					return this.$store.getters.getCategories[index].icon;
+			init(date, inouts, fct) {
+				this.date = date;
+				this.inouts = inouts;				
+				if (typeof(this.inouts) != "undefined") {
+					var indexRentreLe = 0;
+					var indexDepartLe = 0;
+					this.inouts.rentreLe.forEach((inout,index)=>{
+						client_api.api.get(this.$store, inout.idClient, client=>{
+							inout.client = client;
+							inout.article = client.articles[inout.numero];
+							inout.tab = "rentreLe";
+							indexRentreLe = index;
+							fct(indexRentreLe, indexDepartLe);
+						})						
+					})
+					this.inouts.departLe.forEach((inout, index)=>{
+						client_api.api.get(this.$store, inout.idClient, client=>{
+							inout.client = client;
+							inout.article = client.articles[inout.numero];
+							inout.tab = "departle";
+							indexDepartLe = index;
+							fct(indexRentreLe, indexDepartLe);
+						})						
+					})
 				}
-				return "";
 			},
-			getClassEtat(indexEtat) {
-				var index = this.$store.getters.getEtats.findIndex(elt=>elt.id == indexEtat);
-				if (index!=-1) {
-					return this.$store.getters.getEtats[index].icon;
-				}
-				return "";
+			changeTab(InOut) {
+				this.tabClients = this.clients[InOut];
+				this.InOut = InOut;
 			},
-			getLabelEtat(indexEtat) {
-				var index = this.$store.getters.getEtats.findIndex(elt=>elt.id == indexEtat);
-				if (index!=-1) {
-					return this.$store.getters.getEtats[index].nom;
-				}
-				return "";
-			},
-			save(client) {
-				client_api.api.update(this.$store.getters.getDocAgence, client, ()=> {
-					this.openModalEtat=false;
-				})
-			}
+			
+			
+			
 
+		},
+		mounted: function () {
+			console.log("mounter()");			
 		}
 	}
 </script>
 <style scoped>
 	.itemArticle {
 		margin-bottom: 20px;
+	}
+	.listClients {
+		height: 300px;
+		overflow-y: auto;
 	}
 </style>

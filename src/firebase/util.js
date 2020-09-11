@@ -34,7 +34,28 @@ const const_util = {
 			    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
 			    return v.toString(16);
 			  });
-		 }
+		 },
+		 convertYYYYMM(dateParam) {
+			var date = new Date(dateParam);
+			var month = date.getMonth() + 1;
+			if (month < 10)
+				month = "0" + month;
+			return date.getFullYear()+"-"+month;
+		 },
+		 convert(dateParam) {
+			var date = new Date(dateParam);
+			return date.toLocalDateString();
+		 },
+		 formatDate(date) {
+			var date = new Date(date);
+			var month = date.getMonth() + 1;
+			var day = date.getDate();
+			if (month < 10)
+				month = "0" + month;
+			if (day < 10)
+				day = "0" + day;
+			return date.getFullYear()+"-"+month+"-"+day;
+		}
 		
 		
 }

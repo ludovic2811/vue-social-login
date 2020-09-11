@@ -1,13 +1,29 @@
 <template>
 <div class="container">
+	
+	<in-out
+		:client="clientData"
+		:article="article"
+		@close="openInOut = false"
+		:open="openInOut"
+	></in-out>
+	
 	<s-button icon="plus" label="Ajouter un client"  @onclick="addClient" theme="is-primary"></s-button>
 		<div class="listGroup"  v-show="nav==='list'">
 			<div class="itemGroup" v-for="client in clients">
-	  			<visu-item-client :client="client" @edit="edit(client)" :modif="true" ></visu-item-client>
+	  			<visu-item-client 
+				  :client="client" 
+				  @edit="edit(client)" 
+				  @openModalInOut = "openModalInOut"
+				  :modif="true" >
+				</visu-item-client>
 	    	</div> 
+			
 	    </div> 
-	    	<edit-client  :client="clientData" v-if="nav=='editClient'" @back="refresh" @refreshClient=""></edit-client>
-		
+	    	<edit-client  :client="clientData" v-if="nav=='editClient'" @back="refresh" @refreshClient="">
+
+			</edit-client>
+			
 		
 </div>
 </section>
@@ -17,19 +33,25 @@
 	
 	import VisuItemClient from '@/views/client/visuItemClient.vue'
 	import EditClient from '@/views/client/editClient.vue'
+	import InOut from '@/views/client/inOut.vue'
+
 	import firebase_api from "@/firebase/firebase_api"; 
 
 	export default {
 		components: {
 			VisuItemClient,
-			EditClient
+			EditClient,
+			InOut
 		},
+		
 		data: function() {
 			return  {
 				clientData: client.api.json,
+				article: null,
 				clients: [],
 				nav: 'list',
-				account: {}
+				account: {},
+				openInOut: false
 			}
 		},
 		watch: {
@@ -39,7 +61,16 @@
 		},
 
 		methods: {
-			
+			openModalInOut (client, article) {
+				console.log(client);
+				console.log(article);
+				var key = client['.key'];
+				console.log(key)
+				this.clientData = client;
+				this.article = article;
+				console.log(this.article);
+				this.openInOut = true;
+			},
 			search (search) {
 				if (isNaN(search))
 					client.api.getSearch(this.$store.getters.getDocAgence, search, clients=>{						

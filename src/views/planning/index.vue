@@ -21,16 +21,16 @@
                         <div  v-for="dayEvent in props.attributesMap.events.customData.events">
                             <p class="label">
                             	<s-button 
-                            		v-if="dayEvent.rentrele.length!=0" 
+                            		v-if="dayEvent.rentreLe.length!=0" 
                             		theme="is-primary is-small is-rounded" 
                             		icon="" 
-                            		:label="dayEvent.rentrele.length"
+                            		:label="dayEvent.rentreLe.length"
                             	></s-button><br/>
                             	<s-button 
-                            		v-if="dayEvent.partirle.length!=0" 
+                            		v-if="dayEvent.departLe.length!=0" 
                             		theme="is-danger is-small is-rounded" 
                             		icon="" 
-                            		:label="dayEvent.partirle.length"
+                            		:label="dayEvent.departLe.length"
                             	></s-button>
                             	
                             </p>
@@ -40,7 +40,7 @@
             </template>
         </v-calendar>
 
-        <item-date :date="itemDate" :clients="tabItem" :open="openIdemDate"    @close="openIdemDate=false"/>
+        <item-date ref="itemDate" :date="itemDate" :inouts="tabItem" :open="openIdemDate"    @close="openIdemDate=false"/>
     </div>
 </template>
 
@@ -74,13 +74,9 @@
                 YYYYMM :null
             }
         },
-        mounted() {
-                
+        mounted() {                
                 var date = new Date();
-               
-
                 this.init(this.convertYYYYMM(date));
-            
         },
 
         methods: {
@@ -97,33 +93,12 @@
                 if (this.YYYYMM != YYYYMM) {
                    this.YYYYMM = YYYYMM;
                  
-                    planning_api.api.getClientsByMonth(this.$store, YYYYMM, clients=>{
-
-                        clients.forEach(client=> {
-                            client.articles.forEach(article=>{
-                                if (typeof(this.tabDates[article.rentrele]) == "undefined") {
-                                    this.tabDates[article.rentrele] = {};
-                                    this.tabDates[article.rentrele].rentrele = [];
-                                    this.tabDates[article.rentrele].partirle = [];
-                                }
-                                if (typeof(this.tabDates[article.partirle]) == "undefined") {
-                                    this.tabDates[article.partirle] = {};
-                                    this.tabDates[article.partirle].partirle = [];
-                                    this.tabDates[article.partirle].rentrele = [];
-                                }
-                                this.tabDates[article.rentrele].rentrele.push(client);
-                                this.tabDates[article.partirle].partirle.push(client);
-                            })
-
-                        })
-                        
-                        for (var dateKey in this.tabDates) {
-                            this.addEvent(dateKey, this.tabDates[dateKey].rentrele, this.tabDates[dateKey].partirle )
+                    planning_api.api.getClientsByMonth(this.$store, YYYYMM, inouts=>{
+                        this.tabDates= inouts;
+                        for (var dateKey in inouts) {
+                            this.addEvent(dateKey, inouts[dateKey].rentreLe, inouts[dateKey].departLe);
                         }
                         
-                        
-                         /*= [];
-                        tabDepart[res.departle] = [];*/
                       })
                 }
             }
@@ -139,16 +114,23 @@
             	return date.getFullYear()+"-"+month+"-"+day;
         	},
         	openModalItemDate(date) {
-
+                
         		var dateFormat = this.formatDate(date);
-        		
                 if (typeof(this.tabDates[dateFormat]) != "undefined") {
-
                     this.itemDate = dateFormat;
-            		
-            		this.tabItem = this.tabDates[this.itemDate];
-
-                    this.openIdemDate = true;
+                    this.tabItem = this.tabDates[this.itemDate];
+                    // je charge la fenêtre
+                    this.$refs["itemDate"].init(this.itemDate, this.tabItem, (indexRentreLe, indexDepartLe)=>{
+                        // j'ouvre la fenêtre seulement si tout a été chargé
+                       if (indexRentreLe==0) indexRentreLe--;
+                        if (indexDepartLe==0) indexDepartLe--;
+                         if ((indexRentreLe == this.tabItem.rentreLe.length-1) 
+                                && (indexDepartLe == this.tabItem.departLe.length-1)) {
+                                    console.log(this.tabItem);
+                                }
+                            this.openIdemDate = true;
+                    });
+                   
                 }
         	},
             pageChange(change) {
@@ -156,7 +138,7 @@
                 var date = new Date (change.year + "-" + change.month + "-01");
                 this.init(date);
             },
-            addEvent(date, rentrele, partirle) {
+            addEvent(date, rentreLe, departLe) {
                 var attribute = {
                     key: 'events',
                     dates: [],
@@ -167,8 +149,8 @@
                 attribute.dates.push(new Date(date));
                 
                 attribute.customData.events.push({
-                    rentrele: rentrele,
-                    partirle: partirle,
+                    rentreLe: rentreLe,
+                    departLe: departLe,
                     date: date
                 });      
                 
@@ -184,7 +166,7 @@
     .caseDate {
         width: 55px;
         min-height: 70px;
-        border: thin silver solid;
+        border: thin solid black;
         text-overflow: 'ellipsis';
         margin: 1px;
     }

@@ -12,7 +12,7 @@
 						<div class="tile is-child box">
 							<label class="label">NUMERO :</label>
 							<input type="text"  class="input" id="numero" v-model="article.numero" />
-							<input type="text"  class="input" v-model="article.id" />
+							
 						</div>
 						<div class="notification is-danger" v-show="error.numero">
 							<button class="delete" v-on:click="error.numero=false"></button>
@@ -25,7 +25,7 @@
 					
 					<div class="tile is-child box">
 						<span class="label">Ajouter :</span>
-						{{article.idCategorie}}
+						
 						<s-select :list="$store.getters.getAgence.categories" :fields="fieldsCategories" :valueSelected="article.idCategorie" @selected="setCategorie" labelNotSelected="Selectionner"/>
 						<br/>
 						<div class="notification is-danger" v-show="error.categorie">
@@ -47,16 +47,16 @@
 							  </span>
 						</span>
 						
-						&nbsp;<br/><br/>
+						&nbsp;
 						<s-button-paiement :change="modalTypePaiement" :article="article" @onclick="modalTypePaiement = true"><br/><br/>
-						</s-button-paiement>
+						</s-button-paiement><br/>
 						<span class="comment">Cliquez sur le bouton pour mettre à jour les paiements</span>
 						
 						
 						
 					</div>
 					<div class="tile is-child box">
-						<br/>
+						
 						<label class="label">Etat :</label>
 						<s-select :list="$store.getters.getAgence.etats" :fields="fieldsEtat" :valueSelected="article.idEtat" @selected="setEtat" labelNotSelected="Selectionner"></s-select>
 						<div class="notification is-danger" v-show="error.etat">
@@ -105,7 +105,7 @@
 				<footer class="modal-card-foot">
 				  <s-button  theme="is-success" icon="save" label="Enregistrer"  @onclick="saveArticle"></s-button>
 				  <s-button  theme="is-warning" icon="ban" label="Cancel"  @onclick="$emit('cancel')"></s-button>
-				  <s-button  theme="is-danger" icon="trash" label="Supprimer"  @onclick="$emit('delete')"></s-button>
+				  <s-button  theme="is-danger" icon="trash" label=""  @onclick="$emit('delete')"></s-button>
 				</footer>
 			</div>
 	</div>	
@@ -141,6 +141,7 @@
 			}
 		},
 		methods: {
+			
 			setAPaye() {
 				var year  =this.getYear();
 				var label = "N'a pas payé " + year;

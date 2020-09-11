@@ -1,16 +1,33 @@
-import firebase from "@/firebase/firebase_api"; 
+
 
 const const_planning = {
 	getClientsByMonth(store, YYYYMM, fct) {
 		
-		store.getters.getDocAgence.collection("clients").where("listMonth","array-contains",YYYYMM).get().then(querySnapshot=>{
-			var docs = querySnapshot.docs.map(function (doc) {
-					    const eventData = doc.data()
-	    				eventData.id = doc.id
-	    				return eventData
+		store.getters.getDocAgence.collection("inout").where("yyyymm","array-contains",YYYYMM).get()
+			.then(querySnapshot=>{
+				var planning = {};
+				var inPlanning = {
+					rentreLe: [],
+					departLe: []
+				}
+
+				querySnapshot.docs.forEach(doc => {
+						var dataInOut = doc.data();
+						
+						
+						if (typeof(planning[dataInOut.rentreLe]) == "undefined") {
+							planning[dataInOut.rentreLe] = JSON.parse(JSON.stringify(inPlanning))
+						}
+						planning[dataInOut.rentreLe].rentreLe.push(dataInOut);
+
+						if (typeof(planning[dataInOut.departLe]) == "undefined")
+							planning[dataInOut.departLe] = JSON.parse(JSON.stringify(inPlanning))
+						planning[dataInOut.departLe].departLe.push(dataInOut);
+						return dataInOut;
 					})			
-    		fct(docs);
-		})
+				
+    			fct(planning);
+			})
 	}
 }
 

@@ -34,14 +34,19 @@
 								</s-select-etat>
 							</div>
 						</nav>
-	  					<s-button-paiement :change="modalTypePaiement" :article="article" @onclick="modalTypePaiement = true">
-	  					</s-button-paiement>&nbsp;
+	  					<s-button-paiement 
+						  	
+							:article="article" 
+						  	@onclick="modalTypePaiement = true">
+	  					</s-button-paiement>&nbsp;<br/>
 						<histoPaiement 
-						:article="article" 
-						:open="modalTypePaiement" 
-						@save="save(article)"
-						:cancel="0==1" 
-						@cancel="modalTypePaiement=false"
+							:article="article" 
+							:client="client"
+							:open="modalTypePaiement" 
+							@save=""
+							:cancel="0==1" 
+							@close="modalTypePaiement=false"
+							@cancel=""
 						>
 						</histoPaiement>
 					<br/>
@@ -52,10 +57,15 @@
 						@cancel="openModalEntrepot=false">
 					</s-select-entrepot>
 	  				<div class="dates">
-	  					
-	  					<div>Parti le : {{article.partirle}}</div>
-	  					<div>Revient le : {{article.rentrele}}</div>
-	  					<s-button theme="is-primary" label="" icon="calendar-alt" @onclick=""/> 
+						<div class="itemDate">
+							<div>Parti le : </div><div>{{article.departLe}}</div><br/>
+							<div>Rentre le :</div><div>{{article.rentreLe}}</div>
+						</div>
+						<div class="buttonInOut"> 
+	  						<s-button theme="is-primary" label="" icon="calendar-alt" 
+						  	@onclick="openModalInOut(client, article)"></s-button>
+						</div>
+						
 	  				</div>
 	  			</div>
 	  		
@@ -74,6 +84,7 @@
       			</p>
       		</div>
 		</footer>
+		
 	 </div>
 </template>
 <script>
@@ -84,6 +95,7 @@
 	import article_api from "@/firebase/article_api"
 	import client_api from "@/firebase/client_api"
 	import conso from "@/firebase/client_consolidation"; 
+	import InOut from '@/views/client/inOut.vue'
 	export default {
 			
 		props: ["agence","client","modif"],
@@ -91,7 +103,8 @@
 			histoPaiement,
 			SButtonPaiement,
 			SSelectEtat,
-			SSelectEntrepot
+			SSelectEntrepot,
+			InOut
 		},
 		data: function() {
 			return {
@@ -100,10 +113,17 @@
 				visuArticle : false,
 				openModalEtat: false,
 				openModalEntrepot: false,
+				openInOut: false,
 				article: null
 			}
 		},
 		methods: {
+			
+			openModalInOut(client, article) {
+				this.article = article;
+				this.openInOut = true;
+				this.$emit("openModalInOut", client, article);
+			},
 			save(articleModif, type) {
 				this.openModalEntrepot=false;
 				this.modalTypePaiement=false;
@@ -181,12 +201,21 @@
 		border-radius: 10px;
 	}
 	.dates {
-		padding-top: 15px;
+		padding-top: 20px;
 	}
-	.dates div {
-		width: 100px;
+	.itemDate {
+		float: left;
 		display: inline-block;		
 		font-weight: bold;
+	}
+	.buttonInOut {
+		float: right;
+		display: inline-block;	
+	}
+	.itemDate div {
+		margin-bottom: 10px;
+		width: 100px;
+		display: inline-block;	
 	}
 	.itemArticleList {
 		padding-bottom: 10px;

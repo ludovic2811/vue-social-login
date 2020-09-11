@@ -36,9 +36,15 @@
 	</div>
 
 
-  	<visu-info-materiel  :modif="modif" :client="client" v-show="nav=='visuInfoMateriel'"  @edit="$emit('edit')"/>
+  	<visu-info-materiel  
+	  :modif="modif" 
+	  :client="client" 
+	  v-show="nav=='visuInfoMateriel'"  
+	  @edit="$emit('edit')"
+	  @openModalInOut="openModalInOut" />
+
   	<visu-info-client :modif="modif" :client="client" v-show="nav=='visuInfoClient'" @edit="$emit('edit')" />
-  	
+  
   		
   </div>
 </template>
@@ -60,6 +66,10 @@
 			}
 		},
 		methods: {
+			openModalInOut (client, article) {
+				console.log(client);
+				this.$emit("openModalInOut", client, article);
+			},
 			tabInfoClient() {
 				this.nav='visuInfoClient';
 				this.classTabInfoClient=this.classOK;

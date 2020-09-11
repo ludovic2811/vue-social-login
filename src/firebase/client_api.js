@@ -12,10 +12,24 @@ const const_client = {
 		articles: [],
 		search: ''
 	},
+	getArray(store, arrayKeys, fct) {
+		
+		if (arrayKeys.length !=0) {
+			arrayKeys.forEach(key=>{
+				this.get(store, key, (client)=>{
+					fct(client)
+				})
+			})
+		}
+		else {
+			fct();
+		}
+		
+	},
 	get(store, clientId, fct) {
 		store.getters.getDocAgence.collection("clients").doc(clientId).get().then(doc=> {
 			var dataClient = doc.data();
-			dataClient.id = doc.id;
+			dataClient[".key"] = doc.id;
 			fct(dataClient);
 		});
 	},
