@@ -1,14 +1,11 @@
 <template>
 
-	
-	
 	<s-button 
 		:theme="getTheme()" 
 		:label="getLabel()" 
 		@onclick="$emit('onclick')"
 		:icon="getIcon()">				
 	</s-button>
-
 
 </template>
 <script>

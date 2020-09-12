@@ -1,9 +1,12 @@
 <template>
 	<div>
-		<div class="modal-background"></div>
-		<div class="modal-card">
+		<div class="modal-background" ></div>
+		<div class="modal-card"  style="width:90%">
 			<header class="modal-card-head">
-			  <p class="modal-card-title">Editer le article</p>
+			  <p class="modal-card-title">Editer l'article {{article.numero}}</p>
+			   		  <div style="float:rigth" >
+				      	<s-button theme="" label="" icon="times-circle" @onclick="$emit('cancel')"/>
+				      </div>
 			</header>
 			<section class="modal-card-body">
 			<div>
@@ -24,7 +27,7 @@
 				<div class="tile is-ancestor">
 					
 					<div class="tile is-child box">
-						<span class="label">Ajouter :</span>
+						<span class="label">Catégorie :</span>
 						
 						<s-select :list="$store.getters.getAgence.categories" :fields="fieldsCategories" :valueSelected="article.idCategorie" @selected="setCategorie" labelNotSelected="Selectionner"/>
 						<br/>
@@ -48,7 +51,7 @@
 						</span>
 						
 						&nbsp;
-						<s-button-paiement :change="modalTypePaiement" :article="article" @onclick="modalTypePaiement = true"><br/><br/>
+						<s-button-paiement :change="openHistoPaiement" :article="article" v-show="article.numero!=''" @onclick="openModalHistoPaiement"><br/><br/>
 						</s-button-paiement><br/>
 						<span class="comment">Cliquez sur le bouton pour mettre à jour les paiements</span>
 						
@@ -80,46 +83,64 @@
 							<option v-for="stock in stocks" :value="stock.id">
 								{{stock.nom}} ({{stock.reste}})</option>
 						</select>
-						<br/>
+						
 						<histoPaiement 
 							:article="article" 
 							:client="client"
-							:open="modalTypePaiement" 
-							@save="modalTypePaiement=false"
+							:open="openHistoPaiement" 
+							@save="openHistoPaiement=false"
 							:cancel="0==1" 
-							@cancel="modalTypePaiement=false"
-							>
+							@cancel="openHistoPaiement=false"
+						>
 						</histoPaiement>
 					</div>
 				</div>
 					<div class="tile is-ancestor">
 						<div class="tile is-child box">
-						<label class="label">Va partir le :</label>
-						<input type="date" class="input" v-model="article.partirle"/>
-						<label class="label">Va rentrer le :</label>
-						<input type="date" class="input" v-model="article.rentrele" />
+							<div class="groupDate">
+							<div class="dateItems">
+								<div>
+									<div class="labelDate">Part le </div>{{$convertDateToString(article.departLe)}} <span class="nonDef" v-if="article.departLe==''">non défini</span></div>
+								<div>
+									<div class="labelDate">Rentre le </div> {{$convertDateToString(article.rentreLe)}} <span class="nonDef" v-if="article.rentreLe==''">non défini</span></div>
+							</div>
+							
+							<div class="buttonInOut">
+								<s-button theme="is-primary is-small" label="Planifier" icon="calendar-alt" 
+								@onclick="openModalInOut(client, article)"></s-button>
+							</div>
+							</div>
+							
 						</div>
 					</div>
 				</div>
+				<in-out
+					:client="client"
+					:article="article"
+					@close="openInOut = false"
+					:open="openInOut"	>
+				</in-out>	
 				</section>	
 				<footer class="modal-card-foot">
 				  <s-button  theme="is-success" icon="save" label="Enregistrer"  @onclick="saveArticle"></s-button>
-				  <s-button  theme="is-warning" icon="ban" label="Cancel"  @onclick="$emit('cancel')"></s-button>
-				  <s-button  theme="is-danger" icon="trash" label=""  @onclick="$emit('delete')"></s-button>
-				</footer>
+				  <s-button  theme="is-danger" icon="trash" label="Supprimer"  @onclick="$emit('delete')"></s-button>
+				</footer>  
 			</div>
 	</div>	
 </template>
 <script>
-	import histoPaiement from '@/views/client/historiquePaiement.vue'
-	import article_api from '@/firebase/article_api'
-	import SButtonPaiement from '@/views/client/SButtonPaiement.vue'	 
+	import article_api 		from '@/firebase/article_api'
+
+	import histoPaiement 	from '@/views/client/components/historiquePaiement.vue'
+	import SButtonPaiement 	from '@/views/client/components/SButtonPaiement.vue'	 
+	import InOut            from '@/views/client/components/inOut.vue'
 	export default {
 
 		props: ["article","client"],
 		components: {
 			histoPaiement,
-			SButtonPaiement
+			SButtonPaiement,
+			InOut
 		},
 		data: function() {
 			return {
@@ -131,7 +152,8 @@
 				themeAPayer: "is-danger" ,
 				labelAPayer: "",
 				checkAPayer: false,
-				modalTypePaiement: false,
+				openHistoPaiement: false,
+				openInOut: false,
 				error: {
 					numero: false,
 					categorie: false,
@@ -161,7 +183,7 @@
 				return now.getFullYear();
 			},
 			setCategorie (item) {
-				console.log(item);
+				
 				this.article.idCategorie = item.id;
 				this.types = [];
 				this.article.prix;
@@ -184,13 +206,29 @@
 			setEtat(item) {				
 				this.article.idEtat = item.id;
 			},
-			saveArticle() {
+			openModalInOut() {
+				var error = this.checkArticle();
+				if (!error) {
+					this.saveArticle();
+					this.openInOut = true;
+				}
+			},
+			openModalHistoPaiement() {
+				var error = this.checkArticle();
+				if (!error) {
+					this.saveArticle();
+					this.openHistoPaiement = true;
+				}
+			},
+			checkArticle() {
 				this.error.numero = this.article.numero == ''
 				this.error.categorie = this.article.idCategorie == 0
 				this.error.etat = this.article.idEtat == 0
 				this.error.entrepot = this.article.idEntrepot == 0
-				var error = this.error.numero || this.error.categorie || this.error.etat || this.error.entrepot;
-
+				return this.error.numero || this.error.categorie || this.error.etat || this.error.entrepot;
+			},
+			saveArticle() {
+				var error = this.checkArticle();
 				if (!error)
 					this.$emit("save", this.article);
 			}
@@ -218,5 +256,36 @@
 	}
 	#numero {
     	text-transform: uppercase
+	}
+	.groupDate {
+	
+		vertical-align: middle;
+		height: 45px;
+	}
+	.dateItems {
+		font-weight: bold;
+		display: inline-block;
+		
+		padding-top: -5px;
+	}
+	.dateItems div {
+		width: 180px;
+		
+	}
+	.dateItems span.nonDef {
+		font-style: italic;
+		font-size:smaller;
+		font-weight: normal;
+	}
+	.dateItems div.labelDate {
+		width: 90px;
+		display: inline-block;
+		text-align: left;
+	}
+	.buttonInOut {
+		display: inline-block;
+		vertical-align: middle;
+		height: 55px;
+		
 	}
 </style>

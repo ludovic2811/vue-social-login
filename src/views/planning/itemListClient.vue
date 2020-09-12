@@ -23,9 +23,11 @@
     </div>
 </template>
 <script>
-import SSelectEtat from '@/views/client/SSelectEtat.vue'
 import client_api from "@/firebase/client_api"
-	import article_api from "@/firebase/article_api"
+import article_api from "@/firebase/article_api"
+
+import SSelectEtat from '@/views/client/components/SSelectEtat.vue'
+    
 export default {
     props:["itemInOut"],
     data: function() {

@@ -14,14 +14,16 @@ const const_paiement = {
     },
     
 	getAll (store, client, article , fct) {
-        if (typeof(client)!="undefined")
-            store.getters.getDocAgence.collection("clients").doc(client[".key"])
-            .collection("paiements").doc(article.numero).get().then(doc=>{
-                if (doc.exists)
-                    fct(doc.data());
-                else
-                    fct({});
+        if (article.numero != '' ) {
+            if (typeof(client)!="undefined")
+                store.getters.getDocAgence.collection("clients").doc(client[".key"])
+                .collection("paiements").doc(article.numero).get().then(doc=>{
+                    if (doc.exists)
+                        fct(doc.data());
+                    else
+                        fct({});
             })
+        }
     },
     confirmPaiementToArticle (store, client, article, paiementData, fct) {
         
@@ -67,13 +69,12 @@ const const_paiement = {
     },
     
     set (store, client, article, listPaiements, fct) {
-        console.log("ICI DANSSET")
-        console.log(listPaiements);
+        
         store.getters.getDocAgence.collection("clients").doc(client[".key"])
             .collection("paiements").doc(article.numero).set(
                 listPaiements
         ).then(()=>{
-            console.log("ICI DANSSET")
+           
             fct();
         });
     },

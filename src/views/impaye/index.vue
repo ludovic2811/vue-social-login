@@ -15,33 +15,42 @@
 				<div class="itemTypePaiement">
 				<span class="buttonPaiement" v-for="(article, indexArticle) in client.articles">
 					{{article.numero}} : 
-					<s-button-paiement :change="modalTypePaiement" :article="article" @onclick="openPaiement(article, client)"></s-button-paiement>
+					<s-button-paiement 
+						:change="modalTypePaiement" 
+						:article="article" 
+						@onclick="openPaiement(article, client)"></s-button-paiement>
 					
 				</span>
 				</div>
-				<histoPaiement 
-						:article="articleData" 
-						:open="modalTypePaiement" 
-						@save="save(clientData)"
-						:cancel="false" 
-						@cancel="modalTypePaiement=false"
-					>
-				</histoPaiement>
+				
+				
 			</div>
 		
 
 		<s-modal :open="openClient" title="Client" :save="false" :cancel="false" :close="true" @save="" @cancel="" @close="openClient=false">
-		<visu-item-client :client="clientData" @edit="" v-if="clientData!=null" :modif="false">
-		</visu-item-client>
+		<item-client :client="clientData" @edit="" v-if="clientData!=null" :modif="false">
+		</item-client>
 		</s-modal>
-		
+		<histoPaiement 
+					:article="articleData" 
+					:client="clientData"
+					:open="modalTypePaiement" 
+					:cancel="false" 
+					@close="modalTypePaiement=false"
+					@cancel=""
+					@save=""
+					
+				>
+		</histoPaiement>
 	</div>
 </template>
 <script>
-	import client_api from '@/firebase/client_api'	
-	import VisuItemClient from '@/views/client/visuItemClient.vue'
-	import histoPaiement from '@/views/client/historiquePaiement.vue'
-	import SButtonPaiement from '@/views/client/SButtonPaiement.vue'
+	import histoPaiement 	from '@/views/client/components/historiquePaiement.vue'
+	import SButtonPaiement 	from '@/views/client/components/SButtonPaiement.vue'
+
+	import client_api 		from '@/firebase/client_api'	
+	import ItemClient 		from '@/views/client/itemClient.vue'
+	
 	export default {
 		data: function() {
 			return {
@@ -54,7 +63,7 @@
 			}
 		},
 		components: {
-			VisuItemClient,
+			ItemClient,
 			histoPaiement,
 			SButtonPaiement
 		},

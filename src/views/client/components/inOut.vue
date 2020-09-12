@@ -1,7 +1,7 @@
 <template>
     <div :class="classModal">
 			<div class="modal-background"></div>
-  			<div class="modal-card">
+  			<div class="modal-card" style="width:90%">
 	    		<header class="modal-card-head">
 				      <p class="modal-card-title">Départ - Sortie</p>	
 				      <div style="float:rigth" >
@@ -63,12 +63,12 @@
                     
                     <div>
                      <div class="itemFooter">
-      				     <input type="date" v-model="inout.departLe" style="width:150px"/>
+      				     <input type="date" v-model="inout.departLe" style="width:130px"/>
                     </div>
                     <div class="itemFooter">
-      				    <input type="date" v-model="inout.rentreLe" style="width:150px"/>
+      				    <input type="date" v-model="inout.rentreLe" style="width:130px"/>
                     </div> 
-                    </div>
+                    
                     <div class="add">
                         <s-button 
                         theme="button is-success" 
@@ -89,7 +89,7 @@
                         v-show="inout.id != -1"></s-button>
                         </div>
       				</div>
-                      
+                      </div>
       				
       				
     			</footer>
@@ -101,6 +101,7 @@
 <script>
 import firebase_api from "@/firebase/firebase_api"; 
 import inout_api    from "@/firebase/inout_api"
+
 export default {
    
     props: ["client", "article","open"],
@@ -231,9 +232,11 @@ export default {
         width: 150px;
         display: inline-block;
         text-align: center;
-        margin-right: 10px;
+        margin-right: -10px;
     }
     .add {
         margin-top: 10px;
+        display: inline-block;
+         margin-left: 10px;
     }
 </style>

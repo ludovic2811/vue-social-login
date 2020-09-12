@@ -52,7 +52,10 @@
 		<br/>
 		<ul>
 			<li v-for="article in client.articles">
-				<s-button theme="is-primary" :label="article.numero" icon="cog" @onclick="editArticle(article)"/>
+				<s-button theme="is-primary" 
+					:label="article.numero" afterIcon="cog" 
+					:icon="getIconCategorie(article)"
+					@onclick="editArticle(article)"/>
 				<br/><br/>
 			</li>
 		</ul>
@@ -60,17 +63,17 @@
 	</div>
 	<div :class="addViewMateriel">
 			
-					<editInventaireItem 
-						@save="saveArticle" 
-						@delete="modalDeleteArticle=true"
-						@cancel="addViewMateriel='modal'"
-						:article="article" 
-						:client="client"
-						v-if="addViewMateriel=='modal is-active'">
-					</editInventaireItem>  	
-					<s-confirm :open="modalDeleteArticle" title="Supprimer l'article" @yes="deleteArticle" @no="modalDeleteArticle=false">
-						Souhaitez vous réellement supprimer l'article {{article.numero}} ?
-					</s-confirm>
+		<edit-article 
+			@save="saveArticle" 
+			@delete="modalDeleteArticle=true"
+			@cancel="addViewMateriel='modal'"
+			:article="article" 
+			:client="client"
+			v-if="addViewMateriel=='modal is-active'">
+		</edit-article >  	
+		<s-confirm :open="modalDeleteArticle" title="Supprimer l'article" @yes="deleteArticle" @no="modalDeleteArticle=false">
+			Souhaitez vous réellement supprimer l'article {{article.numero}} ?
+		</s-confirm>
 				
 	</div>
 		    <!-- Brand and toggle get grouped for better mobile display -->
@@ -94,17 +97,20 @@
 </template>
 <script>
 	
-	import client from "@/firebase/client_api"
-	import entrepot_api from '@/firebase/entrepot_api'	 
-	import categorie_api from '@/firebase/categorie_api'
-	import editInventaireItem from "@/views/client/editInventaireItem.vue";
-	import article_api from "@/firebase/article_api";
-	import conso from "@/firebase/client_consolidation"; 
+	import client 			from "@/firebase/client_api"
+	import article_api 		from "@/firebase/article_api";
+	import entrepot_api 	from '@/firebase/entrepot_api'	 
+	import categorie_api 	from '@/firebase/categorie_api'
+
+	import conso 			from "@/firebase/client_consolidation"; 
+	
+	import EditArticle 		from "@/views/client/edit/editArticle.vue";
+
 	export default {
 		name: 'edit_client',
 		props: ["client", "change"],
 		components: {
-			editInventaireItem
+			EditArticle
 		},
 		data: function() {
 			return {
@@ -118,10 +124,14 @@
 			}
 		},
 		methods: {
+			getIconCategorie(article) {
+				return this.$store.getters.getAgence.categories[article.idCategorie].icon;
+			},
 			save() {
 				
 				if (typeof(this.client[".key"]) =="undefined") {
 					client.api.add(this.$store.getters.getDocAgence, this.client, (ref)=> {
+						this.client['.key'] = ref.id;
 						
 					});
 				}
@@ -167,7 +177,7 @@
 						this.client.articles[articleModif.numero] = articleModif;
 				
 					article_api.api.save(this.$store, this.client,()=>{
-						this.addViewMateriel = "modal";
+						//this.addViewMateriel = "modal";
 						this.modalDeleteArticle = false;
 					});
 
@@ -176,13 +186,11 @@
 			},
 			editArticle(article) {
 				this.article= JSON.parse(JSON.stringify(article));
-				this.addViewMateriel='modal is-active';
+				this.addViewMateriel = 'modal is-active';
 			},
 			openAddMartiel() {
-				
 				this.article = JSON.parse(JSON.stringify(article_api.api.json_article));
-				this.addViewMateriel='modal is-active';
-
+				this.addViewMateriel = 'modal is-active';
 			}
 			
 		},

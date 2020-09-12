@@ -6,11 +6,11 @@ import Home from '@/views/Home.vue'
 
 import Config from '@/views/config/index.vue'
 
-import ListClient from '@/views/client/visuClient.vue'
+import Client from '@/views/client/index.vue'
 
-import planning from '@/views/planning/index.vue'
+import Planning from '@/views/planning/index.vue'
 
-import impaye from '@/views/impaye/index.vue'
+import Impaye from '@/views/impaye/index.vue'
 
 
 import Login from '@/views/Login.vue'
@@ -63,17 +63,17 @@ const router = new Router({
       }
     },
     {
-      path: '/listClient',
-      name: 'listClient',
-      component: ListClient,
+      path: '/client',
+      name: 'Client',
+      component: Client,
       meta: {
         requiresAuth: true
       }
     },
     {
       path: '/impaye',
-      name: 'impaye',
-      component: impaye,
+      name: 'Impaye',
+      component: Impaye,
       meta: {
         requiresAuth: true
       }
@@ -81,7 +81,7 @@ const router = new Router({
     
     {
       path: '/config',
-      name: 'config',
+      name: 'Config',
       component: Config,
       meta: {
         requiresAuth: true
@@ -89,8 +89,8 @@ const router = new Router({
     },     
     {
       path: '/planning',
-      name: 'planning',
-      component: planning,
+      name: 'Planning',
+      component: Planning,
       meta: {
         requiresAuth: true
       }

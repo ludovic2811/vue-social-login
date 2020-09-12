@@ -47,6 +47,9 @@ Vue.prototype.$uuid = ()=> {
 Vue.prototype.$util = function() {
 	return util.util;
 }
+Vue.prototype.$convertDateToString = function(date) {
+	return util.util.convertDateToString(date);
+}
 Vue.prototype.$orderJson = function(jsonParam) {
 	  return util.util.order(jsonParam);
 }

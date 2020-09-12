@@ -39,9 +39,9 @@
 	</s-modal>
 </template>
 <script>
-	import VisuItemClient from '@/views/client/visuItemClient.vue'
-	import ItemListClient from '@/views/planning/itemListClient.vue'
-	import client_api from "@/firebase/client_api"
+	import ItemClient from 		'@/views/client/itemClient.vue'
+	import ItemListClient from 	'@/views/planning/itemListClient.vue'
+	import client_api from 		"@/firebase/client_api"
 	
 	
 	export default {
@@ -64,7 +64,7 @@
 			}
 		},
 		components: {
-			VisuItemClient,
+			ItemClient,
 			ItemListClient
 		},
 		methods: {

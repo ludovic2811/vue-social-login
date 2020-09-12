@@ -16,7 +16,7 @@
   <div id="navbarMenu" :class="!openDrop ? dropdown : dropdownActive" >
     <div class="navbar-start"  v-if="existUser() && existAgence()">
       
-            <a class="navbar-item" v-on:click="rout('/listClient')">
+            <a class="navbar-item" v-on:click="rout('/client')">
               <i class="fas fa-users"></i><div class="s-item-menu">Liste des clients</div>
             </a>
             <a class="navbar-item"  v-on:click="rout('/planning')">

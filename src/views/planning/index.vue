@@ -45,8 +45,8 @@
 </template>
 
 <script>
-	import planning_api from "@/firebase/planning_api"
-	import ItemDate from "@/views/planning/itemDate.vue"
+	import planning_api     from "@/firebase/planning_api"
+	import ItemDate         from "@/views/planning/itemDate.vue"
     export default {
         name: 'EventCalendar',
         components:{

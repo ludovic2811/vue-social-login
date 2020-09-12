@@ -9,8 +9,8 @@ const const_article = {
 		prix: 0,
 		idEntrepot: 0,
 		idStock: 0,
-		partirle: "",
-		rentrele: "",
+		departLe: "",
+		rentreLe: "",
 		idEtat: 0,
 		paiement: {}
 	},

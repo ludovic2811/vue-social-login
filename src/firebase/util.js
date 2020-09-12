@@ -55,6 +55,10 @@ const const_util = {
 			if (day < 10)
 				day = "0" + day;
 			return date.getFullYear()+"-"+month+"-"+day;
+		},
+		convertDateToString(date) {
+			var date = new Date(date);
+			return date.toLocaleDateString();
 		}
 		
 		

@@ -41,14 +41,14 @@ const const_client = {
 			var confirm;
 			docs.forEach(doc=> {
 				data = doc.data();
-				data.id = doc.id;
+				data.['.key'] = doc.id;
 				confirm = false;
-				if (typeof(data.listByYearConfirmPaye) != "undefined")
-					if (typeof(data.listByYearConfirmPaye[year]) != "undefined") {
-						confirm = data.listByYearConfirmPaye[year].confirm;
+				if (typeof(data.paiements) != "undefined")
+					if (typeof(data.paiements[year]) != "undefined") {
+						confirm = data.paiements[year].confirm;
 					}
-
-				if (!confirm)
+			
+				if (!confirm && Object.keys(data.articles).length!=0)
 					users.push(data);
 			});
 			fct (users);

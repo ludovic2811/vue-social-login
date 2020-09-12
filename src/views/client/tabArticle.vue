@@ -1,14 +1,17 @@
 <template>
 	<div >
 		<div class="item">
+			<div v-show="!visuArticle && Object.keys(this.client.articles).length==0" class="notArticle">
+				Aucun article pour client
+			</div>
 	  		<div v-show="!visuArticle" class="articleList">
-	  			<div  v-for="article in client.articles" class="itemArticleList">
+	  			<div  v-for="article in this.client.articles" class="itemArticleList">
 						<i :class="getClassCategorie(article.idCategorie)"></i>
 				 				&nbsp;&nbsp;
 						<div style="width:200px;display:inline-block">
 							<p class="subtitle is-6">{{article.numero}}</p>
 						</div>
-						<s-button label="" icon="eye" theme="is-primary is-small" @onclick="setVisuArticle(article)"/> 
+						<s-button label="" icon="eye" theme="is-primary is-small" @onclick="setVisuArticle(article.numero)"/> 
 					
 				</div>
 	  		</div>
@@ -21,49 +24,42 @@
 									<s-button v-show="Object.keys(this.client.articles).length!=1" @onclick="visuArticle=false" label="" icon="list" theme="is-primary is-small">
 									</s-button>&nbsp;&nbsp;
 									<p class="subtitle is-6">
-										<i :class="getClassCategorie(article.idCategorie)"/>
-	  									&nbsp;&nbsp;<b>{{article.numero}}</b>
+										<i :class="getClassCategorie(articleVisu.idCategorie)"/>
+	  									&nbsp;&nbsp;<b>{{articleVisu.numero}}</b>
 									 </p>
 								</div>
 							</div>
 							<div class="level-rigth">
-								<s-button label="" :icon="getClassEtat(article.idEtat)" theme="is-primary " @onclick="openModalEtat=true"/>
-								<s-select-etat :open="openModalEtat" :article="article"
-									@save="save(article, 'etat')" @cancel="openModalEtat=false"
+								<s-button label="" :icon="getClassEtat(articleVisu.idEtat)" theme="is-primary " @onclick="openModalEtat=true"/>
+								<s-select-etat :open="openModalEtat" :article="articleVisu"
+									@save="save(articleVisu, 'etat')" @cancel="openModalEtat=false"
 								>
 								</s-select-etat>
 							</div>
 						</nav>
 	  					<s-button-paiement 
 						  	
-							:article="article" 
-						  	@onclick="modalTypePaiement = true">
+							:article="articleVisu" 
+						  	@onclick="openModalHistoPaiement(client, articleVisu)">
 	  					</s-button-paiement>&nbsp;<br/>
-						<histoPaiement 
-							:article="article" 
-							:client="client"
-							:open="modalTypePaiement" 
-							@save=""
-							:cancel="0==1" 
-							@close="modalTypePaiement=false"
-							@cancel=""
-						>
-						</histoPaiement>
+						
 					<br/>
-	  				<s-button :label="getLabelEntrepot(article.idEntrepot, article.idStock)" icon="industry" theme="is-primary is-normal" @onclick="openModalEntrepot=true"/>
+	  				<s-button :label="getLabelEntrepot(articleVisu.idEntrepot, articleVisu.idStock)" icon="industry" theme="is-primary is-normal" @onclick="openModalEntrepot=true"/>
 	  				<s-select-entrepot 
-	  					:open="openModalEntrepot" :article="article"
-						@save="save(article, 'entrepot')" 
+	  					:open="openModalEntrepot" :article="articleVisu"
+						@save="save(articleVisu, 'entrepot')" 
 						@cancel="openModalEntrepot=false">
 					</s-select-entrepot>
 	  				<div class="dates">
 						<div class="itemDate">
-							<div>Parti le : </div><div>{{article.departLe}}</div><br/>
-							<div>Rentre le :</div><div>{{article.rentreLe}}</div>
+							<div>Parti le : </div><div>
+								{{$convertDateToString(articleVisu.departLe)}}</div><br/>
+							<div>Rentre le :</div><div>
+								{{$convertDateToString(articleVisu.rentreLe)}}</div>
 						</div>
 						<div class="buttonInOut"> 
 	  						<s-button theme="is-primary" label="" icon="calendar-alt" 
-						  	@onclick="openModalInOut(client, article)"></s-button>
+						  	@onclick="openModalInOut(client, articleVisu)"></s-button>
 						</div>
 						
 	  				</div>
@@ -88,14 +84,16 @@
 	 </div>
 </template>
 <script>
-	import histoPaiement from '@/views/client/historiquePaiement.vue'
-	import SButtonPaiement from '@/views/client/SButtonPaiement.vue'
-	import SSelectEtat from '@/views/client/SSelectEtat.vue'
-	import SSelectEntrepot from '@/views/client/SSelectEntrepot.vue'
-	import article_api from "@/firebase/article_api"
-	import client_api from "@/firebase/client_api"
-	import conso from "@/firebase/client_consolidation"; 
-	import InOut from '@/views/client/inOut.vue'
+	import article_api 		from "@/firebase/article_api"
+	import client_api 		from "@/firebase/client_api"
+	import conso 			from "@/firebase/client_consolidation";
+
+	import histoPaiement 	from '@/views/client/components/historiquePaiement.vue'
+	import SButtonPaiement 	from '@/views/client/components/SButtonPaiement.vue'
+	import SSelectEtat 		from '@/views/client/components/SSelectEtat.vue'
+	import SSelectEntrepot 	from '@/views/client/components/SSelectEntrepot.vue'
+	import InOut 			from '@/views/client/components/inOut.vue'
+	
 	export default {
 			
 		props: ["agence","client","modif"],
@@ -109,37 +107,46 @@
 		data: function() {
 			return {
 				materiel: {},
-				modalTypePaiement: false,				
 				visuArticle : false,
 				openModalEtat: false,
 				openModalEntrepot: false,
-				openInOut: false,
-				article: null
+				article: null,
+				indexArticleVisu: 0,
+				numeroArticleVisu: null
+			}
+		},
+		computed: {
+			articleVisu: function() {
+				if( this.indexArticleVisu == 0) {
+					this.visuArticle = true;
+					return this.client.articles[Object.keys(this.client.articles)[this.indexArticleVisu]];
+				}
+				else
+					return this.client.articles[this.numeroArticleVisu]
 			}
 		},
 		methods: {
-			
-			openModalInOut(client, article) {
-				this.article = article;
-				this.openInOut = true;
-				this.$emit("openModalInOut", client, article);
+			openModalHistoPaiement (client) {
+				this.$emit("openModalHistoPaiement",  this.client, this.articleVisu);
+			},
+			openModalInOut(client) {
+				this.$emit("openModalInOut", client,  this.articleVisu);
 			},
 			save(articleModif, type) {
 				this.openModalEntrepot=false;
-				this.modalTypePaiement=false;
 				this.openModalEtat=false;
 				conso.api.calculEspaceEntrepot (this.$store.getters.getAgence, 
 							articleModif, this.client.articles[articleModif.numero], ()=>{
 					this.client.articles[articleModif.numero] = articleModif;
-				
 					article_api.api.save(this.$store, this.client,()=>{
 					
 					});
 				});
 			},
-			setVisuArticle(article) {
-				this.visuArticle = true;
-				this.article = JSON.parse(JSON.stringify(article));				
+			setVisuArticle(numeroArticleVisu) {
+				this.numeroArticleVisu = numeroArticleVisu;
+				this.indexArticleVisu = -1;
+				this.visuArticle = true;			
 			},
 			getClassCategorie(idCategorie) {
 				if (typeof(this.$store.getters.getAgence.categories[idCategorie]) != "undefined")
@@ -172,17 +179,16 @@
 				this.visuArticle = false;
 				
 				this.$emit('edit')
+			},
+			init() {
+				
+				if (Object.keys(this.client.articles).length == 1)
+					this.visuArticle = true;	
+				
 			}
 		},
 		mounted() {
-			
-			if (Object.keys(this.client.articles).length==1) {
-				for (var key in this.client.articles) {
-					this.article = JSON.parse(JSON.stringify(this.client.articles[key]));
-					this.visuArticle = true;					
-					break;
-				}
-			}
+			this.init()
 
 		}
 	}

@@ -1,9 +1,9 @@
 <template>
 	<div :class="classModal">
 		<div class="modal-background"></div>
-  		<div class="modal-card">
+  		<div class="modal-card" style="width:90%">
 	    	<header class="modal-card-head">
-		      <p class="modal-card-title">Paiements pour l'article<br/>{{article.numero}}</p>	
+		      <p class="modal-card-title" v-if='article'>Paiements pour l'article<br/>{{article.numero}}</p>	
 		      <div style="float:rigth" >
 			      	<s-button theme="" label="" icon="times-circle" @onclick="close"/>
 		      </div>
@@ -107,14 +107,11 @@
 	</div>
 </template>
 <script >
-	import SModal from '@/components/SModal.vue'
+	
 	import paiement_api from '@/firebase/paiement_api'
 
 	export default {
 		props: ["open","client", "article","cancel"],
-		components: {
-			SModal
-		},
 		data: function() {
 			return {
 				listPaiements: {},
@@ -133,16 +130,19 @@
 			}
 		},
 		watch: {
-			open: function(val) {
-				if (val) {
-				this.echeanceData.prix = this.article.prix;
-				this.classModal = "modal is-active";
-				this.init();
-				}
-				else {
-					this.classModal = "modal";
-				}
-			}
+			open: {
+                 handler(val) {                    
+                  	if (val) {
+						this.echeanceData.prix = this.article.prix;
+						this.classModal = "modal is-active";
+						this.init();
+					}
+					else {
+						this.classModal = "modal";
+					}
+                 },
+                 deep: true
+            }			
 		},
 		methods: {
 			close() {
@@ -239,6 +239,7 @@
 			init() {
 				this.listPaiements = {};
 				this.arrayPaiements = [];
+				
 				paiement_api.api.getAll(this.$store, this.client , this.article, docs=> {
 					this.listPaiements = docs;
 					for (var key in this.listPaiements) {
@@ -252,9 +253,11 @@
 		},
 		
 		mounted() {
-			this.echeanceData.prix = this.article.prix;
-			this.init();
-//<s-modal  :open="open" :title="'Liste des paiements pour '+numero" save="true" :cancel="cancel" @save="$emit('save', article)" @cancel="$emit('cancel')">
+			if (this.article) {
+				console.log("mounted histo")
+				this.echeanceData.prix = this.article.prix;
+				this.init();
+			}
 		}
 	}
 

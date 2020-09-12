@@ -26,7 +26,12 @@ export default {
         this.search = this.search.toUpperCase();
         //this.$router.push({path: "/listClient"});
       
-        this.$router.push({ path: '/listClient', query: { search: this.search } })
+        this.$router.push({ path: '/client', query: { search: this.search } })
+        .catch(err => {
+          if (err.name !== 'NavigationDuplicated') {
+              throw err;
+          }
+        })
     }
   }
 };
