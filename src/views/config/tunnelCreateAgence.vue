@@ -49,7 +49,7 @@
 		  		
 		  		<list-type-paiement :agence="agence" :refresh="refresh"	 @refresh="refresh=!refresh"  v-if="etape==4" ref="typePaiement"></list-type-paiement>
 		  		<manage-user 	:agence="agence" 	v-if="etape==5" ref="manageUser"></manage-user>
-		  		<subscription :agence="agence" :save="saveSubscription"	:refresh="refresh"	v-if="etape==6" ref="subscription"></subscription>
+		  		
 		  	</p>
 		</transition>
 		</div>
@@ -63,13 +63,16 @@
 				</s-button>
 		 </div>
 		 <div class="centerButton">
-		    <s-button theme="is-success  is-small" v-show="true"  icon="save" label="Enregistrer" @onclick="termine">
+		    <s-button theme="is-success  is-small" v-show="true"  icon="save" label="Enregistrer" 
+			@onclick="save">
 				</s-button>
 		  </div>
 		  <div class="nextEtape">
-		    <s-button theme="is-primary  is-small" v-show="etape<($steps-1)"  icon="save" afterIcon="caret-right" label="Suivant" @onclick="nextEtape">
+		    <s-button theme="is-primary  is-small" v-show="etape<($steps-1)"  icon="save" 
+				afterIcon="caret-right" label="Suivant" @onclick="nextEtape">
 				</s-button>
-				<s-button theme="is-success  is-small" v-show="etape==($steps-1)"  icon="check" label="Terminé" @onclick="termine">
+				<s-button theme="is-success  is-small" v-show="etape==($steps-1)"  icon="check" 
+				label="Terminé" @onclick="termine">
 				</s-button><br/>
 				
 		  </div>
@@ -93,7 +96,7 @@ import ListCategories 	from "@/views/config/step/listCategories.vue";
 import ManageUser 		from "@/views/config/step/manageUser.vue";
 import ListTypePaiement from "@/views/config/step/listTypePaiement.vue";
 import EditAgence 		from "@/views/config/step/editAgence.vue";
-import Subscription     from "@/views/config/step/subscription.vue";
+
 import firebase from "@/firebase/firebase_api";
 export default {
 
@@ -104,12 +107,11 @@ export default {
 			ListCategories,
 			ManageUser,
 			ListTypePaiement,
-			EditAgence,
-			Subscription
+			EditAgence
 	},
 	watch: {
 		initEtape: function (val) {
-			console.log(this.initEtape);
+			
 			if (this.agence.finish == this.$steps) {
 				this.etape = this.initEtape;
 			}
@@ -162,13 +164,6 @@ export default {
 						label: "Ajouter des utilisateurs",
 						description: "Ajouter des utilisateurs",
 						ref: "manageUser"
-					},
-					{
-						icon: "money-check",
-						label: "Abonnement",
-						description: "Choisissez votre formule",
-						ref: "subscription"
-
 					}
 				]
 			}

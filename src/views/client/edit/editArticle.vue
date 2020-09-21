@@ -51,11 +51,13 @@
 						</span>
 						
 						&nbsp;
-						<s-button-paiement :change="openHistoPaiement" :article="article" v-show="article.numero!=''" @onclick="openModalHistoPaiement"><br/><br/>
+						<s-button-paiement 
+							:change="openHistoPaiement" 
+							:article="article" 
+							v-show="article.numero!=''" 
+							@onclick="openModalHistoPaiement()"><br/><br/>
 						</s-button-paiement><br/>
 						<span class="comment">Cliquez sur le bouton pour mettre à jour les paiements</span>
-						
-						
 						
 					</div>
 					<div class="tile is-child box">
@@ -84,15 +86,7 @@
 								{{stock.nom}} ({{stock.reste}})</option>
 						</select>
 						
-						<histoPaiement 
-							:article="article" 
-							:client="client"
-							:open="openHistoPaiement" 
-							@save="openHistoPaiement=false"
-							:cancel="0==1" 
-							@cancel="openHistoPaiement=false"
-						>
-						</histoPaiement>
+						
 					</div>
 				</div>
 					<div class="tile is-ancestor">
@@ -100,9 +94,13 @@
 							<div class="groupDate">
 							<div class="dateItems">
 								<div>
-									<div class="labelDate">Part le </div>{{$convertDateToString(article.departLe)}} <span class="nonDef" v-if="article.departLe==''">non défini</span></div>
+									<div class="labelDate">Part le </div>
+									<span v-if="article.departLe!=''">{{$convertDateToString(article.departLe)}} </span>
+									<span class="nonDef" v-if="article.departLe==''">non défini</span></div>
 								<div>
-									<div class="labelDate">Rentre le </div> {{$convertDateToString(article.rentreLe)}} <span class="nonDef" v-if="article.rentreLe==''">non défini</span></div>
+									<div class="labelDate">Rentre le </div> 
+									<span v-if="article.rentreLe!=''">{{$convertDateToString(article.rentreLe)}} </span>
+									<span class="nonDef" v-if="article.rentreLe==''">non défini</span></div>
 							</div>
 							
 							<div class="buttonInOut">
@@ -114,12 +112,7 @@
 						</div>
 					</div>
 				</div>
-				<in-out
-					:client="client"
-					:article="article"
-					@close="openInOut = false"
-					:open="openInOut"	>
-				</in-out>	
+				
 				</section>	
 				<footer class="modal-card-foot">
 				  <s-button  theme="is-success" icon="save" label="Enregistrer"  @onclick="saveArticle"></s-button>
@@ -131,16 +124,14 @@
 <script>
 	import article_api 		from '@/firebase/article_api'
 
-	import histoPaiement 	from '@/views/client/components/historiquePaiement.vue'
+	
 	import SButtonPaiement 	from '@/views/client/components/SButtonPaiement.vue'	 
-	import InOut            from '@/views/client/components/inOut.vue'
+	
 	export default {
 
 		props: ["article","client"],
 		components: {
-			histoPaiement,
-			SButtonPaiement,
-			InOut
+			SButtonPaiement
 		},
 		data: function() {
 			return {
@@ -207,16 +198,20 @@
 				this.article.idEtat = item.id;
 			},
 			openModalInOut() {
+				
 				var error = this.checkArticle();
 				if (!error) {
 					this.saveArticle();
+					this.$emit("openInOut", this.article);
 					this.openInOut = true;
 				}
 			},
 			openModalHistoPaiement() {
+				
 				var error = this.checkArticle();
 				if (!error) {
 					this.saveArticle();
+					this.$emit("openHisto", this.article);
 					this.openHistoPaiement = true;
 				}
 			},
@@ -228,6 +223,7 @@
 				return this.error.numero || this.error.categorie || this.error.etat || this.error.entrepot;
 			},
 			saveArticle() {
+				
 				var error = this.checkArticle();
 				if (!error)
 					this.$emit("save", this.article);
@@ -259,7 +255,7 @@
 	}
 	.groupDate {
 	
-		vertical-align: middle;
+		vertical-align: top;
 		height: 45px;
 	}
 	.dateItems {

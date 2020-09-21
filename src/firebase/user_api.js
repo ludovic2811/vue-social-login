@@ -1,6 +1,6 @@
-import firebase from "@/firebase/firebase_api"; 
-import agence_api from "@/firebase/agence_api"; 
-import Vue from "vue";
+import firebase_api from "@/firebase/firebase_api"; 
+
+
 const const_user = {
 	json : {
 		displayName: '',
@@ -14,22 +14,27 @@ const const_user = {
 	},
 	currentUser : null,
 	docRef: null,
-	
+	getUser(idUser, fct) {
+		firebase_api.api.getDb().collection("user").doc(idUser).get().then(doc=>{
+			if (doc.exists) {
+				fct(doc.data())
+			}
+			else
+				fct("");
+		})
+	},
 	setAgenceSelected(doc, idAgence, fct) {		
-		console.log("setAgenceSelected");
-		console.log(idAgence);
-
 		doc.update({
 			idAgenceSelected: idAgence
-		}).then((user)=>{
-			console.log("ca a marche quand même")
+		}).then(()=>{
+			
 			fct();
 		})
 	},
 	deleteAgence(currentIdUser, currentAgence, docAgence, idUser, fct) {
 
 		var roles = currentAgence.roles;
-		console.log(docAgence);
+		
 		delete roles[idUser];
 		docAgence.update({
 			roles: roles
@@ -38,19 +43,19 @@ const const_user = {
 			// auquel cas si il n'y a qu'une agence : on peut le supprimer
 			// sinon on supprime de ses agences l'agence actuelle
 			// après si il y a une erreur sur le get c'est qu'il n'a pas les droits car ce n'est pas le créateur
-			firebase.api.getDb().collection("user").doc(idUser).get().then(doc=>{
+			firebase_api.api.getDb().collection("user").doc(idUser).get().then(doc=>{
 				var user = doc.data();
 				if (user.userCreated == currentIdUser) {
 					if (!user.login) {
 						var key, count = 0;
 						for(key in user.agences) {
-						 	if(user.agences.hasOwnProperty(key)) {
-						    	count++;
-						 	}
-						 }
+							if(user.agences.hasOwnProperty(key)) {
+								count++;
+							}
+						}
 						 
 						if (count== 1) {
-							firebase.api.getDb().collection("user").doc(idUser).delete().then(()=>{
+							firebase_api.api.getDb().collection("user").doc(idUser).delete().then(()=>{
 								fct();
 							}).catch(()=>{
 									console.log("EERROR");
@@ -86,7 +91,7 @@ const const_user = {
 	},
 	getUsersByAgence(dataAgence, users) {		
 		for (var role in dataAgence.roles) {			
-			firebase.api.getDb().collection("user").doc(role).get().then(user=>{	
+			firebase_api.api.getDb().collection("user").doc(role).get().then(user=>{	
 				var userData = user.data();
 				userData["id"] = user.id;			
 				users.push(userData);
@@ -103,14 +108,14 @@ const const_user = {
 		docAgence.update({
 			roles: currentAgence.roles
 		}).then(()=>{
-			firebase.api.getDb().collection("user").doc(userASupprimer.id).delete().then(()=>{
+			firebase_api.api.getDb().collection("user").doc(userASupprimer.id).delete().then(()=>{
 				fct();
 			});
 		})
 	},
 	createWithoutAuth(idUser, currentAgence, docAgence, displayName, email, fct) {
 		var findUser = false;
-		var docRef = firebase.api.getDb().collection("user");
+		var docRef = firebase_api.api.getDb().collection("user");
 		docRef.where("email", "==", email).get().then(querySnapshot=> {
 			if (querySnapshot.exists) {
 				querySnapshot.docs.forEach(doc=>{
@@ -122,7 +127,7 @@ const const_user = {
 						var agences = userData.agences; 
 						if (agences.indexOf(currentAgence.id)==-1) {
 							agences.push(currentAgence.id);
-							firebase.api.collection("user").doc(doc.id).update({
+							firebase_api.api.collection("user").doc(doc.id).update({
 								agences: agences
 							});
 							var roles = currentAgence.roles;
@@ -138,7 +143,7 @@ const const_user = {
 		if (!findUser)	{
 			var agences = []
 			agences.push(currentAgence.id);
-			firebase.api.getDb().collection("user").add({
+			firebase_api.api.getDb().collection("user").add({
 						displayName: displayName,
 						email: email,
 						photoURL: "",
@@ -165,7 +170,7 @@ const const_user = {
 		var indexAgence = listAgences.indexOf(idAgence);
 		if (indexAgence == -1) {
 			listAgences.push(idAgence);
-			firebase.api.getDb().collection("user").doc(store.getters.getUser.id).update ({
+			firebase_api.api.getDb().collection("user").doc(store.getters.getUser.id).update ({
 				agences : listAgences
 			}).then(()=>{
 				fct();
@@ -174,8 +179,8 @@ const const_user = {
 	},
 		
 	createWidthAuth (fct) {
-		var userAuth = firebase.api.getUser();
-		var docRef = firebase.api.getDb().collection("user");
+		var userAuth = firebase_api.api.getUser();
+		var docRef = firebase_api.api.getDb().collection("user");
 		var idAgenceSelected = "";
 		var docRef = docRef.where("email", "==", userAuth.email);
 		var agencesCopy = [];
@@ -195,7 +200,7 @@ const const_user = {
 							agencesCopy.push(idAgence);
 					});
 
-					firebase.api.getDb().collection("user").doc(idUserfind).update({
+					firebase_api.api.getDb().collection("user").doc(idUserfind).update({
 						userNew: userAuth.uid
 					});
 				}
@@ -203,9 +208,9 @@ const const_user = {
 				//login = doc.data().login;
 					
 			})
-			console.log(userAuth.uid);	
 			
-			firebase.api.getDb().collection("user").doc(userAuth.uid).set ({
+			
+			firebase_api.api.getDb().collection("user").doc(userAuth.uid).set ({
 					displayName: userAuth.displayName,
 					email: userAuth.email,
 					photoURL: userAuth.photoURL,

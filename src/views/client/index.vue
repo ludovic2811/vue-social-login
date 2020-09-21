@@ -1,5 +1,7 @@
 <template>
 <div class="container">
+	<my-navbar ></my-navbar>
+	 <my-navbarFooter ></my-navbarFooter>
 	<in-out
 		:client="clientData"
 		:article="article"
@@ -172,8 +174,10 @@
 .listGroup {
     vertical-align: top;
     overflow-y: auto;
-    height: 460px;
+    height: 800px;
+	width: 100%;
     text-align: center;
+	padding-left: 10px;
     
 }
 .inventaire {

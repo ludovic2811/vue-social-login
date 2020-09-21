@@ -42,6 +42,7 @@
 	 	:modif="modif" 
 	  	:client="client" 
 	  	v-show="nav=='visuInfoMateriel'"  
+		
 	  	@edit="$emit('edit')"
 	  	@openModalInOut="openModalInOut" 
 		@openModalHistoPaiement="openModalHistoPaiement" ></tab-article>

@@ -15,9 +15,10 @@ const store = new Vuex.Store({
 
     },
     docAgence: null,
-    etats: [],
-    categories: [],
-    entrepots: []
+    subscription: {
+
+    },
+    docSubscription: null
   },
 
   mutations: vuexfireMutations,
@@ -27,19 +28,16 @@ const store = new Vuex.Store({
   	},
   	getAgence: state => {
   		return state.agence;
-  	},
-  	getEtats: state => {
-  		return state.etats;
-  	},
-  	getCategories: state => {
-  		return state.categories;
-  	},
-  	getEntrepots: state=> {
-  		return state.entrepots;
-  	},
+  	},  	
   	getDocAgence: state=> {
   		return state.docAgence
-  	}
+    },
+    getSubscription: state=>{
+      return state.subscription
+    },
+    getDocSubscription: state=>{
+      return state.docSubscription
+    }
   // other getters
   },
 
@@ -89,18 +87,17 @@ const store = new Vuex.Store({
   		context.bindFirestoreRef('agence', firebase.api.getDb().collection('agence').doc(params.idAgence), {wait: true})
   		.then(res=>{
         context.state.docAgence = firebase.api.getDb().collection('agence').doc(params.idAgence); 
-        params.fct();
-        // if autoriser(resource, ['read','write'])
-  			/*context.state.docAgence = firebase.api.getDb().collection('agence').doc(params.idAgence);
-  			context.dispatch("initEtat", ()=> {
-          context.dispatch("initCategories", ()=>{
-            context.dispatch("initCategories", ()=>{
-              context.dispatch("initEntrepots", params.fct);  
-            })
-          })           
-  		  })*/
+        context.dispatch("setSubscription", params);
       })
-  	})
+    }),
+    setSubscription: firestoreAction((context, params) => {
+     
+      context.bindFirestoreRef('subscription', firebase.api.getDb().collection('subscription').doc(context.state.agence.userIdCreated))
+      .then(res=>{
+        context.state.docSubscription = firebase.api.getDb().collection('subscription').doc(context.state.agence.userIdCreated); 
+        params.fct();
+      })
+    })
   }
 })
 

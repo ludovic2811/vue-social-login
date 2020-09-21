@@ -1,5 +1,7 @@
 <template>
 	<div class="container">
+		<my-navbar ></my-navbar>
+	 	<my-navbarFooter ></my-navbarFooter>
 		<span class="label">
 			Mettre l'année : <input type="number" v-model="year" size="4"></input>
 		</span>

@@ -16,7 +16,8 @@
 							&nbsp; {{paiement.year}} : Reçu {{paiement.total}} €  sur 
 							<span class="control has-icons-right"  style="width:100px">
 								<input type="number" class="input is-primary is-rounded is-small" 
-									style="width:80px" v-model="paiement.estimate_price" @change="verifConfirm(paiement)"/>
+									style="width:80px" v-model="paiement.estimate_price" 
+									@change="verifConfirm(paiement)"/>
 								<span class="icon is-right">
 									<i class="fas fa-euro-sign"></i>
 								</span>
@@ -150,22 +151,16 @@
 				this.$emit("close");
 			},
 			verifConfirm(paiement) {
-
-				if (!paiement.confirm && (paiement.total == paiement.estimate_price)) {
-					paiement.confirm = true;
-					this.updateConfirmDb(paiement);
-				}
-				if (paiement.confirm && (paiement.total != paiement.estimate_price)) {
-					paiement.confirm = false;
-					this.updateConfirmDb(paiement);
-				}	
+				paiement.confirm = (paiement.total == paiement.estimate_price)
+				this.updateConfirmDb(paiement);
 			},
 			updateConfirmDb(paiementItem) {
-				paiement_api.api.confirmPaiementToArticle (this.$store, this.client, this.article,
+				paiement_api.api.set(this.$store, this.client, this.article, this.listPaiements, ()=>{
+					paiement_api.api.confirmPaiementToArticle (this.$store, this.client, this.article,
 						 paiementItem, (article)=> {
 							this.article.paiements = article.paiements
+					});
 				});
-				
 			},
 			
 			confirmPaiement(paiement) {
@@ -254,7 +249,7 @@
 		
 		mounted() {
 			if (this.article) {
-				console.log("mounted histo")
+				
 				this.echeanceData.prix = this.article.prix;
 				this.init();
 			}

@@ -11,13 +11,53 @@ const const_agence = {
 		categories: {},
 		entrepots: {},
 		etats:{},
-		typePaiements: {}
+		typePaiements: {},
+		nbClients: 0,
+		nbArticles: 0,
+		userIdCreated: null
+	},
+	incNbClient (store, fct) {
+		if (typeof(store.getters.getAgence.nbClients)=="undefined")
+			store.getters.getAgence.nbClients=0;
+		store.getters.getAgence.nbClients++;
+		store.getters.getDocAgence.update({
+			nbClients: store.getters.getAgence.nbClients
+		}).then(()=>{
+			fct();
+		})
+	},
+	decNbClient (store, fct) {
+		store.getters.getAgence.nbClients--;
+		store.getters.getDocAgence.update({
+			nbClients: store.getters.getAgence.nbClients
+		}).then(()=>{
+			fct();
+		})
+	},
+	decNbArticle (store, fct) {
+		store.getters.getAgence.nbArticles--;
+		store.getters.getDocAgence.update({
+			nbArticles: store.getters.getAgence.nbArticles
+		}).then(()=>{
+			fct();
+		})
+	},
+	incNbArticle (store, fct) {
+		if (typeof(store.getters.getAgence.nbArticles)=="undefined")
+			store.getters.getAgence.nbArticles=0;
+		store.getters.getAgence.nbArticles = parseInt(store.getters.getAgence.nbArticles) + 1;
+		store.getters.getDocAgence.update({
+			nbArticles: store.getters.getAgence.nbArticles
+		}).then(()=>{
+			fct();
+		})
 	},
 	save (store, agence, fct) {
 		if (agence.id == -1) {
 			var uid = firebase.api.getUser().uid;
 			agence.roles[uid] = "write";
-			
+			agence.userIdCreated = store.getters.getUser.id;
+			//Ajouter si son abonnement le permet
 			firebase.api.getDb().collection("agence").add(agence).then(function(docRef) {
 				agence.id = docRef.id;
 				user.api.addAgence(store, docRef.id, fct);		    
@@ -27,7 +67,6 @@ const const_agence = {
 			});
 		}
 		else {
-			
 			firebase.api.getDb().collection("agence").doc(agence.id).set(
 				agence
 			).then(()=>{
@@ -47,39 +86,8 @@ const const_agence = {
 				finish: agence.finish
 			})
 		
-		/*
-		store.getters.getDocAgence.update({
-			finish: finish
-		}).then(()=>{
-			fct()
-		})*/
+	
 	},
-	/*
-	addSubCollection(docAgence, collectionAdd, fct) {
-		docAgence.collection(collectionAdd).get().then(querySnapshot=>{
-
-				var docs = querySnapshot.docs.map(function (doc) {
-					    const eventData = doc.data()
-	    				eventData.id = doc.id
-	    				return eventData
-					});
-				fct(docs)				
-		});
-	},*/
-	/*initCollections(agence, fct) {
-		var docAgence = firebase.api.getDb().collection("agence").doc(agence.id);	
-		this.addSubCollection(docAgence, "etats", etats=> {
-			agence['etats'] = etats;
-			this.addSubCollection(docAgence, "categories", categories=>{
-				agence['categories'] = categories;
-				this.addSubCollection(docAgence, "entrepots", entrepots=>{
-					agence['entrepots'] = entrepots;
-					fct(agence);
-				});
-			});			
-		});
-	},
-	*/
 	getAll(store, fct) {
 		var currentUser = store.getters.getUser;	
 		currentUser.agences.forEach(idAgence=>{				
@@ -98,6 +106,13 @@ const const_agence = {
 		}).then(()=>{
 			fct();
 		});		
+	},
+	get(agence, fct) {
+		firebase.api.getDb().collection("agence").doc(agence.id).get().then(agenceDoc=>{
+			var agenceData=agenceDoc.data();
+			agenceData.id = agenceDoc.id;
+			fct(agenceData);
+		})
 	}
 	
 

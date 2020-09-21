@@ -24,7 +24,7 @@
 		</div>
 		
 		<div class="listClients">
-				<div v-for="(itemInOut) in inouts[InOut]">
+				<div v-for="(itemInOut) in inouts[InOut]" v-if="open">
 						<item-list-client :itemInOut="itemInOut" @openClientItem="openClientItem" />
 				</div>
 					
@@ -78,21 +78,23 @@
 				if (typeof(this.inouts) != "undefined") {
 					var indexRentreLe = 0;
 					var indexDepartLe = 0;
-					this.inouts.rentreLe.forEach((inout,index)=>{
-						client_api.api.get(this.$store, inout.idClient, client=>{
-							inout.client = client;
-							inout.article = client.articles[inout.numero];
-							inout.tab = "rentreLe";
-							indexRentreLe = index;
+					this.inouts.rentreLe.forEach((inoutR,indexR)=>{
+						client_api.api.get(this.$store, inoutR.idClient, client=>{
+							inoutR.client = client;
+							inoutR.article = client.articles[inoutR.numero];
+							inoutR.tab = "rentreLe";
+							indexRentreLe = indexR;
+							
 							fct(indexRentreLe, indexDepartLe);
 						})						
 					})
-					this.inouts.departLe.forEach((inout, index)=>{
-						client_api.api.get(this.$store, inout.idClient, client=>{
-							inout.client = client;
-							inout.article = client.articles[inout.numero];
-							inout.tab = "departle";
-							indexDepartLe = index;
+					this.inouts.departLe.forEach((inoutD, indexD)=>{
+						client_api.api.get(this.$store, inoutD.idClient, client=>{
+							inoutD.client = client;
+							inoutD.article = client.articles[inoutD.numero];
+							inoutD.tab = "departle";
+							indexDepartLe = indexD;
+							
 							fct(indexRentreLe, indexDepartLe);
 						})						
 					})
@@ -108,7 +110,7 @@
 
 		},
 		mounted: function () {
-			console.log("mounter()");			
+					
 		}
 	}
 </script>

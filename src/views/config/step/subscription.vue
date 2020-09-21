@@ -1,85 +1,26 @@
 <template>
  <div >
   <div class=" listOffer is-mobile">
-      <div class="itemOffer">
-          <h1 class="title">
-              <i class="fas fa-baby is-large">
-              </i>&nbsp;&nbsp; L'offre BABY
-          </h1>
-          <div>
-              Commencez par tester le produit  !              
-          </div>
-          <div>
-              Limiter à 5 clients !
-          </div>
-          <div>C'est gratuit ! 
-          </div>          <button class="button is-primary" v-on:click="abonner('BABY')" v-if="agence.abonnement != 'BABY'">
-              <i class="fas fa-check"/>&nbsp;
-              <span>Je souscris</span>
-          </button>
-          <b v-if="agence.abonnement == 'BABY'">
-            Vous avez choisi cet abonnement !
-          </b>
-      </div>
-       <div class=" itemOffer">
+      
+       <div class=" itemOffer" v-for="product in listProducts">
           <h1 class="title">
                <i class="fas fa-dove">
-              </i>&nbsp;&nbsp; L'offre DOVE
+              </i>&nbsp;&nbsp; {{product.nom}}
           </h1>
           <span>
-              Limiter à 150 clients
+               {{product.description}}
           </span>          
           <div>
-            10€ par mois
+             {{product.price.unit_amount / 100}} 
+             {{product.price.currency}} 
+             
           </div><br/>
-          <button class="button is-primary" v-on:click="abonner('DOVE')" v-if="agence.abonnement != 'DOVE'">
+          <button :class="theme" :disabled="disabled" v-on:click="subscribe(product.priceId)">
               <i class="fas fa-check"/>&nbsp;
               <span>Je souscris</span>
           </button>
-           <b v-if="agence.abonnement == 'DOVE'">
-            Vous avez choisi cet abonnement le 
-          </b>
       </div>
-      <div class=" itemOffer">
-          <h1 class="title">
-                <i class="fas fa-spider"></i>&nbsp;&nbsp;L'offre SPIDER
-          </h1>
-          <span>
-              Limiter à 500 clients
-          </span>         
-          <div>
-            25€ par mois
-          </div><br/>
-          <button class="button is-primary" v-on:click="abonner('SPIDER')" v-if="agence.abonnement != 'SPIDER'">
-              <i class="fas fa-check"/>&nbsp;
-              <span>Je souscris</span>
-          </button>
-           <b v-if="agence.abonnement == 'SPIDER'">
-            Vous avez choisi cet abonnement le 
-          </b>
-      </div>
-      <div class=" itemOffer">
-          <h1 class="title">
-              <i class="fas fa-dragon ">
-              </i>&nbsp;&nbsp;
-              L'offre DRAGON
-          </h1>
-          <div>
-              Aucune limite
-          </div>          
-            <div>
-            100€ par mois
-          </div><br/>
-           <button class="button is-primary" v-on:click="abonner('DRAGON')" v-if="agence.abonnement != 'DRAGON'">
-              <i class="fas fa-check"/>&nbsp;
-              <span>Je souscris</span>
-          </button>
-           <b v-if="agence.abonnement == 'DRAGON'">
-            Vous avez choisi cet abonnement le 
-          </b>
-      </div>
-      
-    </div>
+  </div>
 	</div>
 </template>
 
@@ -87,22 +28,41 @@
 
 import MyNavbar from "@/components/MyNavbar.vue";
 import agence_api from '@/firebase/agence_api'
+import firebase_api from '@/firebase/firebase_api'
+import subscription_api from '@/firebase/subscription_api'
+
 //import MyNavbarFooter from "@/components/MyNavbarFooter.vue";
 
 export default {
-  props:["agence"],
+  
   name: "home",
+  
+  data() {
+    return {
+      listProducts: [],
+      subscriptionPriceId: "",
+      theme: "button is-primary",
+      disabled: false
+    }
+  },
   components: {
     MyNavbar    /*,
     MyNavbarFooter*/
   },
-  methods:  {    
-    abonner(type) {
-      agence_api.api.abonner (this.agence, type);      
+  methods:  {  
+    resilier(idCust, idSub) {
+      subscription_api.api.SetCancelSubscribe(idCust, idSub);
+    },
+    subscribe(priceId) {
+      this.theme = "button is-loading is-success";
+      this.disabled = true;
+      var successUrl = window.location.origin + "/config"
+      var cancelUrl = window.location.origin + "/config"
+      subscription_api.api.subscribe (this.$store.getters.getUser.id, 
+          priceId, successUrl,cancelUrl);
     },
     convertDate(timestamp) {
       var maDate  =new Date(timestamp.seconds * 1000);
-
       return this.formattedDate(maDate);
     },
     formattedDate(d = new Date) {
@@ -113,14 +73,18 @@ export default {
       this.$emit("save", "abonnement");
       fct(true);
     }
+  },
+  mounted() {
+      subscription_api.api.getProducts(product=>{
+         this.listProducts.push(product)
+      })
   }
 };
 </script>
 <style scoped>
 .listOffer {
     vertical-align: top;
-    overflow-y: auto;
-    height: 3000px;
+    
     text-align: center;
 }
 .itemOffer {

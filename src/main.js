@@ -22,7 +22,6 @@ import VCalendar 		from 'v-calendar';
 import SDraggable 		from "@/components/SDraggable"
 import UUID from "vue-uuid";
 const { v4: uuidv4 } = require('uuid');
-var currentUser = null;
 
 Vue.use(VCalendar);
 Vue.use(VueFirestore);
@@ -40,7 +39,7 @@ Vue.component("MyNavbar", MyNavbar);
 Vue.component("MyNavbarFooter", MyNavbarFooter);
 
 Vue.config.productionTip = false
-Vue.prototype.$steps = 7;
+Vue.prototype.$steps = 6;
 Vue.prototype.$uuid = ()=> {
 	return uuidv4(); //util.util.uuid();
 }
@@ -51,30 +50,26 @@ Vue.prototype.$convertDateToString = function(date) {
 	return util.util.convertDateToString(date);
 }
 Vue.prototype.$orderJson = function(jsonParam) {
-	  return util.util.order(jsonParam);
+	return util.util.order(jsonParam);
 }
 Vue.prototype.$updateRang = function(inArray, outArray) {
-  		util.util.updateRang(inArray, outArray);
+	util.util.updateRang(inArray, outArray);
 }
+
 let app = '';
 
 firebase_api.api.init(this);
 
 firebase.auth().onAuthStateChanged(() => {
-		let storeInst = vuefire.store;
+	let storeInst = vuefire.store;
 
-		storeInst.dispatch('init', ()=> {
-			
-		//storeInst.dispatch('initAgence', storeInst.getters.getUser.idAgenceSelected)
-		//storeInst.dispatch('bindAgenceFire', storeInst.getters.getUser.idAgenceSelected);
-			if (!app) {
-				    app = new Vue({
-				      router,
-				      store: storeInst,
-
-				      render: h => h(App)
-				    }).$mount('#app');
-				}
-			}	
-		);
+	storeInst.dispatch('init', ()=> {
+	if (!app) {
+	    app = new Vue({
+			router,
+			store: storeInst,
+			render: h => h(App)
+		}).$mount('#app');
+	}
+	});
 })

@@ -50,10 +50,11 @@
 		 </section>
 		<footer class="modal-card-foot">
 		  <div class="content ">
-		  	<s-button theme="is-warning" icon="list" label="Retourner à la liste"  @onclick="$emit('back')"></s-button>
-		    &nbsp;&nbsp;
+		  
 		    <s-button theme="is-success" icon="save" label="Enregistrer"  @onclick="save"></s-button>
 			&nbsp;&nbsp;
+				<s-button theme="is-warning" icon="ban" label="Annuler"  @onclick="$emit('back')"></s-button>
+		    &nbsp;&nbsp;
 			<s-button theme="is-danger" icon="trash" label="Supprimer"  @onclick="deleteEntepot" ></s-button>
 		  </div>
 		</footer>
@@ -94,7 +95,6 @@ export default {
 			this.$emit("refresh");
 		},
 		save() {
-			
 			this.errorEntrepot.nom = this.entrepot.nom == "";
 			this.errorEntrepot.stock = false;
 			for (var key in this.entrepot.stocks) {
@@ -104,10 +104,9 @@ export default {
 			var error = this.errorEntrepot.nom || this.errorEntrepot.stock;
 
 			if (error == false) {
-				
-				
 				entrepot_api.api.save (this.agence, this.entrepot, (entrepot)=>{
 					this.errorEntrepot.nom = false;
+						this.$emit("back");
 					}
 				); 
 			}

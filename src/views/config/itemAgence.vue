@@ -1,12 +1,16 @@
 <template>
 	<div class="itemAgence">
 		<span class="label">{{agence.nom}}
-
-			<div class="subscription" v-show="agence.finish==$steps">
-				<s-button theme="is-success" :icon="getIconAbonnement()" @onclick="$emit('editSubscription',agence)" :label="agence.abonnement"/>
+			<div style="float:right" v-if="isAgenceSelected">
+				<s-button label="" theme="is-success is-small" icon="check"/>
 			</div>
 		</span>
-		<br/>
+		<div class="subscription" v-show="agence.finish==$steps">
+				Crée par {{displayName}}
+				<div v-if="subscriptionProduct!=''" >
+					{{subscriptionProduct.name}}
+				</div>				
+		</div>
 		<div class="checkAgence" v-show="!isAgenceSelected && agence.finish==$steps">
 			<s-button @onclick="checkAgence(agence)" :icon="icon" :label="label" :theme="theme" /> 
 		</div>
@@ -29,9 +33,17 @@
 	</div>
 </template>
 <script>
+	import subscription_api from '@/firebase/subscription_api'
+	import user_api from '@/firebase/user_api'
 	export default {
 		props: ["agence","label", "icon","theme","isAgenceSelected"],
-		
+		data() {
+			return {
+				subscriptionProduct: "",
+				displayName: ""
+			}
+			
+		},
 		methods: {
 			checkAgence(agence) {
 				this.$emit("checkAgence", agence);
@@ -49,6 +61,14 @@
 				if (this.agence.abonnement == "DRAGON")
 					return "dragon"
 			}
+		},
+		mounted() {
+			subscription_api.api.getSubscriptionByAgence(this.agence, product=>{
+				this.subscriptionProduct = product;
+			});
+			user_api.api.getUser(this.agence.userIdCreated, user=>{
+				this.displayName = user.displayName;
+			})
 		}
 	}
 </script>
@@ -66,9 +86,14 @@
 		float: right;
 	}
 	.subscription {
-		
-		
+		font-size: small;
+		font-style: italic;
+		padding-top: 5px;
+		padding-bottom: 5px;
+	}
+	.subscription div {
+		font-weight: bolder;
 		float: right;
-		width: 100px;
+		font-style: normal;
 	}
 </style>

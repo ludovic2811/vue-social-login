@@ -1,4 +1,5 @@
 import firebase from "@/firebase/firebase_api"; 
+import conso from "@/firebase/client_consolidation"; 
 
 const const_entrepot = {
 	store: null,
@@ -12,7 +13,7 @@ const const_entrepot = {
 		nom: '',
 		capacite: 0,
 		fige: false,
-		articles: []
+		articles: {}
 	},
 	
 	save (agence, entrepot, fct) {
@@ -22,11 +23,15 @@ const const_entrepot = {
 			entrepot.stocks[key].capacite = parseFloat(entrepot.stocks[key].capacite);
 			agence.entrepots[entrepot.id].capacite += parseFloat(entrepot.stocks[key].capacite);
 		}
+		conso.api.subCalculEntrepot(agence.entrepots[entrepot.id], agence.categories);
 		firebase.api.getDb().collection('agence').doc(agence.id).update({
 			entrepots: agence.entrepots
-		}).then(()=>{fct()})
+		}).then(()=>{
+			
+			fct()
+		})
 	},
-	getAll(agence, fct) {		
+	getAll(agence) {		
 		return agence.entrepots;
 	},
 	delete(agence, entrepot, fct) {

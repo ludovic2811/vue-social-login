@@ -1,5 +1,7 @@
 <template>
     <div class="container">
+        <my-navbar ></my-navbar>
+	 <my-navbarFooter ></my-navbarFooter>
         <v-calendar  
         	@update:from-page="pageChange"  
         	ref="calendar" :rows="1" 
@@ -120,23 +122,33 @@
                     this.itemDate = dateFormat;
                     this.tabItem = this.tabDates[this.itemDate];
                     // je charge la fenêtre
+                    var finishRentreLe = false;
+                    var finishDepartLe = false;
                     this.$refs["itemDate"].init(this.itemDate, this.tabItem, (indexRentreLe, indexDepartLe)=>{
                         // j'ouvre la fenêtre seulement si tout a été chargé
-                       if (indexRentreLe==0) indexRentreLe--;
-                        if (indexDepartLe==0) indexDepartLe--;
-                         if ((indexRentreLe == this.tabItem.rentreLe.length-1) 
-                                && (indexDepartLe == this.tabItem.departLe.length-1)) {
-                                    console.log(this.tabItem);
-                                }
-                            this.openIdemDate = true;
-                    });
-                   
+                        
+                        if (this.tabItem.rentreLe.length == 0)
+                            finishRentreLe = true;
+                         if (this.tabItem.departLe.length == 0)
+                            finishDepartLe = true;
+
+                       if (!finishRentreLe && indexRentreLe==(this.tabItem.rentreLe.length-1))
+                            finishRentreLe = true;
+                       if (!finishDepartLe && indexDepartLe==(this.tabItem.departLe.length-1))
+                             finishDepartLe = true;
+                       if (finishRentreLe && finishDepartLe) {
+                           this.openIdemDate = true;
+                       }
+                            
+                    })
                 }
+                   
+                
         	},
             pageChange(change) {
-               
                 var date = new Date (change.year + "-" + change.month + "-01");
-                this.init(date);
+                this.init(this.convertYYYYMM(date));
+               
             },
             addEvent(date, rentreLe, departLe) {
                 var attribute = {

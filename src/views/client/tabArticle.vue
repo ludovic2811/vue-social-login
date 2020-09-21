@@ -15,7 +15,7 @@
 					
 				</div>
 	  		</div>
-	  		<div v-if=" visuArticle">
+	  		<div v-if="visuArticle">
 	  			<div >
 	  					<nav class="level is-mobile">
 							<div class="level-left"> 
@@ -110,7 +110,6 @@
 				visuArticle : false,
 				openModalEtat: false,
 				openModalEntrepot: false,
-				article: null,
 				indexArticleVisu: 0,
 				numeroArticleVisu: null
 			}
@@ -119,7 +118,12 @@
 			articleVisu: function() {
 				if( this.indexArticleVisu == 0) {
 					this.visuArticle = true;
-					return this.client.articles[Object.keys(this.client.articles)[this.indexArticleVisu]];
+					if (Object.keys(this.client.articles).length>0)
+						return this.client.articles[Object.keys(this.client.articles)[this.indexArticleVisu]];
+					else {
+						this.visuArticle = false;
+						return {}
+					}
 				}
 				else
 					return this.client.articles[this.numeroArticleVisu]

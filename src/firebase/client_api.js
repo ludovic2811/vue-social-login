@@ -1,4 +1,4 @@
-import firebase from "@/firebase/firebase_api"; 
+import agence_api from "@/firebase/agence_api"; 
 
 const const_client = {
 	json: {
@@ -9,7 +9,7 @@ const const_client = {
 		tel3: '',
 		adresse: '',
 		mail: '',
-		articles: [],
+		articles: {},
 		search: ''
 	},
 	getArray(store, arrayKeys, fct) {
@@ -41,7 +41,7 @@ const const_client = {
 			var confirm;
 			docs.forEach(doc=> {
 				data = doc.data();
-				data.['.key'] = doc.id;
+				data['.key'] = doc.id;
 				confirm = false;
 				if (typeof(data.paiements) != "undefined")
 					if (typeof(data.paiements[year]) != "undefined") {
@@ -123,9 +123,9 @@ const const_client = {
 		})	
 	},*/
 
-	update(docAgence, client, fct) {
+	update(store, client, fct) {
 		var search = client.nom.toUpperCase()
-		docAgence.collection('clients').doc(client[".key"]).update(
+		store.getters.getDocAgence.collection('clients').doc(client[".key"]).update(
 		{
 			nom: client.nom,
 			prenom: client.prenom,
@@ -139,27 +139,51 @@ const const_client = {
 				fct(success);
 			})
 	},
-	add(docAgence, client, fct) {
-		
-		var search = client.nom.toUpperCase()
-		docAgence.collection('clients').add(
-			{
-				nom: client.nom,
-				prenom: client.prenom,
-				tel1: client.tel1,
-				tel2: client.tel2,
-				tel3: client.tel3,
-				mail: client.mail,
-				adresse: client.adresse,
-				search: search,
-				articles:{}
-			}).then(success => {
-				fct(success);
+	add(store, client, fct) {
+		/* Vérification des droits pour l'ajout de client au regard de l'abonnement */
+		var error = false;
+
+		if (store.getters.getSubscription == null) {
+			if (store.getters.getAgence.nbClients > 5) {
+				error = true;
+				fct(null, error);
+			}
+		}
+		else {
+			var product = store.getters.getSubscription.productRef;
+			var nbClients =  store.getters.getSubscription.nbClients
+			if (product.limit < nbClients + 1) {
+				error = true;
+				fct(null, error);
+			}
+		}
+
+		if (!error) {
+			var search = client.nom.toUpperCase();
+			store.getters.getDocAgence.collection('clients').add(
+				{
+					nom: client.nom,
+					prenom: client.prenom,
+					tel1: client.tel1,
+					tel2: client.tel2,
+					tel3: client.tel3,
+					mail: client.mail,
+					adresse: client.adresse,
+					search: search,
+					articles:{}
+				}).then(success => {
+					
+					agence_api.api.incNbClient(store, ()=>{
+					fct(success, false);
+				})
 			})
-	},
-	archiver(docAgence, client, fct) {
+		}
+		//	});
+	}
+	,
+	archiver(store, client, fct) {
 		var search = client.nom.toUpperCase()
-		docAgence.collection('clientsArchive').doc().set(			{
+		store.getters.getDocAgence.collection('clientsArchive').doc().set(			{
 				nom: client.nom,
 				prenom: client.prenom,
 				tel1: client.tel1,

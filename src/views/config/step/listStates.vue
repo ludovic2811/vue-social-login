@@ -3,16 +3,15 @@
 		<input type="hidden" :value="refresh"/>
 		<s-button theme="is-primary" icon="plus" label="Ajouter un état"  @onclick="addEtat"></s-button>&nbsp;&nbsp;
 		<s-button theme="is-primary is-small" icon="info" label=""  @onclick="infoEtat=!infoEtat"></s-button>
-		
+		<br/><br/>
 		<div class="notification is-warning" v-show="infoEtat">
 			<button class="delete" v-on:click="infoEtat=false"></button>
 			Vous pouvez configurer les états de vos articles.<br/>
-			A savoir si ils sont partis ou pas.<br/>
-			Attribuez un icone avec un nom.<br/>
-			Le champ sorti signfie si l'article n'est plus dans votre lieu de stockage<br/>
-			Cela permet de calculer le nombre de places restants dans votre lieu de stockage
+			
+			N'oubliez pas d'attribuez un icone pour votre état.<br/>
+			
 		</div>
-		<br/><br/>
+		
 		<ul>
 			<li v-for="etat in agence.etats">
 				<s-select :list="iconsEtats" :valueSelected="etat.icon" :change="etat" attributChange="icon" :fields="fields" @selected="" labelNotSelected="Icon"/>

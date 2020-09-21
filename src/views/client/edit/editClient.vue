@@ -1,9 +1,20 @@
 <template>
 	<div class="container">
-		
+		<s-modal :open="errorAdd" title="" close="true" @close="errorAdd=false">
+			<div class="notification is-danger">
+			Un problème est survenu lors de la création de ce client <br/><br/>
+			Il se peut que votre abonnnement soit trop limité !
+			</div>
+		</s-modal
+>
+
 		<div class="field">		 
 		    <input class="input is-rounded" type="text" placeholder="Nom du client" v-model="client.nom">		 		  
 		</div>
+		<div class="notification is-danger" v-show="errorNom">
+	      <button class="delete" v-on:click="errorNom=false"></button>
+			Il faut au moins mettre le nom du client !
+	    </div>
 		<div class="field">		 
 		    <input class="input is-rounded" type="text" placeholder="Prénom du client" v-model="client.prenom">
 		</div>
@@ -56,39 +67,59 @@
 					:label="article.numero" afterIcon="cog" 
 					:icon="getIconCategorie(article)"
 					@onclick="editArticle(article)"/>
+					
 				<br/><br/>
 			</li>
 		</ul>
 		
 	</div>
+	<in-out
+			:client="client"
+			:article="article"
+			@close="closeInOut"
+			:open="openInOut"	>
+	</in-out>	
+	<histoPaiement 
+			:article="article" 
+			:client="client"
+			:open="openHistoPaiement" 
+			@close="closeHistoPaiement"
+		>
+	</histoPaiement>	
 	<div :class="addViewMateriel">
 			
 		<edit-article 
 			@save="saveArticle" 
 			@delete="modalDeleteArticle=true"
 			@cancel="addViewMateriel='modal'"
+			@openHisto="openHisto"
+			@openInOut="openModalInOut"
 			:article="article" 
 			:client="client"
 			v-if="addViewMateriel=='modal is-active'">
-		</edit-article >  	
-		<s-confirm :open="modalDeleteArticle" title="Supprimer l'article" @yes="deleteArticle" @no="modalDeleteArticle=false">
+		</edit-article >  
+		
+		
+
+		<s-confirm 
+			:open="modalDeleteArticle" 
+			title="Supprimer l'article" 
+			@yes="deleteArticle" @no="modalDeleteArticle=false">
 			Souhaitez vous réellement supprimer l'article {{article.numero}} ?
 		</s-confirm>
 				
 	</div>
 		    <!-- Brand and toggle get grouped for better mobile display -->
-			<nav class="navbar is-fixed-bottom" role="navigation" aria-label="main navigation">
+			<nav class="navbar is-fixed-bottom is-primary" role="navigation" aria-label="main navigation">
   			<div class="navbar-brand">
 				<div class="navbar-item">
-					<s-button theme="is-warning" icon="save" label="Retour" @onclick="$emit('back')"/>
+					<s-button theme="is-success is-small" icon="save" label="Enregistrer" @onclick="save"/>
 				</div>
 				<div class="navbar-item">
-					<s-button theme="is-success" icon="save" label="Enregistrer" @onclick="save"/>
-					
+					<s-button theme="is-warning is-small" icon="ban" label="Annuler" @onclick="$emit('back')"/>
 				</div>
 				<div class="navbar-item">
-					<s-button theme="is-danger" icon="save" label="" @onclick="archiver"/>
-					
+					<s-button theme="is-danger is-small" icon="trash" label="Supprimer" @onclick="archiver"/>
 				</div>
 			</div>
 		</nav>		
@@ -99,18 +130,23 @@
 	
 	import client 			from "@/firebase/client_api"
 	import article_api 		from "@/firebase/article_api";
+	import agence_api 		from "@/firebase/agence_api";
 	import entrepot_api 	from '@/firebase/entrepot_api'	 
 	import categorie_api 	from '@/firebase/categorie_api'
+	import etat_api 		from '@/firebase/etat_api'
 
 	import conso 			from "@/firebase/client_consolidation"; 
 	
 	import EditArticle 		from "@/views/client/edit/editArticle.vue";
-
+	import histoPaiement 	from '@/views/client/components/historiquePaiement.vue'
+	import InOut            from '@/views/client/components/inOut.vue'
 	export default {
 		name: 'edit_client',
 		props: ["client", "change"],
 		components: {
-			EditArticle
+			EditArticle,
+			histoPaiement,
+			InOut
 		},
 		data: function() {
 			return {
@@ -120,29 +156,49 @@
 				entrepots: [],
 				categories: [],
 				article: article_api.api.json_article,
-				modalDeleteArticle:false
+				modalDeleteArticle:false,
+				openHistoPaiement: false,
+				openInOut: false,
+				errorNom: false,
+				errorAdd: false
 			}
 		},
 		methods: {
 			getIconCategorie(article) {
 				return this.$store.getters.getAgence.categories[article.idCategorie].icon;
 			},
-			save() {
+			
+			save(fct) {
+				if (this.client.nom == "") 
+					this.errorNom = true;
 				
-				if (typeof(this.client[".key"]) =="undefined") {
-					client.api.add(this.$store.getters.getDocAgence, this.client, (ref)=> {
-						this.client['.key'] = ref.id;
-						
-					});
+				if (!this.errorNom) {
+					if (typeof(this.client[".key"]) =="undefined") {
+						client.api.add(this.$store, this.client, (ref, error)=> {
+							this.errorAdd = error;
+							
+							if (!error)
+								this.client['.key'] = ref.id;
+							if (typeof(fct) != "undefined")
+								fct(error);
+							
+						});
+					}
+					else {
+						client.api.update(this.$store, this.client, ()=> {
+							if (typeof(fct) != "undefined")
+								fct(this.errorNom);
+						})
+					}
 				}
 				else {
-					client.api.update(this.$store.getters.getDocAgence, this.client, ()=> {
-						
-					})
+					if (typeof(fct) != "undefined")
+						fct(this.errorNom);
 				}
+					
 			},
 			archiver() {
-				client.api.archiver(this.$store.getters.getDocAgence, this.client, ()=> {
+				client.api.archiver(this.$store, this.client, ()=> {
 						this.$emit("back",true)
 			
 				})
@@ -153,32 +209,75 @@
 				this.classTabMateriel= "";	
 			},
 			tabInfoMateriel() {
-				this.classTabInfoClient="";
-				this.classTabMateriel= "is-active";	
-				this.save();
+				this.save(error=>{
+					if (!error) {
+						this.classTabInfoClient="";
+						this.classTabMateriel= "is-active";	
+					}
+				})
+				
+				
+			},
+			openHisto(article) {
+				this.article = article;
+				this.openHistoPaiement = true;
+			},
+			openModalInOut(article) {
+				
+				this.article = article;			
+				this.openInOut = true;
+			},
+			closeHistoPaiement() {
+				this.openHistoPaiement = false;
+				this.addViewMateriel = "modal";
+				this.editArticle(this.article);
+			},
+			closeInOut() {
+				this.openInOut = false;
+				this.addViewMateriel = "modal";
+				this.editArticle(this.article);
 			},
 			deleteArticle() {
-				console.log(this.client.articles[this.article.numero]);
 				var articleDelete = JSON.parse(JSON.stringify(this.client.articles[this.article.numero]));
 				// il faut supprimer dans historique de paiement & dans le planning
-				
 				article_api.api.delete(this.$store, this.client, this.article);
-				console.log(articleDelete);
 				this.saveArticle(this.client.articles[this.article.id], articleDelete);
 			},
 			saveArticle(articleModif, articleDelete) {		
 				var articleOld;
-				if (typeof(articleDelete) != "undefined")
+				var deleteArticle = false;
+				var newArticle = false;
+				if (typeof(articleDelete) != "undefined") {
+					deleteArticle = true;
 					articleOld = articleDelete;
-				else
+				}
+				else {
 					articleOld = this.client.articles[articleModif.numero];
-				conso.api.calculEspaceEntrepot (this.$store.getters.getAgence, articleModif, articleOld, ()=>{
+					if (typeof(articleOld) == "undefined")
+						newArticle = true;
+				}
+					
+				
+				conso.api.calculEspaceEntrepot (this.$store.getters.getAgence, articleModif, articleOld, (modif)=>{
 					if (typeof(articleModif) != "undefined")
 						this.client.articles[articleModif.numero] = articleModif;
 				
 					article_api.api.save(this.$store, this.client,()=>{
-						//this.addViewMateriel = "modal";
-						this.modalDeleteArticle = false;
+						this.addViewMateriel = "modal";
+						
+						etat_api.api.incNbArticle(this.$store,articleModif);
+						etat_api.api.decNbArticle(this.$store, articleOld);
+						if (newArticle) {
+							agence_api.api.incNbArticle(this.$store, ()=>{
+								
+							})
+							
+						}
+						else if (deleteArticle) {
+							agence_api.api.decNbArticle(this.$store, ()=>{
+								this.modalDeleteArticle = false;
+							})							
+						}
 					});
 
 				});

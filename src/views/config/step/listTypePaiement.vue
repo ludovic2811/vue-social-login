@@ -1,12 +1,13 @@
 <template>
 	<div class="contain">
 			<input type="hidden" :value="refresh"/>
-			<s-button theme="is-primary" icon="plus" label="Ajouter un mode de paiement"  @onclick="AddTypePaiement"></s-button>&nbsp;&nbsp;<br/><br/>
-			<s-button theme="is-primary" icon="info" label=""  @onclick="infoPaiement=!infoPaiement"></s-button>
+			<s-button theme="is-primary" icon="plus" label="Ajouter "  @onclick="AddTypePaiement"></s-button>&nbsp;&nbsp;
+			<s-button theme="is-primary is-small" icon="info" label=""  @onclick="infoPaiement=!infoPaiement"></s-button>
+			<br/><br/>
 			<div class="notification is-warning" v-show="infoPaiement">
 				<button class="delete" v-on:click="infoPaiement=false"></button>
 				Configurer les types de paiements de vos clients : en espèce, en chèque<br/>
-				On vous demandera au moment de toper le paiement de vos clients
+				
 			</div>
 			
 			

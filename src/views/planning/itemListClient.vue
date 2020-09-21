@@ -1,24 +1,23 @@
 <template>
     <div class="itemGlobalInOut">
-    	<s-button icon="eye" label="" theme="is-primary" @onclick="openClientItem(itemInOut)"/>
-        
-        <div class="itemClientInOut">
-            {{itemInOut.client.nom}} {{itemInOut.client.prenom}} :
-            <i :class="getClassCategorie(itemInOut.article.idCategorie)"/> {{itemInOut.article.numero}}
+        <div class="itemClientInOut" >
+            <s-button icon="eye" label="" theme="is-primary" @onclick="openClientItem(itemInOut)"/>
+            &nbsp;{{itemInOut.client.nom}} {{itemInOut.client.prenom}}
         </div>
-        
-
-        <div style="float:right">
-        <s-button 
-            :label="getLabelEtat(itemInOut.article.idEtat)" 
-            :icon="getClassEtat(itemInOut.article.idEtat)"  
-            theme="is-primary " 
-            @onclick="openModalEtat=true"/>
-         
-        <s-select-etat :open="openModalEtat" :article="itemInOut.article"
-            @save="save(itemInOut)" @cancel="openModalEtat=false"
-        >
-        </s-select-etat>
+        <div class="itemArticleInOut">
+            <div  >
+                <i :class="getClassCategorie(itemInOut.article.idCategorie)"/> {{itemInOut.article.numero}}
+            &nbsp;<s-button 
+                :label="getLabelEtat(itemInOut.article.idEtat)" 
+                :icon="getClassEtat(itemInOut.article.idEtat)"  
+                theme="is-primary is-small" 
+                @onclick="openModalEtat=true"/>
+            
+            <s-select-etat :open="openModalEtat" :article="itemInOut.article"
+                @save="save(itemInOut)" @cancel="openModalEtat=false"
+            >
+            </s-select-etat>
+            </div>
         </div>
     </div>
 </template>
@@ -50,12 +49,9 @@ export default {
             return this.$store.getters.getAgence.etats[idEtat].icon;
             
         },
-        getLabelEtat(indexEtat) {
-            var index = this.$store.getters.getEtats.findIndex(elt=>elt.id == indexEtat);
-            if (index!=-1) {
-                return this.$store.getters.getEtats[index].nom;
-            }
-            return "";
+        getLabelEtat(idEtat) {
+            return this.$store.getters.getAgence.etats[idEtat].nom;
+            
         },
         save(itemInOut) {
 				
@@ -72,7 +68,7 @@ export default {
 </script>
 <style scoped>
     .itemGlobalInOut {
-        
+        border: thin solid black;
         padding: 5px;        
         margin-bottom: 5px;
     }
@@ -83,5 +79,9 @@ export default {
         padding-left: 20px;
         padding-top: 5px;
         vertical-align: middle;
+    }
+    .itemArticleInOut div {
+        margin-top: 20px;
+        margin-left: 100px;
     }
 </style>

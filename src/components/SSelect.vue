@@ -44,14 +44,14 @@
 		methods: {
 			selectItem(item) {
 				
-				this.itemSelected.label = item.object.[this.fields[0]];
-				this.itemSelected.value = item.object.[this.fields[1]];
+				this.itemSelected.label = item.object[this.fields[0]];
+				this.itemSelected.value = item.object[this.fields[1]];
 				if (this.fields.length == 3)
-					this.itemSelected.icon = item.object.[this.fields[2]];
+					this.itemSelected.icon = item.object[this.fields[2]];
 				this.classMenu = "dropdown";
 				
 				if (typeof(this.change)!="undefined") {
-					this.change[this.attributChange] = item.object.[this.fields[1]]					
+					this.change[this.attributChange] = item.object[this.fields[1]]					
 				}
 				
 				this.$emit("selected",item); 

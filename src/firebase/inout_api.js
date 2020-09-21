@@ -91,7 +91,7 @@ const const_inout = {
             .collection("clients").doc(idClient).update({
                 articles: client.articles
             }).then(()=>{
-                console.log("UpdateArticle");
+                
                 fct(jsonInOut)
             })
     }

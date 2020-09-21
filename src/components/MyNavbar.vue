@@ -5,7 +5,9 @@
         <img src="@/assets/logo.png"   /><div class="s-item-menu">Guarding Manager</div>
 
       </div>
-
+    <div class="navbar-item" v-if="ExistSubstriction()">
+      <button class="button is-warning" disabled="true">Mode test</button>
+    </div>
     <a role="button" :class="!openDrop ? burger : burgerActive" aria-label="menu" aria-expanded="false" data-target="navbarMenu"  v-on:click="openDrop=!openDrop">
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
@@ -25,7 +27,7 @@
             <a class="navbar-item"  v-on:click="rout('/impaye')">
               <i class="fas fa-file-invoice-dollar"></i><div class="s-item-menu">Liste des impayés</div>
             </a>
-            <a class="navbar-item"  v-on:click="rout('/impaye')">
+            <a class="navbar-item"  v-on:click="rout('/reporting')">
               <i class="fas fa-chart-line"></i><div class="s-item-menu">Reporting</div>
             </a>
        
@@ -44,7 +46,7 @@
                   <s-button icon="fas fa-warehouse" theme="is-warning is-normal" label="Créer votre agence" v-on:click="rout('/config')">
                   </s-button>
             </a>
-            <div :class="!openSubDropProfil ? subdropdownProfil : subdropdownProfilActive">
+            <div v-if="existUser()" :class="!openSubDropProfil ? subdropdownProfil : subdropdownProfilActive">
               <a class="navbar-link" v-on:click="openSubDropProfil=!openSubDropProfil">
                 <div class="s-item-menu">{{getDisplayName()}}</div>
               </a>
@@ -86,17 +88,42 @@ export default {
 
         subdropdownProfil: "navbar-item has-dropdown",
         subdropdownProfilActive : "navbar-item has-dropdown is-active",
-        openSubDropProfil: false
+        openSubDropProfil: false,
         
+        modeTest: false
       }
   },
   methods: {
     rout(nav) {
       this.$router.push(nav).catch(error=>{})
     },
+    ExistSubstriction () {
+        if (this.$store.getters.getSubscription==null) {
+            return true;
+        }
+        else {
+           return false;
+        }
+    },
     existAgence() {
-      if (this.$store.getters.getAgence != null) {
-        return this.$store.getters.getAgence.finish == this.$steps;
+     
+      if (typeof(this.$store.getters.getAgence.id) != "undefined") {
+        if (this.$store.getters.getSubscription!=null) {
+          if (typeof(this.$store.getters.getSubscription.subscription == "undefined")) {
+            // alors on n'est dans le cas où le client est en mode test
+            return this.$store.getters.getAgence.finish == this.$steps;
+          }
+          else {
+            if (this.$store.getters.getSubscription.subscription.status == "active")
+              return this.$store.getters.getAgence.finish == this.$steps;
+            else
+              return false;
+          }
+        }
+        else {
+          
+          return true; // Ca veut dire qu'il en mode test 
+        }
       }
       else
         return false;
@@ -106,7 +133,10 @@ export default {
       return firebase.auth().currentUser != null;
     },
     getDisplayName () {
-      return firebase.auth().currentUser.displayName;
+      if (firebase.auth().currentUser != null)
+        return firebase.auth().currentUser.displayName;
+      else
+        return "";
     },
     logout: function() {
       firebase

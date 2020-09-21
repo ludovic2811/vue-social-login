@@ -114,9 +114,12 @@ export default {
     },
     watch: {
             open: {
-                 handler(val) {                    
+                 handler(val) {      
+                      
                     if (val) {
+                        
                         this.classModal = "modal is-active";
+                       
                         this.init(()=>{
                             
                         });
@@ -158,7 +161,7 @@ export default {
         },
         cancel () {
             this.inout = JSON.parse(JSON.stringify(inout_api.api.json_inout))
-            console.log(this.inout);
+            
         },
         set () {
              inout_api.api.set(this.$store, this.inout, inout=>{

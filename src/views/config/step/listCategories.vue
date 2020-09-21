@@ -157,7 +157,7 @@
 				this.refreshDrag = !this.refreshDrag;
 			},
 			setIcon(item) {
-				console.log(item);
+				
 				this.categorie.icon = item.object.value;
 			},
 			newType() {
@@ -182,10 +182,10 @@
 				}
 				this.errorCategorie.nbType = nbTypes == 0	
 				var error = this.errorCategorie.nom  || this.errorCategorie.nbType || this.errorCategorie.icon || this.errorCategorie.type;
-				console.log("Save Categorie");
+				
 				if (!error) {					
 					categorie_api.api.save (this.agence, this.categorie, ()=>{
-						console.log("after save");
+					
 						this.$emit("refresh");
 						this.modalEditCategorie='modal';
 					})

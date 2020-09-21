@@ -1,4 +1,3 @@
-import firebase from "@/firebase/firebase_api"; 
 import conso from "@/firebase/client_consolidation"; 
 import inout_api from "@/firebase/inout_api"; 
 const const_article = {
@@ -22,13 +21,12 @@ const const_article = {
 	save(store, client, fct) {
 		
 		var request = conso.api.consolidation(store.getters.getAgence, client)
+	
 		store.getters.getDocAgence.collection("clients").doc(client[".key"])
 		.update({
 			articles : client.articles,
 			request: request
-		}).then(client=>{
-			console.log("ALORS ?")
-			console.log(client)
+		}).then(()=>{			
 			fct();
 		})
 		.catch(error=>{
