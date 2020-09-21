@@ -24,16 +24,17 @@
     </div>
     <div class="level-item has-text-centered">
         <div>
-        <p class="heading">Espace Total</p>
-        <p class="title">{{capacite}}</p>
-        </div>
-    </div>
-    <div class="level-item has-text-centered">
-        <div>
         <p class="heading">Espace restant</p>
         <p class="title">{{reste}}</p>
         </div>
     </div>
+    <div class="level-item has-text-centered">
+        <div>
+        <p class="heading">Espace Total</p>
+        <p class="title">{{capacite}}</p>
+        </div>
+    </div>
+    
     </nav>
     <div style="width:90%">
         <div class="tile is-ancestor">

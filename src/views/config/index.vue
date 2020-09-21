@@ -79,7 +79,7 @@
 		<div class="modal-card" style="background-color: white">
 			<header class="modal-card-head">
 					<p class="modal-card-title">
-						Cliquez pour souscrire à un abonnement
+						Soubscription d'abonnement
 					</p>
 					<s-button theme="is-small"	icon="times-circle" 
 						@onclick="addModalSubstription=false" label=""></s-button>&nbsp;

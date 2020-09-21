@@ -6,7 +6,8 @@
 		:client="clientData"
 		:article="article"
 		@close="openInOut = false"
-		:open="openInOut"	>
+		:open="openInOut"	
+	>
 	</in-out>	
 	<histoPaiement 
 		:article="article" 
@@ -154,9 +155,7 @@
 			}
 		},
 		mounted: function() {	
-			
 			this.search();
-			  		  
 		}
 	}
 </script>

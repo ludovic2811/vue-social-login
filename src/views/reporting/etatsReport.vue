@@ -64,9 +64,13 @@ export default {
     },
     mounted() {
         var index = 0;
+        console.log(this.$store.getters.getAgence.etats)
         for (var key in this.$store.getters.getAgence.etats) {
              var etat = this.$store.getters.getAgence.etats[key];
-             this.series.push(etat.nbArticles);
+             if (typeof(etat.nbArticles) != "undefined")
+                this.series.push(etat.nbArticles);
+             else
+                this.series.push(0);
              this.initChart.labels.push(etat.nom);
              index++;
              if (index == Object.keys(this.$store.getters.getAgence.etats).length)

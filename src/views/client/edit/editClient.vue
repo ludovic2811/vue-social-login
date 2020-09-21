@@ -77,7 +77,8 @@
 			:client="client"
 			:article="article"
 			@close="closeInOut"
-			:open="openInOut"	>
+			:open="openInOut"
+				>
 	</in-out>	
 	<histoPaiement 
 			:article="article" 
@@ -219,11 +220,12 @@
 				
 			},
 			openHisto(article) {
+				
 				this.article = article;
 				this.openHistoPaiement = true;
 			},
 			openModalInOut(article) {
-				
+				console.log("openHisto")
 				this.article = article;			
 				this.openInOut = true;
 			},

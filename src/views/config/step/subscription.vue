@@ -4,17 +4,13 @@
       
        <div class=" itemOffer" v-for="product in listProducts">
           <h1 class="title">
-               <i class="fas fa-dove">
+               <img :src="product.image" height="60" width="60"/>
               </i>&nbsp;&nbsp; {{product.nom}}
           </h1>
-          <span>
-               {{product.description}}
-          </span>          
           <div>
-             {{product.price.unit_amount / 100}} 
-             {{product.price.currency}} 
-             
-          </div><br/>
+               {{product.description}} &nbsp;
+               <b>{{product.price.unit_amount / 100}} € par mois</b>
+          </div>   
           <button :class="theme" :disabled="disabled" v-on:click="subscribe(product.priceId)">
               <i class="fas fa-check"/>&nbsp;
               <span>Je souscris</span>
@@ -41,7 +37,7 @@ export default {
     return {
       listProducts: [],
       subscriptionPriceId: "",
-      theme: "button is-primary",
+      theme: "button is-primary is-small",
       disabled: false
     }
   },
@@ -54,7 +50,7 @@ export default {
       subscription_api.api.SetCancelSubscribe(idCust, idSub);
     },
     subscribe(priceId) {
-      this.theme = "button is-loading is-success";
+      this.theme = "button is-loading is-success is-small";
       this.disabled = true;
       var successUrl = window.location.origin + "/config"
       var cancelUrl = window.location.origin + "/config"
@@ -89,17 +85,19 @@ export default {
 }
 .itemOffer {
     background-color: white;    
-    height: 200px;
+    height: 170px;
     width: 90%;
     display: inline-block;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     float: left;
     color: black;
-    padding-top: 30px;
+    padding-top: 5px;
     font-family: "Yu Gothic UI Light";
     border: thin solid silver;
   }
-
+  .itemOffer div {
+    margin-bottom: 5px;
+  }
 h1.title {
   font-size: large;  
   

@@ -85,20 +85,20 @@ const const_agence = {
 			firebase.api.getDb().collection("agence").doc(agence.id).update({
 				finish: agence.finish
 			})
-		
-	
 	},
 	getAll(store, fct) {
-		var currentUser = store.getters.getUser;	
-		currentUser.agences.forEach(idAgence=>{				
-				firebase.api.getDb().collection("agence").doc(idAgence).get().then(querysnapshot=>{
-					var agenceData = querysnapshot.data();
-					agenceData['id'] = idAgence;
-					fct(agenceData);					
-				}).catch(error=>{
-					// TODO  : A SUPRIMER OU DEMANDER LA SUPPRESSION
-				})	
-		})
+		var currentUser = store.getters.getUser;
+		if (typeof(currentUser.agences)!="undefined") {
+			currentUser.agences.forEach(idAgence=>{				
+					firebase.api.getDb().collection("agence").doc(idAgence).get().then(querysnapshot=>{
+						var agenceData = querysnapshot.data();
+						agenceData['id'] = idAgence;
+						fct(agenceData);					
+					}).catch(error=>{
+						// TODO  : A SUPRIMER OU DEMANDER LA SUPPRESSION
+					})	
+			})
+		}
 	},
 	saveTypePaiement(agence, fct) {
 		firebase.api.getDb().collection("agence").doc(agence.id).update({

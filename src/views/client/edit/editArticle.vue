@@ -198,7 +198,6 @@
 				this.article.idEtat = item.id;
 			},
 			openModalInOut() {
-				
 				var error = this.checkArticle();
 				if (!error) {
 					this.saveArticle();
@@ -207,7 +206,6 @@
 				}
 			},
 			openModalHistoPaiement() {
-				
 				var error = this.checkArticle();
 				if (!error) {
 					this.saveArticle();
@@ -223,7 +221,6 @@
 				return this.error.numero || this.error.categorie || this.error.etat || this.error.entrepot;
 			},
 			saveArticle() {
-				
 				var error = this.checkArticle();
 				if (!error)
 					this.$emit("save", this.article);

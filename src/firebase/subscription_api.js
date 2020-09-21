@@ -72,7 +72,7 @@ const subscription_api = {
                   var element = {};
                   element.description = doc.data().description;
                   element.nom = doc.data().name;
-                  
+                  element.image = doc.data().images[0];
                   doc.ref.collection("prices").get().then(priceSnap=>{
                       priceSnap.docs.forEach(docPrice=>{
                           element.priceId = docPrice.id;

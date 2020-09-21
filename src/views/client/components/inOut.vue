@@ -172,10 +172,12 @@ export default {
              })
         },
         init(fct) {
-            inout_api.api.getAll(this.$store, this.client, this.article, inouts=>{
-                this.inouts = inouts;
-                fct();
-            })
+            if (this.article.numero != "") {
+                inout_api.api.getAll(this.$store, this.client, this.article, inouts=>{
+                    this.inouts = inouts;
+                    fct();
+                })
+            }
         }
     },
     mounted() {

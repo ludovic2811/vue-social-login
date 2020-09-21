@@ -77,10 +77,10 @@
 										Dove : 10€ par mois (max 200 clients)
 										</div>
 										<div>
-										Dove : 10€ par mois (max 500 clients)
+										Spider : 50€ par mois (max 500 clients)
 										</div>
 										<div>
-										Dragon : 100€ par mois (aucune limite)
+										Dragon : 100€ par mois (max 1000 clients)
 										</div>
 									</div>
 									
