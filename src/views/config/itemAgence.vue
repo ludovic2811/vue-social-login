@@ -24,17 +24,25 @@
 			
 		</s-button>
 		</div>
+		<div style="margin-top: 5px">
+			<router-link :to="{ name: 'DeleteAgence', params: { idAgence: agence.id } }">
+				<s-button @onclick="" label="Supprimer" theme="is-danger" icon="trash">
+				</s-button>
+			</router-link>
+		
+		</div>
 		<div  v-show="agence.finish!=$steps">
 			<b>L'agence n'est pas finalisée. Vous êtes à l'étape {{agence.finish+1}}</b>
 		</div>
 		&nbsp;
-		
 		
 	</div>
 </template>
 <script>
 	import subscription_api from '@/firebase/subscription_api'
 	import user_api from '@/firebase/user_api'
+	import agence_api from '@/firebase/agence_api'
+	import vuefire 			from "@/firebase/vuefire"
 	export default {
 		props: ["agence","label", "icon","theme","isAgenceSelected"],
 		data() {
@@ -45,6 +53,9 @@
 			
 		},
 		methods: {
+			confirmDeleteAgence() {
+				this.$route("./deleteAgence");
+			},
 			checkAgence(agence) {
 				this.$emit("checkAgence", agence);
 			},
@@ -75,7 +86,7 @@
 <style scoped>
 	.itemAgence {
 		width: 350px;
-		height: 120px;
+		height: 150px;
 		border : thin silver solid; 
 		margin-bottom: 10px;
 		padding: 10px;

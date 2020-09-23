@@ -3,7 +3,7 @@
 		<div class="modal-background" ></div>
 		<div class="modal-card"  style="width:90%">
 			<header class="modal-card-head">
-			  <p class="modal-card-title">Editer l'article {{article.numero}}</p>
+			  <p class="modal-card-title">Editer l'article {{article.numero}} {{article.complement}} </p>
 			   		  <div style="float:rigth" >
 				      	<s-button theme="" label="" icon="times-circle" @onclick="$emit('cancel')"/>
 				      </div>
@@ -14,7 +14,9 @@
 					<div class="tile">
 						<div class="tile is-child box">
 							<label class="label">NUMERO :</label>
-							<input type="text"  class="input" id="numero" v-model="article.numero" />
+							<input maxlength="10" type="text" style="width:120px" class="input is-rounded" id="numero" v-model="article.numero" placeholder="Plaque"/>
+							&nbsp;
+							<input maxlength="10" type="text" style="width:120px"  class="input is-rounded" id="numero" v-model="article.complement" placeholder="Complement"/>
 							
 						</div>
 						<div class="notification is-danger" v-show="error.numero">
@@ -37,7 +39,7 @@
 						</div>
 
 						<label class="label">Type :</label>
-						<select class='select' v-model="article.idType" v-on:change="setType" >
+						<select class='select is-rounded' v-model="article.idType" v-on:change="setType" >
 							<option value="" disabled="" >Sélectionner le type</option>
 							<option v-for="type in types" :value="type.id">{{type.nom}}</option>			
 								</select>
@@ -71,7 +73,7 @@
 
 						<label class="label">Est rangé dans l'entrepot :</label>
 						
-						<select class='select' v-model="article.idEntrepot" v-on:change="setEntrepot">
+						<select class='select is-rounded' v-model="article.idEntrepot" v-on:change="setEntrepot">
 							<option value="" disabled="" selected="">Sélectionner l'entrepot</option>
 							<option v-for="entrepot in $store.getters.getAgence.entrepots" :value="entrepot.id">
 								{{entrepot.nom}} ({{entrepot.reste}})</option>
@@ -80,7 +82,7 @@
 							<button class="delete" v-on:click="error.entrepot=false"></button>
 							Il faut sélectionner une catégorie !
 						</div><br/>
-						<select class='select' v-if="stocks.length!=0" v-model="article.idStock" >
+						<select class='select is-rounded' v-if="stocks.length!=0" v-model="article.idStock" >
 							<option value="" disabled="" >Sélectionner le lieu de stockage</option>
 							<option v-for="stock in stocks" :value="stock.id">
 								{{stock.nom}} ({{stock.reste}})</option>

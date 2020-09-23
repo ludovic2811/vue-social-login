@@ -14,7 +14,7 @@ export default {
           series: [],
           initChart: {
             title: {
-              text: "Articles par état"
+              text: "Articles par categorie"
             },
             chart: {
               width: '100%',
@@ -25,7 +25,7 @@ export default {
             dataLabels: {
                 enabled: true,
                 formatter: function (val) {
-                return Math.round(val) +"%";
+                return val +"%";
                 },
             },
             responsive: [{
@@ -43,8 +43,8 @@ export default {
           chartOptions: {
             
             chart: {
-              height: 250,
-              width: 250,
+              height: 500,
+              width: 400,
               type: "pie",
             },
             labels: [],
@@ -52,8 +52,8 @@ export default {
               breakpoint: 480,
               options: {
                 chart: {
-                  width: 250,
-                  height: 250
+                  width: 280,
+                  height: 280
                 },
                 legend: {
                   position: 'bottom'
@@ -65,18 +65,19 @@ export default {
     },
     mounted() {
         var index = 0;
-       
-        for (var key in this.$store.getters.getAgence.etats) {
-             var etat = this.$store.getters.getAgence.etats[key];
-             if (typeof(etat.nbArticles) != "undefined")
-                this.series.push(etat.nbArticles);
+        
+        for (var key in this.$store.getters.getAgence.categories) {
+             var categorie = this.$store.getters.getAgence.categories[key];
+             if (typeof(categorie.nbArticles) != "undefined")
+                this.series.push(parseInt(categorie.nbArticles));
              else
                 this.series.push(0);
-             this.initChart.labels.push(etat.nom);
+             this.initChart.labels.push(categorie.nom);
              index++;
-             if (index == Object.keys(this.$store.getters.getAgence.etats).length)
+             if (index == Object.keys(this.$store.getters.getAgence.categories).length)
                 this.chartOptions = this.initChart;
         }
+        console.log(this.series);
     }
 }
 </script>

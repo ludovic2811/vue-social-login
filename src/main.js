@@ -60,16 +60,17 @@ let app = '';
 
 firebase_api.api.init(this);
 
-firebase.auth().onAuthStateChanged(() => {
+firebase.auth().onAuthStateChanged(auth => {
 	let storeInst = vuefire.store;
-
-	storeInst.dispatch('init', ()=> {
-	if (!app) {
-	    app = new Vue({
-			router,
-			store: storeInst,
-			render: h => h(App)
-		}).$mount('#app');
-	}
-	});
+	storeInst.dispatch('init', ()=>{
+	
+		if (!app) {
+			app = new Vue({
+				router,
+				store: storeInst,
+				render: h => h(App)
+				
+			}).$mount('#app');
+		}
+	})
 })

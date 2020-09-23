@@ -1,58 +1,73 @@
 <template>
 	<div class="container">
+			<div v-if="subscriptionBind.subscription">
 			<my-navbar ></my-navbar>
-			<div class="subscription" v-if="subscriptionBind.subscription" >
+			<div v-if="subscriptionBind.subscription.status!='test'">
+			<div :class="subscriptionBind.subscription.status=='active' ? 'subscription' : 'subscriptionCanceled'" v-if="subscriptionBind.subscription" >
 				<div>
 					
-					<span class="titleSubscription" >
-						
-					Votre abonnement : {{product.name}}
+					<div class="titleSubscription" >
+					<img v-if="product.images" :src="product.images[0]" style="width=40px;height:40px;"/> 
+					<div class="product">{{product.name}}</div>
 					<div style="float:right" v-if="product.name!='aucun'">
 						<s-button 
 							:theme="subscriptionBind.subscription.status=='active' ? 'is-success is-small' : 'is-danger is-small'"
-							:label="subscriptionBind.subscription.status"
-							:icon="subscriptionBind.subscription.status=='active' ? 'check' : 'ban'">
+							:label="subscriptionBind.subscription.status=='active' ? 'Activé' : 'Annulé'"
+							:icon="subscriptionBind.subscription.status=='active' ? 'check' : 'ban'"
+							disabled="true">
 						</s-button>
 					</div>
-					</span>
+					</div>
 					
-					<span v-if="product.name!='aucun'" style="width:100px">
+					<div v-if="product.name!='aucun'" >
 						<br/>
-							Vous êtes limité à {{product.limit}} clients pour toutes vos agences
-					</span>
+						<span v-show="subscriptionBind.subscription.status=='active'">
+							Votre abonnement vous limite à {{product.limit}} clients pour toutes vos agences
+						</span>
+						<span v-show="subscriptionBind.subscription.status!='active'">
+						 	<b>Votre compte sera réinitialisé et vos agences seront supprimées dans quelques jours</b>
+						</span>
+					</div>
 				
 				</div>
 				
-				<div style="float:right;" >
-					<s-button label="Visualiser" v-if="subscriptionBind.subscription.status=='active'"
-						:theme="themeGoAccount" :disabled="disabled" icon="eye" @onclick="goAccount()"/>
-					
-					<s-button 
-						label="Ajouter" theme="is-success" icon="plus" @onclick="addSubstription()"  
-						v-if="subscriptionBind.subscription.status=='canceled'"/>
+				
+				
+				<div class="footerSubscribe">
+					<div class='info'>
+							Si vous venez d'effectuer un changement sur votre abonnement, veuillez patientez ...
+					</div>
 					
 				</div>
-				<div class='info'>
-						Si vous venez de résilier ou d'ajouter un abonnement, <br/>
-						veuillez patientez quelques secondes pour la mise à jour ...
-				</div>
+				<div class="buttons">
+						<s-button label="Visualiser" v-if="subscriptionBind.subscription.status=='active'"
+							:theme="themeGoAccount" :disabled="disabled" icon="eye" @onclick="goAccount()"/>
+						
+						<s-button 
+							label="Renouveler" theme="is-success" icon="sync" @onclick="addSubstription()"  
+							v-if="subscriptionBind.subscription.status=='canceled'"/>
+						
+					</div>
 			</div>
-			<div class="subscription" v-if="!subscriptionBind.subscription" >
+			</div>
+			
+			<div class="subscription" v-if="subscriptionBind.subscription.status=='test'" >
 					<br/>
 					Vous n'avez aucun abonnement. <br/>Vous êtes en mode test limité à 5 clients
 					<br/>
 					<s-button 
 						label="Abonnez vous" theme="is-success" icon="plus" @onclick="addSubstription()" />
 					<div class='info'>
-					Si vous venez de résilier ou d'ajouter un abonnement, <br/>
-					veuillez patientez quelques secondes pour la mise à jour ...
+					Si vous venez de résilier ou d'ajouter un abonnement, veuillez patientez quelques secondes pour la mise à jour ... 
 					</div>
 			</div>
-			<s-button @onclick="createAgence" icon="plus" label="Nouvelle agence" theme="is-primary">
+			<s-button 
+			:disabled="subscriptionBind.subscription.status!='active'"
+			@onclick="createAgence" icon="plus" label="Nouvelle agence" theme="is-primary">
 			</s-button>
 			<br/><br/>
 			<ul>
-				<li v-for="agence in agences">
+				<li v-for="agence in agences" v-if="subscriptionBind.subscription.status=='active' ||  subscriptionBind.subscription.status=='test'">
 					<item-agence 
 						:label="(agence.id == $store.getters.getUser.idAgenceSelected) ? 'Sélectionnée' : 'Sélectioner'" 
 						:icon="(agence.id == $store.getters.getUser.idAgenceSelected) ? 'check' : 'ban'"
@@ -90,13 +105,14 @@
 			</section>
 		</div>
 		</div>
+			</div>
 	</div>
 
 </template>
 <script>
 	import agence_api 			from '@/firebase/agence_api'	
 	import user_api 			from '@/firebase/user_api'	
-	
+	import vuefire 			from "@/firebase/vuefire"
 	import ItemAgence 			from '@/views/config/itemAgence.vue'	
 	import TunnelCreateAgence 	from '@/views/config/tunnelCreateAgence.vue'
 	import subscription 		from '@/views/config/step/subscription.vue'
@@ -112,7 +128,12 @@
 				classModal: "modal",
 				etape: 0,
 				product: {},
-				subscriptionBind: {},
+				subscriptionBind: {
+						subscription : {
+							status: "test"
+						}
+					}
+				,
 				themeGoAccount : "is-primary",
 				addModalSubstription: false,
 				disabled: false
@@ -126,14 +147,19 @@
 		watch: {
 			subscriptionBind: function(val, after) {
 				
-				if (typeof(val.subscription) != "undefined") {
-					val.productRef.get().then(product=>{
-                   	 	this.product = product.data();
-					})
-				}
+				console.log(this.subscriptionBind);
+				if (val.length != 0)
+					if (typeof(this.subscriptionBind.subscription) != "undefined") {
+						if (this.subscriptionBind.subscription.status != "test") {
+							console.log(this.subscriptionBind.subscription)
+							this.subscriptionBind.productRef.get().then(product=>{
+								this.product = product.data();
+							})
+						}
+					}
 			}
 		},
-		methods: {
+		methods: {			 
 			 addSubstription() {
 				 this.addModalSubstription = true;
 			 },
@@ -197,24 +223,36 @@
 				else
 					this.classModal = "modal";
 			},			
-			refresh() {				
-				this.agences=[];
-				agence_api.api.getAll(this.$store, agence=> {
-					var agenceData = agence;
-					this.agences.push(agence);
-					this.classModal='modal'
-				});
-				var idUser = this.$store.getters.getUser.id;
-				firebase_api.api.getDb().collection("subscription").doc(idUser).get().then(doc=>{
-					if (doc.exists)
-						this.$binding("subscriptionBind", firebase_api.api.getDb().collection("subscription").doc(idUser))
-						.then(doc=>{})
-				})
-				
+			refresh() {		
+				if (this.$store.getters.getUser != null)		 {
+					this.agences=[];
+					agence_api.api.getAll(this.$store, agence=> {
+						var agenceData = agence;
+						this.agences.push(agence);
+						this.classModal='modal'
+					});
+					var idUser = this.$store.getters.getUser.id;
+					
+					firebase_api.api.getDb().collection("subscription").doc(idUser).get().then(doc=>{
+
+						if (doc.exists) {
+							console.log("bingind");
+							this.$binding("subscriptionBind", firebase_api.api.getDb().collection("subscription").doc(idUser))
+							.then(doc=>{
+								console.log(doc);
+							})
+						}
+							
+					})
+				} else {
+					vuefire.store.dispatch('init', ()=>{
+						this.refresh();
+					});
+				}
 						
 			}
 		},
-		mounted() {
+		beforeMount () {
 			this.refresh();
 		}
 	}
@@ -228,24 +266,58 @@
 		float:left;
 	}
 	.subscription {
-		border: thin solid black;
-		padding: 10px;
+		border: thin solid rgb(175, 173, 173);
+		background-color: beige;
+		padding: 5px;
 		margin-bottom: 20px;
 		margin-left: 5px;
-		width: 350px;
-		height: 180px;
+		width: 70%;
+		min-width: 350px;
+		height: 200px;
 		vertical-align: top;
 	}
-	.subscription div {
-		display: inline-block;
+	.subscriptionCanceled {
+		border: thin solid rgb(110, 5, 5);
+		background-color: rgb(243, 198, 198);
+		padding: 5px;
+		margin-bottom: 20px;
+		margin-left: 5px;
+		width: 70%;
+		min-width: 350px;
+		height: 200px;
+		vertical-align: top;
+		color: rgb(104, 7, 7)
 	}
-	.subscription .titleSubscription {
+
+	.titleSubscription {
 		border: none;
 		font-weight: bolder;
+		
 	}
 	.info {
-		margin-left: 10px;
-		font-style: italic;
 		font-size: small;
+		font-style:italic;
+		width: 100%;
+		text-align: left;
+	}
+	.footerSubscribe {
+		margin-top: 5px;
+		
+	}
+	div.buttons {
+		display: inline-block;
+		text-align: right;
+		float: right;
+		vertical-align: bottom;
+		
+	}
+	.product {
+		display: inline-block;
+		padding-left: 10px;
+		height: 50px;
+		padding-top: 10px;
+		vertical-align: top;
+		font-size: large;
+		color: black;
 	}
 </style>

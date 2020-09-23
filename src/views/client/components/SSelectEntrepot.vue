@@ -9,8 +9,9 @@
 		<div v-for="entrepot in $store.getters.getAgence.entrepots" v-if="IdEntrepotSelected==null">
 			<s-button theme="" :label="entrepot.nom + ' (' + entrepot.reste + ')'" icon="" @onclick="setEntrepot(entrepot)"/><br/><br/>
 		</div>		
-		<div v-if="IdEntrepotSelected!=null">
-			<s-button theme="is-primary" icon="list" label="Revenir à la selection de l'entrepot" @onclick="IdEntrepotSelected=null">
+		<div v-if="showListStock && IdEntrepotSelected!=null">
+			<s-button theme="is-primary" icon="list" label="Revenir à la selection de l'entrepot" 
+			@onclick="showListStock=false">
 			</s-button>
 			<label class="label">Sélectioner le lieu de stockage de {{labelEntrepot}}</label>
 			<div v-for="stock in $store.getters.getAgence.entrepots[IdEntrepotSelected].stocks">
@@ -27,19 +28,22 @@
 			return {
 				IdEntrepotSelected : null,
 				labelEntrepot : null,
-				indexEntrepot: null
+				indexEntrepot: null,
+				showListStock: false
 			}
 		},
 		methods: {
 			setEntrepot(item) {			
 				this.IdEntrepotSelected = item.id;	
 				this.labelEntrepot = this.$store.getters.getAgence.entrepots[this.IdEntrepotSelected].nom;
+				this.showListStock = true;
 			},
 			setStock(idStock) {
 				this.article.idEntrepot = this.IdEntrepotSelected;
 				this.article.idStock = idStock;
 				this.IdEntrepotSelected = null;
 				this.$emit("save");
+				
 			}
 		}
 	}

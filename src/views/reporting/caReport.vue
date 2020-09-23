@@ -1,6 +1,6 @@
 <template>
-    <div>
-     <apexchart width="100%" type="line" :options="chartOptions" :series="series"></apexchart>
+    <div >
+     <apexchart :yaxis="yaxis" width="100%" type="line" :options="chartOptions" :series="series"></apexchart>
    </div>
 </template>
 <script>
@@ -13,21 +13,68 @@ export default {
          return {
          series: [{
               name: "Desktops",
-              data: [10, 41, 35, 51, 49, 62, 69, 91, 148]
+              data: []
           }],
+          yaxis: [
+                {
+                  axisTicks: {
+                    show: true
+                  },
+                  axisBorder: {
+                    show: true,
+                    color: "#FF1654"
+                  },
+                  labels: {
+                    style: {
+                      colors: "#FF1654"
+                    }
+                  },
+                  title: {
+                    text: "Series A",
+                    style: {
+                      color: "#FF1654"
+                    }
+                  }
+                },
+                {
+                  opposite: true,
+                  axisTicks: {
+                    show: true
+                  },
+                  axisBorder: {
+                    show: true,
+                    color: "#247BA0"
+                  },
+                  labels: {
+                    style: {
+                      colors: "#247BA0"
+                    }
+                  },
+                  title: {
+                    text: "Series B",
+                    style: {
+                      color: "#247BA0"
+                    }
+                  }
+                }
+              ],
           initChart: {
             
           },
           chartOptions: {
             chart: {
-              height: 350,
+              height: 250,
               type: 'line',
               zoom: {
                 enabled: false
-              }
+              },
+              
             },
             dataLabels: {
-              enabled: false
+              enabled: false,
+              formatter: function (val) {
+                return val +"€";
+                }
             },
             stroke: {
               curve: 'straight'
@@ -44,7 +91,8 @@ export default {
             },
             xaxis: {
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-            }
+            },
+            
           }
          }
     },

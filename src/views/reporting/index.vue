@@ -1,5 +1,5 @@
 <template>
-    <div class="contain">
+    <div class="container">
         <my-navbar ></my-navbar>
 	 <my-navbarFooter ></my-navbarFooter>
         <br/>
@@ -36,22 +36,37 @@
     </div>
     
     </nav>
-    <div style="width:90%">
+    <div >
         <div class="tile is-ancestor">
-            <div class="tile">
-                <div class="tile is-child box">
+            <div  class="tile is-parent">
+                <div class="tile is-child box" >
+                    <div class="content">
                     <entrepots-report></entrepots-report>
+                    </div>
                 </div>
-                <div class="tile is-child box">
+            <div  class="tile is-parent">
+                <div class="tile is-child box" >
+                     <div class="content">
                     <etats-report></etats-report>
+                     </div>
                 </div>
+            </div>
             </div>
             
         </div>
         <div class="tile is-ancestor">
-             <div class="tile">
-                 <div class="tile is-child box">
+             <div class="tile is-parent">
+                 <div class="tile is-child box" >
+                      <div class="content">
+                    <etats-categories></etats-categories>   
+                      </div>
+                 </div>     
+             </div>
+             <div class="tile is-parent">
+                 <div class="tile is-child box" >
+                      <div class="content">
                     <ca-report></ca-report>   
+                      </div>
                  </div>     
              </div>
         </div>
@@ -61,11 +76,13 @@
 <script>
 import EntrepotsReport from "@/views/reporting/entrepotsReport"
 import EtatsReport from "@/views/reporting/etatsReport"
+import EtatsCategories from "@/views/reporting/categoryReport"
 import CaReport from "@/views/reporting/caReport"
 export default {
     components: {
         EntrepotsReport,
         EtatsReport,
+        EtatsCategories,
         CaReport
     },
     data: function() {

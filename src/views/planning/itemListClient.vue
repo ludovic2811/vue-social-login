@@ -5,18 +5,37 @@
             &nbsp;{{itemInOut.client.nom}} {{itemInOut.client.prenom}}
         </div>
         <div class="itemArticleInOut">
-            <div  >
-                <i :class="getClassCategorie(itemInOut.article.idCategorie)"/> {{itemInOut.article.numero}}
-            &nbsp;<s-button 
+            <div class="article">
+                    <i :class="getClassCategorie(itemInOut.article.idCategorie)"/> {{itemInOut.article.numero}} {{itemInOut.article.complement}}
+            </div>
+            <div class="buttons">
+                <s-button 
+                :label="getLabelEntrepot(itemInOut.article)" 
+                icon=""  
+                theme="is-primary is-small" 
+                @onclick="openModalEntrepotTrue()"/>&nbsp;
+               <s-button 
                 :label="getLabelEtat(itemInOut.article.idEtat)" 
                 :icon="getClassEtat(itemInOut.article.idEtat)"  
                 theme="is-primary is-small" 
-                @onclick="openModalEtat=true"/>
-            
-            <s-select-etat :open="openModalEtat" :article="itemInOut.article"
-                @save="save(itemInOut)" @cancel="openModalEtat=false"
-            >
-            </s-select-etat>
+                @onclick="openModalEtatTrue()"/>&nbsp;
+                <div v-if="article!=null">
+                <s-select-entrepot
+                    :open="openModalEntrepot"
+                    :article="article"
+                    @save="save()"
+                    @cancel="openModalEntrepot=false"
+                   
+                />
+               
+                <s-select-etat 
+                    :open="openModalEtat" 
+                    :article="article"
+                    @save="save()" @cancel="openModalEtat=false"
+                   
+                >
+                </s-select-etat>
+                </div>
             </div>
         </div>
     </div>
@@ -24,21 +43,31 @@
 <script>
 import client_api from "@/firebase/client_api"
 import article_api from "@/firebase/article_api"
-
+import SSelectEntrepot from '@/views/client/components/SSelectEntrepot.vue'
 import SSelectEtat from '@/views/client/components/SSelectEtat.vue'
     
 export default {
     props:["itemInOut"],
     data: function() {
         return {
-            openModalEtat: false
+            openModalEtat: false,
+            openModalEntrepot: false,
+            article: JSON.parse(JSON.stringify(this.itemInOut.article))
         }
     },
     components: {
-        SSelectEtat
+        SSelectEtat,
+        SSelectEntrepot
     },
     methods: {
-       
+       openModalEtatTrue() {
+           this.openModalEtat = true;
+           this.article = JSON.parse(JSON.stringify(this.itemInOut.article));
+       },
+       openModalEntrepotTrue() {
+           this.openModalEntrepot = true;
+           this.article = JSON.parse(JSON.stringify(this.itemInOut.article));
+       },
         openClientItem(itemInOut) {
 			 this.$emit("openClientItem", itemInOut.client)
 		},
@@ -53,15 +82,18 @@ export default {
             return this.$store.getters.getAgence.etats[idEtat].nom;
             
         },
-        save(itemInOut) {
-				
-				article_api.api.save(this.$store, itemInOut.client,()=>{
-					client_api.api.get(this.$store, itemInOut.idClient, itemClient=>{
-                        itemInOut.article = itemClient.articles[itemInOut.numero];
-                        itemInOut.client = itemClient;
+        getLabelEntrepot(article) {
+            var entrepot = this.$store.getters.getAgence.entrepots[article.idEntrepot];
+            var stock = entrepot.stocks[article.idStock];
+            return entrepot.nom +  " / " + stock.nom;
+        },
+        
+        save(articleDelete) {
+                article_api.api.save(this.$store, this.itemInOut.client, this.article, articleDelete, ()=>{
                         this.openModalEtat = false;
-					})
-				});
+                        this.openModalEntrepot = false;
+                        this.itemInOut.article = this.article;
+                });
 		}
     }
 }
@@ -80,8 +112,12 @@ export default {
         padding-top: 5px;
         vertical-align: middle;
     }
-    .itemArticleInOut div {
-        margin-top: 20px;
-        margin-left: 100px;
+    .itemArticleInOut div.article {
+        margin-top: 10px;
+        margin-left: 70px;
+    }
+    .itemArticleInOut div.buttons {
+        margin-top: 5px;
+        margin-left: 40px;
     }
 </style>

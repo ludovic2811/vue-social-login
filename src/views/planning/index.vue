@@ -1,7 +1,15 @@
 <template>
     <div class="container">
         <my-navbar ></my-navbar>
-	 <my-navbarFooter ></my-navbarFooter>
+	    <my-navbarFooter ></my-navbarFooter>
+        <div class="legend">
+            <div>
+        <s-button theme="is-success is-small" label="" icon="arrow-circle-right" @onclick="" /> Véhicules Rentrant<br/>
+            </div>
+            <div>
+        <s-button theme="is-danger is-small" label="" icon="arrow-circle-left" @onclick="" /> Véhicules Sortant
+            </div>
+        </div>
         <v-calendar  
         	@update:from-page="pageChange"  
         	ref="calendar" :rows="1" 
@@ -13,7 +21,7 @@
             	<template slot="day-content" slot-scope="props">
                 	<div 
                 		v-if="props.day.inMonth" 
-                		class="caseDate"
+                		:class="getClass(props.day.date)"
                 		v-on:click="openModalItemDate(props.day.date)" >
                     <div>
                         <span>{{ props.day.day }}</span>
@@ -24,14 +32,14 @@
                             <p class="label">
                             	<s-button 
                             		v-if="dayEvent.rentreLe.length!=0" 
-                            		theme="is-primary is-small is-rounded" 
-                            		icon="" 
+                            		theme="is-success is-small is-rounded" 
+                            		icon="arrow-circle-right" 
                             		:label="dayEvent.rentreLe.length"
                             	></s-button><br/>
                             	<s-button 
                             		v-if="dayEvent.departLe.length!=0" 
                             		theme="is-danger is-small is-rounded" 
-                            		icon="" 
+                            		icon="arrow-circle-left" 
                             		:label="dayEvent.departLe.length"
                             	></s-button>
                             	
@@ -82,6 +90,16 @@
         },
 
         methods: {
+            getClass(date) {
+                 var dateCurrent = new Date();
+                 if (this.$convertDateToString(dateCurrent) == this.$convertDateToString(date))
+                    return "caseDateSelected"
+                 else
+                    if (dateCurrent > date)
+                         return "caseDateBefore"
+                    else
+                        return "caseDate";
+            },
             convertYYYYMM(date) {
                 var month = date.getMonth() + 1;
                 if (month < 10)
@@ -177,15 +195,59 @@
     
     .caseDate {
         width: 55px;
-        min-height: 70px;
-        border: thin solid black;
+        min-height: 81px;
+        border: thin solid rgb(207, 209, 211);;
         text-overflow: 'ellipsis';
         margin: 1px;
+        font-weight: bolder;
+        text-align: center;
+    }
+    .caseDateBefore {
+        width: 55px;
+        min-height: 81px;
+        border: thin solid rgb(207, 209, 211);;
+        text-overflow: 'ellipsis';
+        margin: 1px;
+        font-weight: bolder;
+        background-color: rgb(207, 209, 211);
+        color:rgb(127, 131, 134);
+        text-align: center;
+    }
+    .caseDateSelected {
+        width: 55px;
+        min-height: 81px;
+        border: thin solid green;
+        background-color: rgb(186, 223, 186);
+        text-overflow: 'ellipsis';
+        margin: 1px;
+        font-weight: bolder;
+        color: green;
+        text-align: center;
+    }
+     .caseDateSelected:hover {
+       background-color: lightblue;
+       border: thin solid green;
+       cursor: pointer;
+    }
+    .caseDate:hover {
+        background-color: lightblue;
+        border: thin solid lightblue;
+        cursor: pointer;
     }
     .label {
-    	margin-top: -15px;
+    	margin-top: 2px;
     	margin-right: 2px;
     	text-align: right;
     	padding-bottom: 2px;
+    }
+    .legend {
+        margin: 5px;
+        border: thin solid rgb(207, 209, 211);
+        width: 200px;
+        padding: 3px;
+    }
+    .legend div {
+        margin: 5px;
+        font-weight: bold;
     }
 </style>

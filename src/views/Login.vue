@@ -42,7 +42,7 @@
                     <i class="fas fa-lock"></i>
                   </span>
                   <span v-show="errorPwd" class="errorMail">
-                    Erreur dans le mode passe
+                   Mot de passe incorrect
                 </span>
                 </p>
               </div>

@@ -50,6 +50,10 @@
                    </div>
                 </p>
                 <br/>
+                <div v-show="error.exist" class="danger">
+                  Cet mail existe déjà ...</br>
+                  Vous avez peut être oublier votre mot de passe </br>
+                </div>
         <div class="buttons">
           <s-button label="Enregistrer" icon="save" theme="is-success" @onclick="save()"/>
           <s-button label="Annuler" icon="save" theme="is-warning" @onclick="rout('/index')"/>
@@ -85,7 +89,8 @@ export default {
       error: {
         nom: false,
         pwd: false,
-        email: false
+        email: false,
+        exist: false
       }
     }
   },
@@ -99,8 +104,8 @@ export default {
           this.error.email = this.email == "";
 
           if (!this.error.email) {
-            var reEmail = /^(?:[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!\.)){0,61}[a-zA-Z0-9]?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!$)){0,61}[a-zA-Z0-9]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/;
-            this.erreur.email = this.email.match(reEmail);
+            var reEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+            this.error.email = !this.email.match(reEmail);
           }
           
           if (!this.error.pwd) {
@@ -116,15 +121,11 @@ export default {
           .then(data=> {
               data.user.updateProfile({
                   displayName: this.nom
-              }).then(()=>{
-              }).catch(function(error) {
-                // Handle Errors here.
-                var errorCode = error.code;
-                var errorMessage = error.message;
-                // ...
-                });
+              }).then(error=>{
+                  console.log(error);
+              })
           
-            firebase.auth().onAuthStateChanged(firebaseUser => {
+                firebase.auth().onAuthStateChanged(firebaseUser => {
                       if (firebaseUser) {
                           firebaseUser.sendEmailVerification().then(function() {
                               
@@ -136,8 +137,13 @@ export default {
                           console.log('not logged in');
                           
                       }
-                  })
-              })
+                })
+              }).catch(error=> {
+                console.log("error");
+                console.log(error);
+                if (error.code =="auth/email-already-in-use")
+                    this.error.exist = true;
+                });
           }
           
       }

@@ -34,23 +34,17 @@ const const_agence = {
 			fct();
 		})
 	},
-	decNbArticle (store, fct) {
-		store.getters.getAgence.nbArticles--;
-		store.getters.getDocAgence.update({
-			nbArticles: store.getters.getAgence.nbArticles
-		}).then(()=>{
+	delete(store, agence, fct) {
+		if (store.getters.getUser.idAgenceSelected == agence.id) {
+			firebase.api.getDb().collection("user").doc(store.getters.getUser.id).get().then(user=>{
+				user.ref.update({
+					idAgenceSelected : ""
+				})
+			})
+		}
+		firebase.api.getDb().collection("agence").doc(agence.id).delete().then(()=>{
 			fct();
-		})
-	},
-	incNbArticle (store, fct) {
-		if (typeof(store.getters.getAgence.nbArticles)=="undefined")
-			store.getters.getAgence.nbArticles=0;
-		store.getters.getAgence.nbArticles = parseInt(store.getters.getAgence.nbArticles) + 1;
-		store.getters.getDocAgence.update({
-			nbArticles: store.getters.getAgence.nbArticles
-		}).then(()=>{
-			fct();
-		})
+		});
 	},
 	save (store, agence, fct) {
 		if (agence.id == -1) {
@@ -88,6 +82,7 @@ const const_agence = {
 	},
 	getAll(store, fct) {
 		var currentUser = store.getters.getUser;
+		if ((currentUser) != null)
 		if (typeof(currentUser.agences)!="undefined") {
 			currentUser.agences.forEach(idAgence=>{				
 					firebase.api.getDb().collection("agence").doc(idAgence).get().then(querysnapshot=>{

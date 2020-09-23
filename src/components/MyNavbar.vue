@@ -106,25 +106,27 @@ export default {
         }
     },
     existAgence() {
-     
-      if (typeof(this.$store.getters.getAgence.id) != "undefined") {
-        if (this.$store.getters.getSubscription!=null) {
-          if (typeof(this.$store.getters.getSubscription.subscription == "undefined")) {
-            // alors on n'est dans le cas où le client est en mode test
-            return this.$store.getters.getAgence.finish == this.$steps;
+      if (this.$store.getters.getAgence != null)
+        if (typeof(this.$store.getters.getAgence.id) != "undefined") {
+          if (this.$store.getters.getSubscription!=null) {
+            if (typeof(this.$store.getters.getSubscription.subscription == "undefined")) {
+              // alors on n'est dans le cas où le client est en mode test
+              return this.$store.getters.getAgence.finish == this.$steps;
+            }
+            else {
+              if (this.$store.getters.getSubscription.subscription.status == "active")
+                return this.$store.getters.getAgence.finish == this.$steps;
+              else
+                return false;
+            }
           }
           else {
-            if (this.$store.getters.getSubscription.subscription.status == "active")
-              return this.$store.getters.getAgence.finish == this.$steps;
-            else
-              return false;
+            
+            return true; // Ca veut dire qu'il en mode test 
           }
         }
-        else {
-          
-          return true; // Ca veut dire qu'il en mode test 
-        }
-      }
+        else
+          return false;
       else
         return false;
 

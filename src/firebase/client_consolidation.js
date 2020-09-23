@@ -38,7 +38,11 @@ const api = {
 		var majCategorie = false ;
 		var majStockOld = false;
 		var addEntrepot = true;
-
+		var addArticle = false;
+		var deleteArticle = false;
+		var majEtat = false;
+		console.log(articleNew);
+		console.log(articleOld);
 		if (typeof(articleOld) != "undefined") {
 			if (typeof(articleNew) == "undefined") {
 				// ca veut dire qu'il faut qu'on supprime mais qu'on ajoute pas
@@ -46,6 +50,7 @@ const api = {
 				addEntrepot= false;
 				majEntrepotOld = true;
 				majStockOld = true;
+				deleteArticle = true;
 			}
 			else {
 				
@@ -56,7 +61,9 @@ const api = {
 				if (articleNew.idCategorie != articleOld.idCategorie ||
 					articleNew.idType != articleOld.idType)	
 					majCategorie = true;
-				maj = majCategorie || majEntrepotOld || majStockOld;
+				if (articleNew.idEtat != articleOld.idEtat)
+					majEtat = true;
+				maj = majCategorie || majEntrepotOld || majStockOld || majEtat;
 			}
 			
 		}
@@ -64,6 +71,7 @@ const api = {
 			maj = true;
 			majEntrepotOld= false;
 			majStockOld = false;
+			addArticle = true;
 		}
 		/*
 		console.log("maj="+maj);
@@ -78,7 +86,7 @@ const api = {
 					agence.entrepots[articleNew.idEntrepot].stocks[articleNew.idStock].articles = {};
 				
 				// J'ajoute le nouvel article dans l'entrepot
-				agence.entrepots[articleNew.idEntrepot].stocks[articleNew.idStock].articles[articleNew.numero] = {
+				agence.entrepots[articleNew.idEntrepot].stocks[articleNew.idStock].articles[articleNew.id] = {
 					idCategorie: articleNew.idCategorie,
 					idType: articleNew.idType
 				}
@@ -93,13 +101,38 @@ const api = {
 			if (majEntrepotOld || majStockOld) {
 				// je supprime l'article dans l'ancien entrepot ou stock
 				// en fait la condition existe si on est dans un nouveau
+				console.log(agence.entrepots[articleOld.idEntrepot]);
 				if (typeof(agence.entrepots[articleOld.idEntrepot].stocks[articleOld.idStock].articles) != "undefined")
-					delete agence.entrepots[articleOld.idEntrepot].stocks[articleOld.idStock].articles[articleOld.numero];
+					delete agence.entrepots[articleOld.idEntrepot].stocks[articleOld.idStock].articles[articleOld.id];
 				this.subCalculEntrepot (agence.entrepots[articleOld.idEntrepot], agence.categories);
 			}
 
+			if (deleteArticle) {
+				agence.nbArticles--;
+			}
+				
+			if (addArticle) {
+				agence.nbArticles++;
+			}
+		
+			if (!addArticle) { // ca veut dire qu'on n'a pas d'article OLD
+				agence.categories[articleOld.idCategorie].nbArticles--;
+				agence.categories[articleOld.idCategorie].types[articleOld.idType].nbArticles--;
+				agence.etats[articleOld.idEtat].nbArticles--;
+			}
+			
+			if (!deleteArticle) { // ca veut dire qu'on n'a pas d'article NEW
+				agence.categories[articleNew.idCategorie].nbArticles++;
+				agence.categories[articleNew.idCategorie].types[articleNew.idType].nbArticles++;
+				agence.etats[articleNew.idEtat].nbArticles++;
+			}
+
 			firebase.api.getDb().collection("agence").doc(agence.id).update({
-				entrepots: agence.entrepots
+				entrepots: agence.entrepots,
+				etats	:  agence.etats,
+				categories: agence.categories,
+				nbArticles: agence.nbArticles,
+				nbClients : agence.nbClients
 			}).then(()=>{
 				fct(true)
 			});

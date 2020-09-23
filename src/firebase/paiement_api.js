@@ -14,10 +14,10 @@ const const_paiement = {
     },
     
 	getAll (store, client, article , fct) {
-        if (article.numero != '' ) {
+        if (article.id != '' ) {
             if (typeof(client)!="undefined")
                 store.getters.getDocAgence.collection("clients").doc(client[".key"])
-                .collection("paiements").doc(article.numero).get().then(doc=>{
+                .collection("paiements").doc(article.id).get().then(doc=>{
                     if (doc.exists)
                         fct(doc.data());
                     else
@@ -30,18 +30,18 @@ const const_paiement = {
             if (typeof(client.paiements) == "undefined") {
                 client.paiements = {};
             }
-            if (typeof(client.articles[article.numero].paiements) == "undefined") {
-                client.articles[article.numero].paiements = {};
+            if (typeof(client.articles[article.id].paiements) == "undefined") {
+                client.articles[article.id].paiements = {};
             }
 
             var listPaiementsConfirm = {
                 confirm: paiementData.confirm,
                 total: paiementData.total
             }
-            client.articles[article.numero].paiements[paiementData.year] = listPaiementsConfirm;
-            article = client.articles[article.numero];
+            client.articles[article.id].paiements[paiementData.year] = listPaiementsConfirm;
+            article = client.articles[article.id];
             
-            // On va sauvegarder l'ancien solde du paiement du client
+            // On va sauvegarder l'ancien solde du paiement du client si il était confirmé car sinon on ne l'a pas comptabilisé
             var oldPaiementClient = 0;
             
             if (typeof(client.paiements[paiementData.year]) != "undefined") {
@@ -55,17 +55,17 @@ const const_paiement = {
                 total : 0,
                 confirm: false
             }
-            // on partours tous les articles du client
+            // on parcours tous les articles du client
             var confirmClient = true;
             var totalClient = 0;
-            for (var articleNumero in client.articles) {
-                if (typeof(client.articles[articleNumero].paiements) == "undefined") {
+            for (var idArticle in client.articles) {
+                if (typeof(client.articles[idArticle].paiements) == "undefined") {
                     confirmClient = false;                    
                 }
                 else {
-                    confirmClient = client.articles[articleNumero].paiements[paiementData.year].confirm && confirmClient;
-                    if (client.articles[articleNumero].paiements[paiementData.year].confirm)
-                        totalClient += parseFloat(client.articles[articleNumero].paiements[paiementData.year].total);
+                    confirmClient = client.articles[idArticle].paiements[paiementData.year].confirm && confirmClient;
+                    if (client.articles[idArticle].paiements[paiementData.year].confirm)
+                        totalClient += parseFloat(client.articles[idArticle].paiements[paiementData.year].total);
                 }
             }
             
@@ -76,17 +76,17 @@ const const_paiement = {
             if (typeof(store.getters.getAgence.paiements)=="undefined") {
                 store.getters.getAgence.paiements = {};
                 store.getters.getAgence.paiements[paiementData.year] = {
-                    total: client.paiements[paiementData.year].total
+                    total: parseFloat(client.paiements[paiementData.year].total)
                 };
             }
             else if (typeof(store.getters.getAgence.paiements[paiementData.year]) == "undefined") {
                 store.getters.getAgence.paiements[paiementData.year] = {
-                    total: client.paiements[paiementData.year].total
+                    total: parseFloat(client.paiements[paiementData.year].total)
                 };
             }
             else {
-                var totalAgence = store.getters.getAgence.paiements[paiementData.year].total;
-                totalAgence = totalAgence + (oldPaiementClient + client.paiements[paiementData.year].total)
+                var totalAgence = parseFloat(store.getters.getAgence.paiements[paiementData.year].total);
+                totalAgence = (totalAgence - oldPaiementClient) + parseFloat(client.paiements[paiementData.year].total);
                 store.getters.getAgence.paiements[paiementData.year].total = totalAgence;
             }
             
@@ -105,7 +105,7 @@ const const_paiement = {
     set (store, client, article, listPaiements, fct) {
         
         store.getters.getDocAgence.collection("clients").doc(client[".key"])
-            .collection("paiements").doc(article.numero).set(
+            .collection("paiements").doc(article.id).set(
                 listPaiements
         ).then(()=>{
            
@@ -114,7 +114,7 @@ const const_paiement = {
     },
     add (store, client, article, listPaiements, fct) {
         store.getters.getDocAgence.collection("clients").doc(client[".key"])
-            .collection("paiements").doc(article.numero).set(
+            .collection("paiements").doc(article.id).set(
                 listPaiements
         ).then(()=>{
             fct();

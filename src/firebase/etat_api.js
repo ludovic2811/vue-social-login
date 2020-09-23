@@ -2,7 +2,8 @@ import firebase from "@/firebase/firebase_api";
 const const_etat = {
 	json_etat : {
 		nom: '',
-		icon: ''
+		icon: '',
+		nbArticles: 0
 	},
 	save(agence, fct) {
 		firebase.api.getDb().collection("agence").doc(agence.id).update({
@@ -16,6 +17,7 @@ const const_etat = {
 		delete agence.etats[idEtat];
 		
 	},
+	/*
 	incNbArticle(store, article) {
 		if (typeof(article) != "undefined") {
 
@@ -47,7 +49,7 @@ const const_etat = {
 				etats : store.getters.getAgence.etats
 			})
 		}
-	}
+	}*/
 	
 
 }

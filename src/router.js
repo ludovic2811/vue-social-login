@@ -13,6 +13,7 @@ import Planning from '@/views/planning/index.vue'
 
 import Impaye from '@/views/impaye/index.vue'
 
+import confirmDeleteAgence from '@/views/config/confirmDeleteAgence.vue'
 
 import Reporting from '@/views/reporting/index.vue'
 import Login from '@/views/Login.vue'
@@ -101,7 +102,15 @@ const router = new Router({
       meta: {
         requiresAuth: true
       }
-    },     
+    },   
+    {
+        path: '/config/:idAgence',
+        name: 'DeleteAgence',
+        component: confirmDeleteAgence,
+        meta: {
+          requiresAuth: true
+        }
+    },
     {
       path: '/planning',
       name: 'Planning',

@@ -1,4 +1,6 @@
 import agence_api from "@/firebase/agence_api"; 
+import conso_api from "@/firebase/client_consolidation";
+import { object } from "firebase-functions/lib/providers/storage";
 
 const const_client = {
 	json: {
@@ -182,21 +184,20 @@ const const_client = {
 	}
 	,
 	archiver(store, client, fct) {
-		var search = client.nom.toUpperCase()
-		store.getters.getDocAgence.collection('clientsArchive').doc().set(			{
-				nom: client.nom,
-				prenom: client.prenom,
-				tel1: client.tel1,
-				tel2: client.tel2,
-				tel3: client.tel3,
-				mail: client.mail,
-				adresse: client.adresse,
-				search: search,
-				articles: client.articles
-			}).then(success => {
-				docAgence.collection('clients').doc(client.id).delete();
-				fct(success);
-			})
+		store.getters.getDocAgence.collection("clients").doc(client['.key']).delete().then(()=>{
+			store.getters.getAgence.nbClients--;
+			var articleDelete;
+			for (var idArticle in client.articles) {
+				conso_api.api.calculEspaceEntrepot(
+					store.getters.getAgence,
+					articleDelete,
+					client.articles[idArticle],
+					()=>{
+						fct();
+					})
+			}
+		});
+		
 	}
 }
 

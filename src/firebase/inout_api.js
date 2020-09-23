@@ -6,14 +6,15 @@ const const_inout = {
 		departLe: "",
         rentreLe: "",
         idClient: null,
-        numero: null
+        numero: null,
+        idArticle: null
         
     },
     deleteByArticle (store, article) {
         store.getters.getDocAgence.collection("inout")
             .get().then(querySnapshot=>{
                 querySnapshot.docs.forEach(element => {
-                    if (element.data().numero == article.numero)
+                    if (element.data().idArticle == article.id)
                         element.ref.delete();
                 });
             })
@@ -21,7 +22,7 @@ const const_inout = {
 	getAll (store, client, article , fct) {
         store.getters.getDocAgence.collection('inout')
             .where("idClient","==",client['.key'])
-            .where("numero","==",article.numero)
+            .where("idArticle","==",article.id)
             .orderBy("departLe","desc")
             .get().then(querySnapshot=> {
                 var docs = querySnapshot.docs.map(function (doc) {
@@ -84,8 +85,8 @@ const const_inout = {
         
         
         var idClient = client['.key'];
-        client.articles[article.numero].departLe = jsonInOut.departLe;
-        client.articles[article.numero].rentreLe = jsonInOut.rentreLe;
+        client.articles[article.id].departLe = jsonInOut.departLe;
+        client.articles[article.id].rentreLe = jsonInOut.rentreLe;
         
         store.getters.getDocAgence
             .collection("clients").doc(idClient).update({

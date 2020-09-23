@@ -47,20 +47,28 @@ const store = new Vuex.Store({
         context.bindFirestoreRef('userFire', firebase.api.getDb().collection('user').doc(firebase.api.getUser().uid), {wait: true})
           .then((res) => {
              
-             if (res!=null)
+             if (res!=null) {
               if (res.idAgenceSelected != "") {
                 
                 var params = {
                   idAgence: res.idAgenceSelected,
                   fct: ()=>{
+                   
                     fct()
                   }
                 }
       	       context.dispatch("initAgence", params);
               }
-              else fct();
-             else
+              else {
+               
+                fct();
+              }
+            }
+             else {
+              
               fct();
+             }
+              
           })
           .catch((err) => {
             console.log("error : " +err);
@@ -68,6 +76,11 @@ const store = new Vuex.Store({
           })
       }
       else {
+        context.state.docAgence = null;
+        context.state.agence = [];
+        context.state.userFire = null;
+        context.state.subscription = null;
+        context.state.getDocSubscription = null;
         fct();
       }
   	}),
@@ -91,7 +104,7 @@ const store = new Vuex.Store({
       })
     }),
     setSubscription: firestoreAction((context, params) => {
-     
+      
       context.bindFirestoreRef('subscription', firebase.api.getDb().collection('subscription').doc(context.state.agence.userIdCreated))
       .then(res=>{
         context.state.docSubscription = firebase.api.getDb().collection('subscription').doc(context.state.agence.userIdCreated); 

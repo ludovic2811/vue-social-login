@@ -143,7 +143,7 @@ export default {
         },
         add() {
              this.inout.idClient = this.client['.key'];
-             this.inout.numero = this.article.numero;
+             this.inout.idArticle = this.article.id;
              inout_api.api.add(this.$store, this.inout, inoutItem=>{
                  this.inout = JSON.parse(JSON.stringify(inout_api.api.json_inout))
                  this.init(()=>{
@@ -172,7 +172,7 @@ export default {
              })
         },
         init(fct) {
-            if (this.article.numero != "") {
+            if (this.article.id != "") {
                 inout_api.api.getAll(this.$store, this.client, this.article, inouts=>{
                     this.inouts = inouts;
                     fct();

@@ -9,9 +9,9 @@
 						<i :class="getClassCategorie(article.idCategorie)"></i>
 				 				&nbsp;&nbsp;
 						<div style="width:200px;display:inline-block">
-							<p class="subtitle is-6">{{article.numero}}</p>
+							<p class="subtitle is-6">{{article.numero}} {{article.complement}}</p>
 						</div>
-						<s-button label="" icon="eye" theme="is-primary is-small" @onclick="setVisuArticle(article.numero)"/> 
+						<s-button label="" icon="eye" theme="is-primary is-small" @onclick="setVisuArticle(article.id)"/> 
 					
 				</div>
 	  		</div>
@@ -25,20 +25,19 @@
 									</s-button>&nbsp;&nbsp;
 									<p class="subtitle is-6">
 										<i :class="getClassCategorie(articleVisu.idCategorie)"/>
-	  									&nbsp;&nbsp;<b>{{articleVisu.numero}}</b>
+	  									&nbsp;&nbsp;<b>{{articleVisu.numero}} {{articleVisu.complement}}</b>
 									 </p>
 								</div>
 							</div>
 							<div class="level-rigth">
 								<s-button label="" :icon="getClassEtat(articleVisu.idEtat)" theme="is-primary " @onclick="openModalEtat=true"/>
 								<s-select-etat :open="openModalEtat" :article="articleVisu"
-									@save="save(articleVisu, 'etat')" @cancel="openModalEtat=false"
+									@save="save(articleVisu)" @cancel="openModalEtat=false"
 								>
 								</s-select-etat>
 							</div>
 						</nav>
 	  					<s-button-paiement 
-						  	
 							:article="articleVisu" 
 						  	@onclick="openModalHistoPaiement(client, articleVisu)">
 	  					</s-button-paiement>&nbsp;<br/>
@@ -47,7 +46,7 @@
 	  				<s-button :label="getLabelEntrepot(articleVisu.idEntrepot, articleVisu.idStock)" icon="industry" theme="is-primary is-normal" @onclick="openModalEntrepot=true"/>
 	  				<s-select-entrepot 
 	  					:open="openModalEntrepot" :article="articleVisu"
-						@save="save(articleVisu, 'entrepot')" 
+						@save="save(articleVisu)" 
 						@cancel="openModalEntrepot=false">
 					</s-select-entrepot>
 	  				<div class="dates">
@@ -111,7 +110,7 @@
 				openModalEtat: false,
 				openModalEntrepot: false,
 				indexArticleVisu: 0,
-				numeroArticleVisu: null
+				idArticleVisu: null
 			}
 		},
 		computed: {
@@ -119,14 +118,14 @@
 				if( this.indexArticleVisu == 0) {
 					this.visuArticle = true;
 					if (Object.keys(this.client.articles).length>0)
-						return this.client.articles[Object.keys(this.client.articles)[this.indexArticleVisu]];
+						return JSON.parse(JSON.stringify(this.client.articles[Object.keys(this.client.articles)[this.indexArticleVisu]]));
 					else {
 						this.visuArticle = false;
 						return {}
 					}
 				}
 				else
-					return this.client.articles[this.numeroArticleVisu]
+					return JSON.parse(JSON.stringify(this.client.articles[this.idArticleVisu]));
 			}
 		},
 		methods: {
@@ -136,19 +135,15 @@
 			openModalInOut(client) {
 				this.$emit("openModalInOut", client,  this.articleVisu);
 			},
-			save(articleModif, type) {
-				this.openModalEntrepot=false;
-				this.openModalEtat=false;
-				conso.api.calculEspaceEntrepot (this.$store.getters.getAgence, 
-							articleModif, this.client.articles[articleModif.numero], ()=>{
-					this.client.articles[articleModif.numero] = articleModif;
-					article_api.api.save(this.$store, this.client,()=>{
-					
-					});
-				});
+			save(articleModif, articleDelete) {
+				article_api.api.save(this.$store, this.client, articleModif, articleDelete, ()=>{
+					console.log("INSAVE");
+					this.openModalEntrepot=false;
+					this.openModalEtat=false;
+				})
 			},
-			setVisuArticle(numeroArticleVisu) {
-				this.numeroArticleVisu = numeroArticleVisu;
+			setVisuArticle(idArticleVisu) {
+				this.idArticleVisu = idArticleVisu;
 				this.indexArticleVisu = -1;
 				this.visuArticle = true;			
 			},

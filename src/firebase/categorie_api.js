@@ -5,12 +5,14 @@ const const_categorie = {
 		id: '',
 		nom: '',
 		icon: '',
-		types:{}
+		types:{},
+		nbArticles: 0
 	},
 	json_type: {
 		id: '',
 		nom: "",
-		prix: ""
+		prix: "",
+		nbArticles: 0
 	},
 	save (dataAgence, categorie, fct) {
 		

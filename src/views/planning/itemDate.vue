@@ -1,13 +1,14 @@
 <template>
-	<s-modal :open="open" :title="date" :save="false" :cancel="false" :close="true" @save="" @cancel="" @close="$emit('close')">
+	<s-modal :open="open" :title="dateFormat" :save="false" :cancel="false" :close="true" @save="" @cancel="" @close="$emit('close')">
 		<div class="tabs is-large is-boxed is-toggle-rounded is-fullwidth">
-		  <ul>
+		  <ul  v-if="typeof(inouts[InOut]) != 'undefined'">
 		    <li :class=" (InOut=='rentreLe') ? 'is-active' : ''" 
 				v-on:click="changeTab('rentreLe')">
 		    	<a >
 		    		<span class="icon is-small">
-		    			<i class="fa fa-arrow-circle-right"/>&nbsp;&nbsp;
-		    			<span class="subtitle is-6">Doit rentrer</span>&nbsp;&nbsp;
+		    			<s-button theme="is-success is-small" :label="inouts['rentreLe'].length + ''" icon="arrow-circle-right" @onclick="" />&nbsp;&nbsp;
+		    			<span class="subtitle is-6">Doit rentrer&nbsp;&nbsp;</span>
+						&nbsp;&nbsp;
 		    		</span>
 		    	</a>
 		    </li>
@@ -15,8 +16,10 @@
 				v-on:click="changeTab('departLe')">
 		    	<a>
 		    		<span class="icon is-small">
-		    			<i class="fa fa-arrow-circle-left"/>&nbsp;&nbsp;
-		    			<span class="subtitle is-6">Doit partir</span>&nbsp;&nbsp;
+		    			
+						<s-button theme="is-danger is-small" :label="inouts['departLe'].length + ''" icon="arrow-circle-left" @onclick="" />&nbsp;
+		    			<span class="subtitle is-6">Doit partir&nbsp;&nbsp;</span>
+						&nbsp;&nbsp;
 		    		</span>
 		    	</a>
 		    </li>
@@ -27,7 +30,12 @@
 				<div v-for="(itemInOut) in inouts[InOut]" v-if="open">
 						<item-list-client :itemInOut="itemInOut" @openClientItem="openClientItem" />
 				</div>
-					
+				
+				<span v-if="typeof(inouts[InOut]) != 'undefined'">
+				<span v-if="inouts[InOut].length==0">
+					Aucun véhicule {{getLabel(InOut)}} le {{dateFormat}}
+				</span>
+				</span>
 		</div>
 			
 		</div>
@@ -58,6 +66,11 @@
 				tabClients: []
 			}
 		},
+		computed: {
+			dateFormat: function() {
+				return this.$convertDateToString(this.date);
+			}
+		},
 		watch: {
 			open: function() {
 				this.InOut = "rentreLe";
@@ -68,6 +81,12 @@
 			ItemListClient
 		},
 		methods: {
+			getLabel(inout) {
+				if (inout == "rentreLe")
+					return "ne rentre";
+				if (inout == "departLe")
+					return "ne part";
+			},
 			openClientItem(client) {
 				this.client = client;
 				this.openClient = true;
@@ -81,7 +100,7 @@
 					this.inouts.rentreLe.forEach((inoutR,indexR)=>{
 						client_api.api.get(this.$store, inoutR.idClient, client=>{
 							inoutR.client = client;
-							inoutR.article = client.articles[inoutR.numero];
+							inoutR.article = client.articles[inoutR.idArticle];
 							inoutR.tab = "rentreLe";
 							indexRentreLe = indexR;
 							
@@ -91,7 +110,7 @@
 					this.inouts.departLe.forEach((inoutD, indexD)=>{
 						client_api.api.get(this.$store, inoutD.idClient, client=>{
 							inoutD.client = client;
-							inoutD.article = client.articles[inoutD.numero];
+							inoutD.article = client.articles[inoutD.idArticle];
 							inoutD.tab = "departle";
 							indexDepartLe = indexD;
 							

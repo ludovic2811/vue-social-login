@@ -64,7 +64,7 @@
 		<ul>
 			<li v-for="article in client.articles">
 				<s-button theme="is-primary" 
-					:label="article.numero" afterIcon="cog" 
+					:label="article.numero + ' ' + article.complement" afterIcon="cog" 
 					:icon="getIconCategorie(article)"
 					@onclick="editArticle(article)"/>
 					
@@ -120,7 +120,7 @@
 					<s-button theme="is-warning is-small" icon="ban" label="Annuler" @onclick="$emit('back')"/>
 				</div>
 				<div class="navbar-item">
-					<s-button theme="is-danger is-small" icon="trash" label="Supprimer" @onclick="archiver"/>
+					<s-button theme="is-danger is-small" icon="trash" label="Archiver" @onclick="archiver"/>
 				</div>
 			</div>
 		</nav>		
@@ -240,50 +240,16 @@
 				this.editArticle(this.article);
 			},
 			deleteArticle() {
-				var articleDelete = JSON.parse(JSON.stringify(this.client.articles[this.article.numero]));
+				var articleDelete = JSON.parse(JSON.stringify(this.client.articles[this.article.id]));
 				// il faut supprimer dans historique de paiement & dans le planning
 				article_api.api.delete(this.$store, this.client, this.article);
 				this.saveArticle(this.client.articles[this.article.id], articleDelete);
 			},
 			saveArticle(articleModif, articleDelete) {		
-				var articleOld;
-				var deleteArticle = false;
-				var newArticle = false;
-				if (typeof(articleDelete) != "undefined") {
-					deleteArticle = true;
-					articleOld = articleDelete;
-				}
-				else {
-					articleOld = this.client.articles[articleModif.numero];
-					if (typeof(articleOld) == "undefined")
-						newArticle = true;
-				}
-					
-				
-				conso.api.calculEspaceEntrepot (this.$store.getters.getAgence, articleModif, articleOld, (modif)=>{
-					if (typeof(articleModif) != "undefined")
-						this.client.articles[articleModif.numero] = articleModif;
-				
-					article_api.api.save(this.$store, this.client,()=>{
-						this.addViewMateriel = "modal";
-						
-						etat_api.api.incNbArticle(this.$store,articleModif);
-						etat_api.api.decNbArticle(this.$store, articleOld);
-						if (newArticle) {
-							agence_api.api.incNbArticle(this.$store, ()=>{
-								
-							})
-							
-						}
-						else if (deleteArticle) {
-							agence_api.api.decNbArticle(this.$store, ()=>{
-								this.modalDeleteArticle = false;
-							})							
-						}
-					});
-
-				});
-				
+				article_api.api.save(this.$store, this.client, articleModif, articleDelete, ()=>{
+					this.modalDeleteArticle = false;
+					this.addViewMateriel = "modal";
+				})
 			},
 			editArticle(article) {
 				this.article= JSON.parse(JSON.stringify(article));
