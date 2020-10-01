@@ -1,6 +1,7 @@
 import agence_api from "@/firebase/agence_api"; 
+import firebase_api from "@/firebase/firebase_api"; 
 import conso_api from "@/firebase/client_consolidation";
-import { object } from "firebase-functions/lib/providers/storage";
+import firebase from "firebase"
 
 const const_client = {
 	json: {
@@ -183,6 +184,57 @@ const const_client = {
 		//	});
 	}
 	,
+	restore (agence, idClient, fct) {
+		var docAgence = firebase_api.api.getDb().collection("agence").doc(agence.id);
+		var docClientArhive = docAgence.collection("clientsArchive").doc(idClient);
+		docClientArhive.get().then((client)=>{
+			var client = client.data();
+			conso_api.api.consolidation(agence, client);
+			docAgence.collection("clients").doc(idClient).set(client).then(()=>{
+				docClientArhive.collection("paiements").get().then(paiements=>{
+					paiements.docs.forEach(paiement => {
+						docAgence.collection("clients").doc(idClient)
+							.collection("paiements").doc(paiement.id).set(paiement.data())
+								.then(()=>{
+									paiement.ref.delete();
+								})
+					});
+				})
+				// On doit désormais recalculer tout le calcul des espaces pour les entrepots
+				for (var idArticle in client.data().articles) {
+					var article = client.data().articles[idArticle];
+					var articleOld;
+					conso_api.api.calculEspaceEntrepot (agence, article, articleOld, (modif)=>{
+					});
+				}
+				// et faire la consolidation
+				
+				
+			})
+			docAgence.update({
+				nbClients: firebase.firestore.FieldValue.increment(1)
+			})
+		
+			client.ref.delete().then(()=>{
+				fct();
+			});
+		})
+	},
+	deleteClientArchive (agence, idClient, fct) {
+		var docAgence = firebase_api.api.getDb().collection("agence").doc(agence.id);
+		var docClientArhive = docAgence.collection("clientsArchive").doc(idClient);
+		docClientArhive.get().then((client)=>{
+			docClientArhive.collection("paiements").get().then(paiements=>{
+				paiements.docs.forEach(paiement => {
+					paiement.ref.delete();
+				});
+			})
+			
+			client.ref.delete().then(()=>{
+				fct();
+			});
+		})
+	},
 	archiver(store, client, fct) {
 		store.getters.getDocAgence.collection("clients").doc(client['.key']).delete().then(()=>{
 			store.getters.getAgence.nbClients--;
@@ -193,9 +245,10 @@ const const_client = {
 					articleDelete,
 					client.articles[idArticle],
 					()=>{
-						fct();
+						
 					})
 			}
+			fct();
 		});
 		
 	}

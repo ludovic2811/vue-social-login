@@ -1,5 +1,34 @@
 <template>
 	<div class="container">
+		
+		<div :class="classModalOpenAddAgence">
+			<div class="modal-background"></div>
+  			<div class="modal-card">
+	    		<header class="modal-card-head">
+				      <p class="modal-card-title">Ajouter une agence</p>
+					  	
+						  
+				      <div style="float:rigth" >
+				      	<s-button theme="" label="" icon="times-circle" @onclick="classModalOpenAddAgence='modal'"/>
+				      </div>
+
+				</header>
+				<section class="modal-card-body">
+					<div style="text-align:center">
+					<div class="classChoiceAdd" v-on:click="createAgence()">
+						<i class="fas fa-object-ungroup"></i>
+						<br/>	Vide
+					</div>
+					<div  class="classChoiceAdd" v-on:click="createAgenceByModel()">
+						<i class="fas fa-object-group"></i>
+						<br/>A partir d'un modèle
+					</div>
+					</div>
+				</section>
+  			</div>
+		</div>
+
+
 			<div v-if="subscriptionBind.subscription">
 			<my-navbar ></my-navbar>
 			<div v-if="subscriptionBind.subscription.status!='test'">
@@ -62,8 +91,8 @@
 					</div>
 			</div>
 			<s-button 
-			:disabled="subscriptionBind.subscription.status!='active'"
-			@onclick="createAgence" icon="plus" label="Nouvelle agence" theme="is-primary">
+			:disabled="subscriptionBind.subscription.status!='active' && subscriptionBind.subscription.status!='test'"
+			@onclick="classModalOpenAddAgence='modal is-active'" icon="plus" label="Nouvelle agence" theme="is-primary">
 			</s-button>
 			<br/><br/>
 			<ul>
@@ -71,7 +100,7 @@
 					<item-agence 
 						:label="(agence.id == $store.getters.getUser.idAgenceSelected) ? 'Sélectionnée' : 'Sélectioner'" 
 						:icon="(agence.id == $store.getters.getUser.idAgenceSelected) ? 'check' : 'ban'"
-						:theme="(agence.id == $store.getters.getUser.idAgenceSelected) ? 'is-primary' : 'is-danger'"
+						:theme="(agence.id == $store.getters.getUser.idAgenceSelected) ? 'is-primary is-small' : 'is-danger is-small'"
 						:agence="agence"
 						:isAgenceSelected="agence.id == $store.getters.getUser.idAgenceSelected"
 						@checkAgence="checkAgence"
@@ -105,7 +134,8 @@
 			</section>
 		</div>
 		</div>
-			</div>
+		</div>
+		
 	</div>
 
 </template>
@@ -136,7 +166,8 @@
 				,
 				themeGoAccount : "is-primary",
 				addModalSubstription: false,
-				disabled: false
+				disabled: false,
+				classModalOpenAddAgence: "modal"
 			}
 		},
 		components: {
@@ -147,7 +178,6 @@
 		watch: {
 			subscriptionBind: function(val, after) {
 				
-				console.log(this.subscriptionBind);
 				if (val.length != 0)
 					if (typeof(this.subscriptionBind.subscription) != "undefined") {
 						if (this.subscriptionBind.subscription.status != "test") {
@@ -161,7 +191,7 @@
 		},
 		methods: {			 
 			 addSubstription() {
-				 this.addModalSubstription = true;
+				this.addModalSubstription = "modal is-active";
 			 },
 			 goAccount() {
 					 this.themeGoAccount = "is-primary is-loading";
@@ -184,6 +214,7 @@
 			},
 			editSubscription (agence) {
 				this.agence = agence;
+				
 				this.etape = 6;
 				this.classModal = "modal is-active";
 			},
@@ -203,7 +234,10 @@
 						return 'Agence non sélectionnée'
 			},
 			editAgence(agence) {
-				this.agence = agence;				
+				this.agence = agence;	
+				//console.log(JSON.stringify(this.agence));		
+				// juste pour créer un modèle 
+				//firebase_api.api.getDb().collection("agence").doc("modele").set(this.agence);
 				if (this.agence.finish == this.$steps)
 					this.etape = 0;
 				else
@@ -218,11 +252,18 @@
 			createAgence() {
 				this.agence= JSON.parse(JSON.stringify(agence_api.api.json));
 				this.etape = 0;
+				this.classModalOpenAddAgence = "modal";
 				if (this.classModal == "modal")
 					this.classModal = "modal is-active";
 				else
 					this.classModal = "modal";
-			},			
+			},	
+			createAgenceByModel() {
+				agence_api.api.createAgenceByModel(this.$store,()=>{
+					this.classModalOpenAddAgence = "modal";
+					this.refresh();
+				});
+			},	
 			refresh() {		
 				if (this.$store.getters.getUser != null)		 {
 					this.agences=[];
@@ -272,7 +313,7 @@
 		margin-bottom: 20px;
 		margin-left: 5px;
 		width: 70%;
-		min-width: 350px;
+		min-width: 310px;
 		height: 200px;
 		vertical-align: top;
 	}
@@ -283,7 +324,7 @@
 		margin-bottom: 20px;
 		margin-left: 5px;
 		width: 70%;
-		min-width: 350px;
+		min-width: 310px;
 		height: 200px;
 		vertical-align: top;
 		color: rgb(104, 7, 7)
@@ -319,5 +360,24 @@
 		vertical-align: top;
 		font-size: large;
 		color: black;
+	}
+	.classChoiceAdd {
+		 box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+		 display: inline-block;
+		 width: 160px;
+		 height: 100px;
+		 text-align: center;
+		 vertical-align: middle;
+		 font-weight: bolder;
+		 padding-top: 5px;
+		 margin-right: 50px;
+		 margin-top: 30px;
+		 margin-bottom: 30px;
+		 font-size: 20px;
+	}
+	.classChoiceAdd:hover {
+		cursor: pointer;
+		background-color: rgb(218, 238, 187);
+		
 	}
 </style>

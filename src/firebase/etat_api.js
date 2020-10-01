@@ -3,7 +3,8 @@ const const_etat = {
 	json_etat : {
 		nom: '',
 		icon: '',
-		nbArticles: 0
+		nbArticles: 0,
+		out: false
 	},
 	save(agence, fct) {
 		firebase.api.getDb().collection("agence").doc(agence.id).update({

@@ -1,23 +1,26 @@
 <template>
 	<div class="contain">
 			<input type="hidden" :value="refresh"/>
-			<s-button theme="is-primary" icon="plus" label="Ajouter "  @onclick="AddTypePaiement"></s-button>&nbsp;&nbsp;
+			<s-button theme="is-primary is-small" icon="plus" label="Ajouter "  @onclick="AddTypePaiement"></s-button>&nbsp;&nbsp;
 			<s-button theme="is-primary is-small" icon="info" label=""  @onclick="infoPaiement=!infoPaiement"></s-button>
 			<br/><br/>
-			<div class="notification is-warning" v-show="infoPaiement">
+			<div class="notification is-info" v-show="infoPaiement">
 				<button class="delete" v-on:click="infoPaiement=false"></button>
-				Configurer les types de paiements de vos clients : en espèce, en chèque<br/>
+				Configurer les types de paiements de vos clients : en espèce, en chèque, ...<br/>
 				
 			</div>
 			
+			<s-draggable :refresh="refreshDrag" draggable=".itemDraggable" :datas="dataCollectionArray" @sortData="sort">
+			<div v-for="typePaiement in dataCollectionArray" class="itemDraggable">
+				<div class="move">
+					<i class="fas fa-arrows-alt-v"/>
+				</div>
+				<input type="text" class="input" style="width:200px" v-model="typePaiement.object.nom" placeholder="Mettre un libelle de paiement" />&nbsp;
+				<s-button theme="is-danger is-small" icon="trash" label="" @onclick="deletePaiement(typePaiement.object.id)"></s-button>
+					
+			</div>
+		</s-draggable>
 			
-			<ul >
-				<li v-for="typePaiement in agence.typePaiements">
-					<input type="text" class="input" style="width:200px" v-model="typePaiement.nom" placeholder="Mettre un libelle de paiement" />&nbsp;
-					<s-button theme="is-primary" icon="trash" label="Supprimer" @onclick="deletePaiement(typePaiement.id)"></s-button>
-					<br/><br/>
-				</li>				
-			</ul>
 			<div class="notification is-danger" v-show="error">
 			  <button class="delete" v-on:click="error=false"></button>
 			  Il faut au moins un moyen de paiement !
@@ -27,6 +30,22 @@
    <br/>
 	</div>
 </template>
+<style scoped>
+	.itemDraggable {
+		border: thin solid rgb(187, 184, 184);
+		margin-bottom: 3px;
+		margin-right: 5px;
+		padding: 5px;
+	}
+	.itemDraggable:hover {
+		cursor: grab
+	}
+	div.move {
+		width: 5%;
+		padding-top: 10px;
+		display: inline-block;
+	}
+</style>
 <script>
 import agence_api from '@/firebase/agence_api'
 import user_api from '@/firebase/user_api'
@@ -36,20 +55,28 @@ export default {
 	data : function () {
 		return {
 			infoPaiement: false,
-			error: false
+			error: false,
+			refreshDrag: false,
+			dataCollectionArray: []
 		}
 	},
 	methods : {
+		sort(myArray) {
+				this.$updateRang(myArray, this.dataCollectionArray);
+				this.refreshDrag = !this.refreshDrag;
+		},
 		AddTypePaiement() {
 			var paiement = {
 				nom: "",
 				id: this.$uuid()				
 			}
 			this.agence.typePaiements[paiement.id] = paiement;
+			this.dataCollectionArray = 	this.$orderJson(this.agence.typePaiements);
 			this.$emit("refresh")	
 		},
 		deletePaiement(idPaiement) {
 			delete this.agence.typePaiements[idPaiement];
+			this.dataCollectionArray = 	this.$orderJson(this.agence.typePaiements);
 			this.$emit("refresh")		
 		},
 		save(fct) {
@@ -69,7 +96,10 @@ export default {
 					fct(false);
 		}
 
-	}
+	},
+		mounted() {
+			this.dataCollectionArray = 	this.$orderJson(this.agence.typePaiements);
+		}
 	
 }
 </script>

@@ -3,7 +3,7 @@
 		<div class="modal-background" ></div>
 		<div class="modal-card"  style="width:90%">
 			<header class="modal-card-head">
-			  <p class="modal-card-title">Editer l'article {{article.numero}} {{article.complement}} </p>
+			  <p class="modal-card-title">Saisir le véhicule {{article.numero}} {{article.complement}} </p>
 			   		  <div style="float:rigth" >
 				      	<s-button theme="" label="" icon="times-circle" @onclick="$emit('cancel')"/>
 				      </div>
@@ -53,13 +53,15 @@
 						</span>
 						
 						&nbsp;
+						<div style="padding-top:5px">
 						<s-button-paiement 
 							:change="openHistoPaiement" 
 							:article="article" 
 							v-show="article.numero!=''" 
 							@onclick="openModalHistoPaiement()"><br/><br/>
-						</s-button-paiement><br/>
-						<span class="comment">Cliquez sur le bouton pour mettre à jour les paiements</span>
+						</s-button-paiement>
+						</div>
+						<span class="comment">Cliquez pour mettre à jour les paiements</span>
 						
 					</div>
 					<div class="tile is-child box">
@@ -70,7 +72,7 @@
 							<button class="delete" v-on:click="error.etat=false"></button>
 							Il faut sélectionner une catégorie !
 						</div>
-
+						<br/><br/>
 						<label class="label">Est rangé dans l'entrepot :</label>
 						
 						<select class='select is-rounded' v-model="article.idEntrepot" v-on:change="setEntrepot">
@@ -106,7 +108,7 @@
 							</div>
 							
 							<div class="buttonInOut">
-								<s-button theme="is-primary is-small" label="Planifier" icon="calendar-alt" 
+								<s-button theme="is-primary " label="" icon="calendar-alt" 
 								@onclick="openModalInOut(client, article)"></s-button>
 							</div>
 							</div>
@@ -116,9 +118,13 @@
 				</div>
 				
 				</section>	
-				<footer class="modal-card-foot">
-				  <s-button  theme="is-success" icon="save" label="Enregistrer"  @onclick="saveArticle"></s-button>
-				  <s-button  theme="is-danger" icon="trash" label="Supprimer"  @onclick="$emit('delete')"></s-button>
+				<footer class="modal-card-foot" >
+				  <div style="width:100%">
+				  <s-button  theme="is-danger is-small" icon="trash" label="Supprimer"  @onclick="$emit('delete')"></s-button>
+				  <div style="float: right">
+				  <s-button  theme="is-success  is-small" icon="save" label="Enregistrer"  @onclick="saveArticle"></s-button>
+				  </div>
+				  </div>
 				</footer>  
 			</div>
 	</div>	

@@ -151,10 +151,12 @@ router.beforeEach((to, from, next) => {
             else
               next('notverified');
         }
+        else
         if (requireAgence) {
-          
+         
 
           if (typeof(vuefire.store.getters.getAgence.id) == "undefined") {
+             
               next('config');
           }
           else {
@@ -163,6 +165,7 @@ router.beforeEach((to, from, next) => {
               next();
             }
             else if (vuefire.store.getters.getSubscription.subscription.status != "active") {
+            
                 next('config');
             }
             else 

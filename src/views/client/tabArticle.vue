@@ -2,13 +2,13 @@
 	<div >
 		<div class="item">
 			<div v-show="!visuArticle && Object.keys(this.client.articles).length==0" class="notArticle">
-				Aucun article pour client
+				Aucun véhicule pour client
 			</div>
 	  		<div v-show="!visuArticle" class="articleList">
 	  			<div  v-for="article in this.client.articles" class="itemArticleList">
 						<i :class="getClassCategorie(article.idCategorie)"></i>
 				 				&nbsp;&nbsp;
-						<div style="width:200px;display:inline-block">
+						<div style="width:190px;display:inline-block">
 							<p class="subtitle is-6">{{article.numero}} {{article.complement}}</p>
 						</div>
 						<s-button label="" icon="eye" theme="is-primary is-small" @onclick="setVisuArticle(article.id)"/> 
@@ -30,7 +30,11 @@
 								</div>
 							</div>
 							<div class="level-rigth">
-								<s-button label="" :icon="getClassEtat(articleVisu.idEtat)" theme="is-primary " @onclick="openModalEtat=true"/>
+								<s-button label="" :icon="getClassEtat(articleVisu.idEtat)" 
+									:theme="isEtatOk() ? 'is-success' : 'is-warning'" @onclick="openModalEtat=true"
+									:afterIcon="!isEtatOk() ? 'exclamation' : ''"/>
+								
+								
 								<s-select-etat :open="openModalEtat" :article="articleVisu"
 									@save="save(articleVisu)" @cancel="openModalEtat=false"
 								>
@@ -50,18 +54,27 @@
 						@cancel="openModalEntrepot=false">
 					</s-select-entrepot>
 	  				<div class="dates">
-						<div class="itemDate">
-							<div>Parti le : </div><div>
+						<div class="nextSortie" v-show="isNextPlanifOk()">Prochaine sortie :</div>
+						<div class="lastSortie" v-show="!isNextPlanifOk()">Dernière sortie :
+							<div class="infoNextSortie" v-show="!isNextPlanifOk()"> 
+								Pas de sortie programmée
+							</div>
+
+						</div>
+						<div :class="isNextPlanifOk() ? 'itemDate' : 'itemDateKO'">
+							<div>Depart le : </div><div>
 								{{$convertDateToString(articleVisu.departLe)}}</div><br/>
 							<div>Rentre le :</div><div>
 								{{$convertDateToString(articleVisu.rentreLe)}}</div>
 						</div>
+						
 						<div class="buttonInOut"> 
-	  						<s-button theme="is-primary" label="" icon="calendar-alt" 
+	  						<s-button :theme="isNextPlanifOk() ? 'is-primary' : 'is-warning'" label="" icon="calendar-alt" 
 						  	@onclick="openModalInOut(client, articleVisu)"></s-button>
 						</div>
 						
 	  				</div>
+					
 	  			</div>
 	  		
 	  		</div>
@@ -86,6 +99,7 @@
 	import article_api 		from "@/firebase/article_api"
 	import client_api 		from "@/firebase/client_api"
 	import conso 			from "@/firebase/client_consolidation";
+	import inout_api 			from "@/firebase/inout_api";
 
 	import histoPaiement 	from '@/views/client/components/historiquePaiement.vue'
 	import SButtonPaiement 	from '@/views/client/components/SButtonPaiement.vue'
@@ -129,6 +143,30 @@
 			}
 		},
 		methods: {
+			isNextPlanifOk() {
+				var date = new Date();
+				if (this.articleVisu.rentreLe < date) {
+					return false;
+				}
+				else	
+					return true;
+			},
+			isEtatOk() {
+				
+				var etat  = this.$store.getters.getAgence.etats[this.articleVisu.idEtat];
+				var date = new Date();
+				if (etat.out) {
+					if (date >= this.articleVisu.departLe && date<this.articleVisu.rentreLe)
+						return true;
+					else	
+						return false;
+				}
+				else
+					if (date < this.articleVisu.departLe || date>this.articleVisu.rentreLe)
+						return true;
+					else	
+						return false;
+			},
 			openModalHistoPaiement (client) {
 				this.$emit("openModalHistoPaiement",  this.client, this.articleVisu);
 			},
@@ -137,7 +175,7 @@
 			},
 			save(articleModif, articleDelete) {
 				article_api.api.save(this.$store, this.client, articleModif, articleDelete, ()=>{
-					console.log("INSAVE");
+					
 					this.openModalEntrepot=false;
 					this.openModalEtat=false;
 				})
@@ -187,12 +225,33 @@
 			}
 		},
 		mounted() {
-			this.init()
-
+			this.init();
+			var date = new Date();
+			
+			if (this.articleVisu.rentreLe < date) {
+				inout_api.api.getAll(this.$store, this.client, this.articleVisu, inouts=>{
+                    inout_api.api.updateArticle(this.$store, this.client, this.articleVisu, inouts,
+						inouttemp=>{
+						});
+                })
+			}
 		}
 	}
 </script>
 <style scoped>
+	.lastSortie {
+		font-weight: bold;
+		text-decoration: underline;
+		font-size: 13px;
+		margin-bottom: 3px;
+		color: coral;
+	}
+	.nextSortie {
+		font-weight: bold;
+		text-decoration: underline;
+		font-size: 13px;
+		margin-bottom: 3px;
+	}
 	.footer {
 		padding-top: 5px;
 		padding-bottom: 5px;
@@ -207,18 +266,38 @@
 	}
 	.dates {
 		padding-top: 20px;
+		height: 90px;
+	}
+	.infoNextSortie {
+		width: 100%;
+		float: left;
+		display: block;
+		color: coral;
+		font-size: 10px;
+		font-style: italic;
 	}
 	.itemDate {
 		float: left;
 		display: inline-block;		
 		font-weight: bold;
 	}
+	.itemDateKO {
+		float: left;
+		display: inline-block;	
+		font-weight: bold;	
+		color: coral;
+	}
 	.buttonInOut {
 		float: right;
 		display: inline-block;	
 	}
 	.itemDate div {
-		margin-bottom: 10px;
+		margin-bottom: 8px;
+		width: 100px;
+		display: inline-block;	
+	}
+	.itemDateKO div {
+		margin-bottom: 5px;
 		width: 100px;
 		display: inline-block;	
 	}

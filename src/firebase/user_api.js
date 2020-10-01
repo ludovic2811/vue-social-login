@@ -31,14 +31,15 @@ const const_user = {
 			fct();
 		})
 	},
-	deleteAgence(currentIdUser, currentAgence, docAgence, idUser, fct) {
+	deleteAgence(currentIdUser, currentAgence, idUser, fct) {
 
 		var roles = currentAgence.roles;
 		
 		delete roles[idUser];
-		docAgence.update({
+		firebase_api.api.getDb().collection("agence").doc(currentAgence.id).update({
 			roles: roles
 		}).then(()=> {		
+			
 			// ICI on teste si l'utlisateur sélectionné a été crée par l'utilisateur courant
 			// auquel cas si il n'y a qu'une agence : on peut le supprimer
 			// sinon on supprime de ses agences l'agence actuelle
@@ -90,22 +91,26 @@ const const_user = {
 		});
 	},
 	getUsersByAgence(dataAgence, users) {		
-		for (var role in dataAgence.roles) {			
+		for (var role in dataAgence.roles) {	
+			
 			firebase_api.api.getDb().collection("user").doc(role).get().then(user=>{	
+				if (user.exists) {
 				var userData = user.data();
+				
 				userData["id"] = user.id;			
 				users.push(userData);
+				}
 			});
 
 			
 		}		
 	},
-	confirm (currentAgence, docAgence, userASupprimer, fct) {
+	confirm (currentAgence, userASupprimer, fct) {
 
 		var idNewUser = userASupprimer.userNew;
 		delete currentAgence.roles[userASupprimer.id];
 		currentAgence.roles[idNewUser] = "write";
-		docAgence.update({
+		firebase_api.api.getDb().collection("agence").doc(currentAgence.id).update({
 			roles: currentAgence.roles
 		}).then(()=>{
 			firebase_api.api.getDb().collection("user").doc(userASupprimer.id).delete().then(()=>{
@@ -113,7 +118,24 @@ const const_user = {
 			});
 		})
 	},
-	createWithoutAuth(idUser, currentAgence, docAgence, displayName, email, fct) {
+	sendMailAddAgence(agence, userCreated, user) {
+		var html="";
+		html =  'Bonjour, <br/>' + userCreated.displayName + ' vous a invité dans son agence <b>' + agence.nom + '</b>';
+		html += "<br/><br/>"
+		html += '<a href="'+window.location.origin+'/login">Cliquez ici pour vous connecter dans l\'agence</a>';
+		html += "<br/><br/>"
+		html += "<i>L'équipe Guarding Manager</i>" 
+		console.log(html);
+	
+		firebase_api.api.getDb().collection('mail').add({
+			to: user.email,
+			message: {
+			  subject: '[Guarding Manager]: ' + userCreated.displayName +' vous a invité',
+			  html: html
+			},
+		  })
+	},
+	createWithoutAuth(store, idUser, currentAgence, displayName, email, fct) {
 		var findUser = false;
 		var docRef = firebase_api.api.getDb().collection("user");
 		docRef.where("email", "==", email).get().then(querySnapshot=> {
@@ -132,8 +154,10 @@ const const_user = {
 							});
 							var roles = currentAgence.roles;
 							roles[doc.id] = "write";
-							docAgence.update({
+							firebase_api.api.getDb().collection("agence").doc(currentAgence.id).update({
 								roles: roles
+							}).then(()=>{
+								this.sendMailAddAgence(currentAgence, userData, store.getters.getUser);
 							})
 						}
 					}
@@ -155,13 +179,21 @@ const const_user = {
 					}).then(addUserData=>{
 						var roles = currentAgence.roles;
 						roles[addUserData.id] = "write";
-						docAgence.update({
+						firebase_api.api.getDb().collection("agence").doc(currentAgence.id).update({
 							roles: roles
 						}).then(()=>{
+							var user= {
+								email : email
+							};
+							console.log(user);
+							this.sendMailAddAgence(currentAgence, store.getters.getUser, user);
 							fct();
 						})
 					});
-				}
+		}
+		else {
+			fct();
+		}
 	}
 	,
 	addAgence(store, idAgence, fct) {

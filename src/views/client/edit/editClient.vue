@@ -31,8 +31,8 @@
 	    	<li :class="classTabMateriel"  v-on:click="tabInfoMateriel">
 	    		<a>
 	    			<span class="icon is-small">
-	    				<i class="fa fa-wallet"/>&nbsp;&nbsp;
-	    				<span class="subtitle is-6">Articles</span>&nbsp;&nbsp;
+	    				<i class="fa fa-car"/>&nbsp;&nbsp;
+	    				<span class="subtitle is-6">Véhicules</span>&nbsp;&nbsp;
 	    			</span>
 	    		</a>
 	    	</li>
@@ -57,7 +57,7 @@
 	</div>
 	<div v-if="classTabMateriel=='is-active'"  class="tab">
 		<button class="button is-primary" v-on:click="openAddMartiel">
-			<i class="fas fa-plus"/>&nbsp;&nbsp;<span>Ajouter un article</span>
+			<i class="fas fa-plus"/>&nbsp;&nbsp;<span>Ajouter un vehicule</span>
 		</button>
 		<br/>
 		<br/>
@@ -112,16 +112,17 @@
 	</div>
 		    <!-- Brand and toggle get grouped for better mobile display -->
 			<nav class="navbar is-fixed-bottom is-primary" role="navigation" aria-label="main navigation">
-  			<div class="navbar-brand">
-				<div class="navbar-item">
+  			<div class="navbar-brand" style="width: 100%;padding-top: 10px;padding-left: 10px;padding-right: 10px;">
+				<s-button theme="is-danger is-small" icon="trash" label="Archiver" @onclick="archiver"/>
+				<div style="width: 100%">
+				<div style="float:right;">
+					<s-button theme="is-warning is-small" icon="ban" label="Annuler" @onclick="$emit('back')"/>&nbsp;
 					<s-button theme="is-success is-small" icon="save" label="Enregistrer" @onclick="save"/>
+					
 				</div>
-				<div class="navbar-item">
-					<s-button theme="is-warning is-small" icon="ban" label="Annuler" @onclick="$emit('back')"/>
 				</div>
-				<div class="navbar-item">
-					<s-button theme="is-danger is-small" icon="trash" label="Archiver" @onclick="archiver"/>
-				</div>
+				
+				
 			</div>
 		</nav>		
 

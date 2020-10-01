@@ -102,6 +102,11 @@ const store = new Vuex.Store({
         context.state.docAgence = firebase.api.getDb().collection('agence').doc(params.idAgence); 
         context.dispatch("setSubscription", params);
       })
+      .catch(res=>{
+        context.state.agence = {};
+        context.state.docAgence = null;
+        params.fct();
+      })
     }),
     setSubscription: firestoreAction((context, params) => {
       

@@ -134,8 +134,10 @@
             	return date.getFullYear()+"-"+month+"-"+day;
         	},
         	openModalItemDate(date) {
-                
-        		var dateFormat = this.formatDate(date);
+               
+                //var dateFormat = this.formatDate(date);
+                var dateFormat= Date.parse(date);
+              
                 if (typeof(this.tabDates[dateFormat]) != "undefined") {
                     this.itemDate = dateFormat;
                     this.tabItem = this.tabDates[this.itemDate];
@@ -175,9 +177,7 @@
                     customData: {
                         events: []
                     }}
-                
-                attribute.dates.push(new Date(date));
-                
+                attribute.dates.push(new Date(parseInt(date)));
                 attribute.customData.events.push({
                     rentreLe: rentreLe,
                     departLe: departLe,
@@ -185,8 +185,6 @@
                 });      
                 
                 this.attributes.push(attribute);
-                // Calendar does not seem to update here if we update the props, so use a key for now
-                //this.ghettoUpdate += 1;
             }
         }
     }

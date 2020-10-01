@@ -22,7 +22,7 @@ const const_article = {
 	}
 	,
 	set(store, client, fct) {
-		console.log(client);
+		
 		var request = conso.api.consolidation(store.getters.getAgence, client)
 		store.getters.getDocAgence.collection("clients").doc(client[".key"])
 		.update({
@@ -44,9 +44,7 @@ const const_article = {
 		else {
 			articleOld = client.articles[articleModif.id];
 			if (typeof(articleOld) == "undefined") {
-				
 				articleModif.id =  util.util.uuid();
-				
 			}
 		}
 		

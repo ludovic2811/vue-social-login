@@ -41,8 +41,7 @@ const api = {
 		var addArticle = false;
 		var deleteArticle = false;
 		var majEtat = false;
-		console.log(articleNew);
-		console.log(articleOld);
+	
 		if (typeof(articleOld) != "undefined") {
 			if (typeof(articleNew) == "undefined") {
 				// ca veut dire qu'il faut qu'on supprime mais qu'on ajoute pas
@@ -101,7 +100,7 @@ const api = {
 			if (majEntrepotOld || majStockOld) {
 				// je supprime l'article dans l'ancien entrepot ou stock
 				// en fait la condition existe si on est dans un nouveau
-				console.log(agence.entrepots[articleOld.idEntrepot]);
+			
 				if (typeof(agence.entrepots[articleOld.idEntrepot].stocks[articleOld.idStock].articles) != "undefined")
 					delete agence.entrepots[articleOld.idEntrepot].stocks[articleOld.idStock].articles[articleOld.id];
 				this.subCalculEntrepot (agence.entrepots[articleOld.idEntrepot], agence.categories);
@@ -151,7 +150,7 @@ const api = {
 			this.pushArrayUnique(request.ids, client.articles[key].idType);
 			this.pushArrayUnique(request.ids, client.articles[key].idEtat);
 			this.pushArrayUnique(request.ids, client.articles[key].idEntrepot);
-			request.articles.push(key);
+			this.pushArrayUnique(request.articles, client.articles[key].numero);
 		}
 		return request;
 	},

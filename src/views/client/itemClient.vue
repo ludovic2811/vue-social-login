@@ -3,7 +3,7 @@
 	<nav class="level is-mobile">
 		<div class="level-left"> 
 			<div class="level-item">
-				<p class="subtitle is-5">{{client.nom}} {{client.prenom}}</p>
+				<p class="subtitle is-5"><p class="nomItem">{{displayName}}</p></p>
 				
 				
 			</div>
@@ -29,8 +29,8 @@
 	    	<li :class="classTabMateriel"  v-on:click="tabInfoMateriel">
 	    		<a>
 	    			<span class="icon is-small">
-	    				<i class="fa fa-wallet"/>&nbsp;&nbsp;
-	    				<span class="subtitle is-6">Articles</span>&nbsp;&nbsp;
+	    				<i class="fa fa-car"/>&nbsp;&nbsp;
+	    				<span class="subtitle is-6">Véhicules</span>&nbsp;&nbsp;
 	    			</span>
 	    		</a>
 	    	</li>
@@ -74,6 +74,12 @@
 				classOK : "is-active"
 			}
 		},
+		computed: {
+			displayName()
+			{
+					return this.client.nom + " " + this.client.prenom
+			}
+		},
 		methods: {
 			
 			openModalHistoPaiement(client, article) {
@@ -115,6 +121,13 @@
 	width: 300px;
 	height: 100px;
 	overflow-x: auto;
+	
+}
+.nomItem {
+	text-overflow: ellipsis ;
+	white-space: nowrap;
+	width: 150px;
+	overflow: hidden;
 	
 }
 </style>

@@ -1,12 +1,12 @@
 <template>
 <nav class="navbar is-primary is-fixed-top" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
-    <div  v-on:click="rout('/index')" class="navbar-item">
+    <div  v-on:click="rout('/index')" class="navbar-item" id="home">
         <img src="@/assets/logo.png"   /><div class="s-item-menu">Guarding Manager</div>
 
       </div>
     <div class="navbar-item" v-if="ExistSubstriction()">
-      <button class="button is-warning" disabled="true">Mode test</button>
+      <button class="button is-warning is-small" disabled="true">Mode test</button>
     </div>
     <a role="button" :class="!openDrop ? burger : burgerActive" aria-label="menu" aria-expanded="false" data-target="navbarMenu"  v-on:click="openDrop=!openDrop">
       <span aria-hidden="true"></span>
@@ -42,10 +42,7 @@
             <a class="navbar-item" v-on:click="rout('/config')" v-if="existUser() && existAgence()">
                   <i class="fas fa-warehouse"></i><div class="s-item-menu">{{$store.getters.getAgence.nom}}</div>
             </a>
-             <a class="navbar-item" v-on:click="rout('/config')" v-if="existUser() && !existAgence()">
-                  <s-button icon="fas fa-warehouse" theme="is-warning is-normal" label="Créer votre agence" v-on:click="rout('/config')">
-                  </s-button>
-            </a>
+            
             <div v-if="existUser()" :class="!openSubDropProfil ? subdropdownProfil : subdropdownProfilActive">
               <a class="navbar-link" v-on:click="openSubDropProfil=!openSubDropProfil">
                 <div class="s-item-menu">{{getDisplayName()}}</div>
@@ -155,6 +152,10 @@ export default {
   .s-item-menu {
     display: inline-block;
     padding-left: 10px;
+    
 
+  }
+  #home:hover{
+    cursor:pointer;
   }
 </style>

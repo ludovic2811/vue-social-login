@@ -13,10 +13,10 @@
                     <div class="inout">
                         n°
                     </div>
-                    <div class="inout">
+                    <div class="date">
                         Départ le 
                     </div>
-                    <div class="inout">
+                    <div class="date">
                             Rentre le 
                     </div>
                     <div class="trash">
@@ -31,16 +31,16 @@
                                 icon="edit"
                                 :label="inouts.length-index"
                                 theme="is-primary is-small"
-                                @onclick="selectInOut(inoutItem)" v-show="index==0"/>
-                            <span v-show="index!=0">
+                                @onclick="selectInOut(inoutItem)" v-show="editable(inoutItem)"/>
+                            <span v-show="!editable(inoutItem)">
                             {{inouts.length-index}}
                             </span>
                         </div>
-                        <div class="itemInOutItem">
-                            {{inoutItem.departLe}}
+                        <div class="dateItem">
+                            {{formatDate(inoutItem.departLe)}}
                         </div>
-                        <div class="itemInOutItem">
-                            {{inoutItem.rentreLe}}
+                        <div class="dateItem">
+                            {{formatDate(inoutItem.rentreLe)}}
                         </div>
                         <div class="trashItem">
                             <s-button 
@@ -54,41 +54,16 @@
 				</section>
 				<footer class="modal-card-foot">
                     <div style="width:100%">
-                    <div class="itemFooter">
-      				    Part le
-                    </div>
-                    <div class="itemFooter">
-                        Rentre le
-                     </div>  
-                    
-                    <div>
-                     <div class="itemFooter">
-      				     <input type="date" v-model="inout.departLe" style="width:130px"/>
-                    </div>
-                    <div class="itemFooter">
-      				    <input type="date" v-model="inout.rentreLe" style="width:130px"/>
-                    </div> 
-                    
-                    <div class="add">
-                        <s-button 
-                        theme="button is-success" 
-                        label="Ajouter" icon="plus" 
-                        @onclick="add"
-                        v-show="inout.id == -1"></s-button>
-                      
-                        <s-button 
-                        theme="button is-success" 
-                        label="Enregistrer" icon="save" 
-                        @onclick="set"
-                        v-show="inout.id != -1"></s-button>
-                        
-                         <s-button 
-                        theme="button is-warning" 
-                        label="Annuler" icon="cancel" 
-                        @onclick="cancel"
-                        v-show="inout.id != -1"></s-button>
-                        </div>
-      				</div>
+                    <s-button label="Ajouter" icon="calendar-plus"
+                        theme="is-primary"
+                        @onclick="addInOut"/>
+                    <date-picker 
+                        :dates="dates"
+                        :open="openDatePicker"
+                        @close="openDatePicker=false"
+                        @save="set"
+                    ></date-picker>
+                   
                       </div>
       				
       				
@@ -99,17 +74,25 @@
 		</div>
 </template>
 <script>
-import firebase_api from "@/firebase/firebase_api"; 
-import inout_api    from "@/firebase/inout_api"
-
+import  firebase_api from "@/firebase/firebase_api"; 
+import  inout_api    from "@/firebase/inout_api"
+import  DatePicker   from "@/components/datePicker.vue"
 export default {
    
     props: ["client", "article","open"],
+    components: {
+        DatePicker
+    },
     data() {
         return {
             inout: JSON.parse(JSON.stringify(inout_api.api.json_inout)),
             classModal: "modal",
-            inouts: []
+            inouts: [],
+            openDatePicker: false,
+            dates: {
+                start: '',
+                end: ''
+            }
         }
     },
     watch: {
@@ -131,8 +114,29 @@ export default {
             }
 	},
     methods: {
+        editable(inoutItem) {
+            var date = new Date();
+            if (date > inoutItem.rentreLe)
+                return false;
+            else   
+                return true;
+        },
+        addInOut () {
+            this.inout = JSON.parse(JSON.stringify(inout_api.api.json_inout));
+            this.openDatePicker = true;
+             this.dates.start = '';
+             this.dates.end = '';
+        },
+        formatDate(date) {
+            
+            var myDate = new Date(date)
+            return this.$convertDateToString(myDate);
+        },
         selectInOut(inout) {
-            this.inout = inout;
+            this.dates.start    = inout.departLe;
+            this.dates.end      = inout.rentreLe;
+            this.inout          = inout;
+            this.openDatePicker = true;
         },
         updateArticle() {
             inout_api.api.updateArticle(this.$store, this.client, this.article, this.inouts,
@@ -141,13 +145,18 @@ export default {
                     this.article.rentreLe = inouttemp.rentreLe;
                 });
         },
-        add() {
+        add(dates) {
+            
              this.inout.idClient = this.client['.key'];
              this.inout.idArticle = this.article.id;
+             this.inout.departLe = Date.parse(dates.start);
+             this.inout.rentreLe = Date.parse(dates.end);
+            
              inout_api.api.add(this.$store, this.inout, inoutItem=>{
                  this.inout = JSON.parse(JSON.stringify(inout_api.api.json_inout))
                  this.init(()=>{
                      this.updateArticle();
+                     this.openDatePicker = false;
                  });
              })
         },
@@ -163,13 +172,21 @@ export default {
             this.inout = JSON.parse(JSON.stringify(inout_api.api.json_inout))
             
         },
-        set () {
-             inout_api.api.set(this.$store, this.inout, inout=>{
-                this.inout = JSON.parse(JSON.stringify(inout_api.api.json_inout))
-                 this.init(()=>{
-                     this.updateArticle();
-                 });
-             })
+        set (dates) {
+             if( this.inout.id == -1) {
+                 this.add(dates);
+             }
+             else {
+                this.inout.departLe = Date.parse(dates.start);
+                this.inout.rentreLe = Date.parse(dates.end);
+                inout_api.api.set(this.$store, this.inout, inout=>{
+                    this.inout = JSON.parse(JSON.stringify(inout_api.api.json_inout))
+                    this.init(()=>{
+                        this.updateArticle();
+                         this.openDatePicker = false;
+                    });
+                })
+            }
         },
         init(fct) {
             if (this.article.id != "") {
@@ -194,12 +211,18 @@ export default {
 <style scoped>
     .inout {
         display: inline-block;
-        width: 25%;
+        width: 15%;
+        font-weight: bolder;
+    }
+    .date {
+        display: inline-block;
+        width: 30%;
+        margin-left: 13px;
         font-weight: bolder;
     }
     .trash {
         display: inline-block;
-        width: 25%;
+        width: 15%;
         padding-top: 0px;
     }
     .itemInOut {
@@ -207,10 +230,9 @@ export default {
         margin-bottom: 2px;
         height: 50px;
         vertical-align: middle;
-
+         width: 100%;
     }
     .itemInOutSelected {
-        background-color:chartreuse;
         border: solid thin black;
         margin-bottom: 2px;
         height: 50px;
@@ -218,16 +240,26 @@ export default {
     }
     .itemInOutItem {
         display: inline-block;
-        width: 25%;
+        width: 15%;
         padding-top: 10px; 
         height: 100%;
         font-weight:normal;
     }
+     .dateItem {
+        display: inline-block;
+        width: 30%;
+        margin-left: 13px;
+        padding-top: 10px; 
+        height: 100%;
+        
+        font-weight:normal;
+    }
     .trashItem {
         display: inline-block;
-        width: 25%;
+        width: 10%;
         vertical-align: top;
         padding-top: 5px; 
+        margin-left: 3px; 
     }
     .list {
         overflow-y: auto;

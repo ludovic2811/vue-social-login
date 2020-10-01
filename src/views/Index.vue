@@ -21,15 +21,15 @@
 						<article class="tile is-child notification is-primary">
 						<p class="title">Vous êtes </p>
 						<p class="subtitle">
-							une entreprise qui garde des biens pour autrui ?
+							une entreprise qui garde des véhicules pour du gardiennage (ou d'hivernage) ?
 							<br/>
 						</p>
 						<p class="subtitle"><b>Guarding Manager</b> est fait pour vous !</p>
-						<p class="contain">Guarding Manager est un outil de gestion vous permettant de gérer l'ensemble de vos activités de gardiennage ou d'hivernage</p>
+						<p class="contain">Guarding Manager est un outil de gestion vous permettant de gérer l'ensemble de vos activités </p>
 						</article>
 						<article class="tile is-child notification is-primary">
 						<p class="title">Prêt ?</p>
-						<p class="subtitle">Il vous suffit de vous <a href="">loguer</a> et vous laisser guider
+						<p class="subtitle">Il vous suffit de vous <a href="" v-on:click="rout('/login')">loguer</a> et vous laisser guider
 						<br/>
 						</p>
 						<div class="contain">
@@ -71,7 +71,7 @@
 									<p class="contain">
 										Vous avez un essai gratuit limité à 5 clients ...
 									</p>
-									<p class="subtitle">3 formules d'abonnement</p>
+									<p class="subtitle">3 formules d'abonnement :</p>
 									<div class="items">
 										<div>
 										Dove : 10€ par mois (max 200 clients)
@@ -194,7 +194,7 @@ export default {
 		color: #325D88;
 	}
 	.items {
-		font-size: 20px;
+		font-size: 15px;
 
 	}
 	.items div {

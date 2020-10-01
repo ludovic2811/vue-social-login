@@ -5,7 +5,6 @@ const const_agence = {
 	json: {
 		nom: "",
 		roles: {},
-		abonnement: "BABY",
 		id: -1,
 		finish: 0,
 		categories: {},
@@ -35,16 +34,17 @@ const const_agence = {
 		})
 	},
 	delete(store, agence, fct) {
-		if (store.getters.getUser.idAgenceSelected == agence.id) {
-			firebase.api.getDb().collection("user").doc(store.getters.getUser.id).get().then(user=>{
-				user.ref.update({
-					idAgenceSelected : ""
-				})
-			})
-		}
+		
 		firebase.api.getDb().collection("agence").doc(agence.id).delete().then(()=>{
 			fct();
 		});
+	},
+	createAgenceByModel (store, fct) {
+		firebase.api.getDb().collection("agence").doc("modele").get().then(agence=>{
+			var agenceData = agence.data();
+			agenceData.id = -1;
+			this.save(store, agenceData, fct);
+			})
 	},
 	save (store, agence, fct) {
 		if (agence.id == -1) {
@@ -108,8 +108,13 @@ const const_agence = {
 			agenceData.id = agenceDoc.id;
 			fct(agenceData);
 		})
+	},
+	listClientsArchives(agence, fct) {
+		firebase.api.getDb().collection("agence").doc(agence.id).collection("clientsArchive").get().then(listClients=>{
+			
+			fct(listClients.docs)
+		})
 	}
-	
 
 
 }

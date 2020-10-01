@@ -9,10 +9,10 @@
       	</span>
       	<br/><br/>
       	
-  	  	<i :class="'fas fa-'+steps[etape].icon"></i>
+  	  	<i :class="'fas fa-'+steps[etape].icon + ' is-small'"></i>
       		&nbsp;&nbsp;{{steps[etape].label}}		
       	<div style="float:left;">
-      	<s-button theme="is-danger is-small" icon="times-circle" @onclick="$emit('close')" label=""></s-button>&nbsp;
+      	<s-button theme="is-small" icon="times-circle" @onclick="$emit('close')" label=""></s-button>&nbsp;
       	</div>
       		
   	  </p><br/>
@@ -40,7 +40,8 @@
 		  			v-if="etape==2"  
 		  			:agence="agence"
 		  			@hideNaviguation="hideNaviguation" 
-		  			
+		  			@refresh="refresh=!refresh"
+					:refresh="refresh"
 		  			ref="listEntrepot"
 
 		  			>
@@ -59,7 +60,8 @@
 		<div style="width:100%">
 		<div class="beforeEtape" >
 		  
-		    <s-button theme="is-primary is-small" v-show="etape>0" afterIcon="save" icon="caret-left" label="Précédant" @onclick="beforeEtape">
+		    <s-button theme="is-primary is-small" v-show="etape>0" afterIcon="save" icon="caret-left" 
+				label="" @onclick="beforeEtape">
 				</s-button>
 		 </div>
 		 <div class="centerButton">
@@ -69,10 +71,12 @@
 		  </div>
 		  <div class="nextEtape">
 		    <s-button theme="is-primary  is-small" v-show="etape<($steps-1)"  icon="save" 
-				afterIcon="caret-right" label="Suivant" @onclick="nextEtape">
+				afterIcon="caret-right" label="" @onclick="nextEtape">
 				</s-button>
-				<s-button theme="is-success  is-small" v-show="etape==($steps-1)"  icon="check" 
-				label="Terminé" @onclick="termine">
+				<s-button theme="is-success  is-small" v-show="etape==($steps-1)"  
+				icon="save" 
+				afterIcon="check"
+				label="" @onclick="termine">
 				</s-button><br/>
 				
 		  </div>
@@ -130,38 +134,38 @@ export default {
 				steps: [
 					{
 						icon: "warehouse",
-						label: "Créer votre agence",
+						label: "Votre agence",
 						description : "Saisir le nom de votre agence",
 						ref: "editAgence"
 					},
 					{
 						icon: "cogs",
-						label: "Créer vos catégories",
-						description : "Créer les catégories de vos articles",
+						label: "Vos catégories",
+						description : "Configurer les catégories des véhicules",
 						ref: "listCategories"
 					},
 					{
 						icon: "industry",
-						label: "Créer vos entrepots",
-						description : "Créer vos entrepots",
+						label: "Vos entrepots",
+						description : "Configurer vos entrepots",
 						ref: "listEntrepot"
 					},
 					{
 						icon: "th-list",
-						label: "Créer vos états",
-						description : "Créer les états de vos articles",
+						label: "Vos états",
+						description : "Configurer les états des véhicules",
 						ref: "listEtat"
 					},
 					
 					{
 						icon: "money-bill-wave-alt",
-						label: "Créer vos types de paiement",
+						label: "Vos types de paiement",
 						description : "Créer vos types de paiements",
 						ref: "typePaiement"
 					},
 					{
 						icon: "user-plus",
-						label: "Ajouter des utilisateurs",
+						label: "Vos utilisateurs",
 						description: "Ajouter des utilisateurs",
 						ref: "manageUser"
 					}

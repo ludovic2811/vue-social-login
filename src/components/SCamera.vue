@@ -15,12 +15,11 @@
                 </div>
                 <div style="height:400px"  v-show="!error">
                      <div class="control has-icons-left" style="margin-bottom: 10px">
-                        <div class="select is-medium is-rounded is-success">
-                            <select v-model="choiceDevice" v-on:change='getStream' >
-                            
+                        <div class="select is-medium is-rounded">
+                            <select v-model="choiceDevice" v-on:change='getStream' class="selectCamera">
                                 <option v-for="deviceItem in readDevices" 
                                     v-if="deviceItem.kind=='videoinput'"
-                                    :value="deviceItem.deviceId">
+                                    :value="deviceItem.deviceId"  class="selectCamera">
                                         {{deviceItem.label}}
                                 </option>
                             </select>
@@ -29,26 +28,27 @@
                             </span>
                         </div>
                     </div>
-                    <div v-show="this.photoCapture">
-                        <canvas id="canvas"  width="300" />
-                    </div>
-                    <div v-show="!this.photoCapture" style="width:300px">
-                    <video  ref="video" 
-                            
-                            class="videostream" autoplay muted playsinline 
-                            ></video>
-                    </div>
-                    <div style="height:400px" class="notification is-warning"
+                   
+                    <div style="height:200px" class="notification is-warning"
                          v-show="errorNumero">
                         <button class="delete" v-on:click="errorNumero=false"></button>
                         Numéro d'Immatriculation non détecté !<br/>
                         Veuillez recommencer ...
                      </div>
-                      <div style="height:400px" class="notification is-warning"
+                      <div style="height:200px" class="notification is-warning"
                          v-show="errorImage">
                         <button class="delete" v-on:click="errorImage=false"></button>
                         Problème de reconnaissance d'image ...
                      </div>
+                      <div v-show="this.photoCapture">
+                        <canvas id="canvas"  width="300" />
+                        </div>
+                        <div v-show="!this.photoCapture" style="width:300px">
+                        <video  ref="video" 
+                                
+                                class="videostream" autoplay muted playsinline 
+                                ></video>
+                        </div>
                 </div>
             </section>
             <footer class="modal-card-foot">
@@ -209,5 +209,8 @@ video.videostream {
     width: 100%;
     font-weight: bold;
     margin-bottom: 5px;
+}
+.selectCamera {
+    color: black;
 }
 </style>

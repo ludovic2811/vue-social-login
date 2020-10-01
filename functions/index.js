@@ -39,9 +39,6 @@ exports.deleteClient =
                                     paiement.ref.delete();
                                 });
                         }) 
-                        // on supprime
-						db.collection("agence").doc(idAgence).collection('clients').doc(idClientDelete)
-                            .delete()
                         
                         db.collection("agence").doc(idAgence).collection('inout')
                                     .where("idClient", "==", idClientDelete).get().then(inout=>{
@@ -112,8 +109,24 @@ exports.deleteAgence =
     functions.region('europe-west1')
         .firestore.document('agence/{agenceId}').onDelete((change, context)=>{
             var agenceId = context.params.agenceId;
-            db.collection("agence").doc(agenceId).collection("clientsArchive").get().then(clients=>{
-                clients.docs.forEach(clientArchive=>{
+            db.collection("user").where("agences", "array-contains", agenceId).get().then(userDoc=>{
+                userDoc.docs.forEach(user=>{
+                    var tabAgences = user.data().agences;
+                    var idAgenceSelected = user.data().idAgenceSelected;
+                    if (idAgenceSelected == agenceId)
+                        idAgenceSelected = "";
+                    var indexAgence = tabAgences.indexOf(agenceId);
+                    if (indexAgence != -1) {
+                        tabAgences.splice(indexAgence, 1);
+                        user.ref.update({
+                            idAgenceSelected : idAgenceSelected,
+                            agences : tabAgences
+                        })
+                    }
+                })
+            })
+            db.collection("agence").doc(agenceId).collection("clientsArchive").get().then(clientArchives=>{
+                clientArchives.docs.forEach(clientArchive=> {
                     clientArchive.ref.collection("paiements").get().then(paiements=>{
                         paiements.docs.forEach(paiement=>{
                             paiement.ref.delete();
@@ -121,12 +134,22 @@ exports.deleteAgence =
                     })
                     clientArchive.ref.delete();
                 })
-                
-            });
+            })
+            // Maintenant je supprimer tous mes clients
             return db.collection("agence").doc(agenceId).collection("clients").get().then(clients=>{
                 clients.docs.forEach(client=>{
                    return client.ref.delete().then(()=>{
-                       return 'ok';
+                         // et en fait bah il faut supprimer les clients qu'ils viennent d'être archivés
+                        var idClient = client.id;
+
+                        db.collection("agence").doc(agenceId).collection("clientsArchive").doc(idClient).get().then(clientArchive=>{
+                            clientArchive.ref.collection("paiements").get().then(paiements=>{
+                                paiements.docs.forEach(paiement=>{
+                                    paiement.ref.delete();
+                                })
+                            })
+                            return clientArchive.ref.delete();
+                        })
                    })
                 })
             })

@@ -54,6 +54,18 @@
                   Cet mail existe déjà ...</br>
                   Vous avez peut être oublier votre mot de passe </br>
                 </div>
+                <div :class="infoSendMail ? 'modal is-active':'modal'">
+                  <div class="modal-background"></div>
+                  <div class="modal-card">
+                  <section class="modal-card-body">
+                    Un mail a été envoyé à votre adresse.<br/>
+                    Veuillez confirmer votre adresse mail pour valider votre compte.                    
+                  </section>
+                  <footer class="modal-card-foot">
+                    <s-button label="J'ai compris" icon="thumbs-up" @onclick="rout('/login')" theme="is-success"/>
+                  </footer>
+                  </div>
+                </div>
         <div class="buttons">
           <s-button label="Enregistrer" icon="save" theme="is-success" @onclick="save()"/>
           <s-button label="Annuler" icon="save" theme="is-warning" @onclick="rout('/index')"/>
@@ -91,7 +103,8 @@ export default {
         pwd: false,
         email: false,
         exist: false
-      }
+      },
+      infoSendMail: false
     }
   },
   methods: {
@@ -122,14 +135,15 @@ export default {
               data.user.updateProfile({
                   displayName: this.nom
               }).then(error=>{
-                  console.log(error);
+                  
               })
           
                 firebase.auth().onAuthStateChanged(firebaseUser => {
                       if (firebaseUser) {
-                          firebaseUser.sendEmailVerification().then(function() {
-                              
-                              
+                          firebaseUser.sendEmailVerification().then(()=> {
+                              this.error.exist = false;
+                              this.infoSendMail = true;
+
                           }, function(error) {
                               console.log('not send Verification');
                           });
@@ -139,8 +153,7 @@ export default {
                       }
                 })
               }).catch(error=> {
-                console.log("error");
-                console.log(error);
+                
                 if (error.code =="auth/email-already-in-use")
                     this.error.exist = true;
                 });

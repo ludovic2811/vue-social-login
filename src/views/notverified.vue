@@ -12,8 +12,7 @@
         <br/><br/>
         <div class="subtitle">Votre compte n'a pas encore été vérifié</div> 
             Veuillez vérifier votre messagerie, et cliquez sur le lien pour activer votre compte
-            Votre nom : {{firebase.auth().currentUser.displayName}}<br/>
-            Email enregistré : {{firebase.auth().currentUser.email}}<br/>
+            
         <br/>
          <br/><br/>
         </div>

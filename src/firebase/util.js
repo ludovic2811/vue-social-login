@@ -57,8 +57,14 @@ const const_util = {
 			return date.getFullYear()+"-"+month+"-"+day;
 		},
 		convertDateToString(date) {
-			var date = new Date(date);
-			return date.toLocaleDateString();
+			
+			if (date != "") {
+				var date = new Date(date);
+				return date.toLocaleDateString();
+			}
+			else {
+				return "Non défini"
+			}
 		}
 		
 		

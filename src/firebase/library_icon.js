@@ -39,6 +39,11 @@ const iconsArticles = [
 						label: "",
 						value: "fas fa-motorcycle",
 						icon: "fas fa-motorcycle"
+					},					
+					{
+						label: "",
+						value : "fas fa-ship",
+						icon : "fas fa-ship",
 					},
 					{
 						label: "",

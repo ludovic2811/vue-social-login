@@ -78,10 +78,19 @@ const const_inout = {
             departLe : "",
             rentreLe : ""
         }
+        var date = new Date();
+        var indexFind = 0;
         if (inouts.length != 0) {
-            jsonInOut.departLe = inouts[0].departLe;
-            jsonInOut.rentreLe = inouts[0].rentreLe;
+            inouts.forEach((inout, index)=>{
+                if (inout.rentreLe > date)
+                    indexFind = index;
+            })
+            if (indexFind >= 0) {
+                jsonInOut.departLe = inouts[indexFind].departLe;
+                jsonInOut.rentreLe = inouts[indexFind].rentreLe;
+            }
         }
+        
         
         
         var idClient = client['.key'];

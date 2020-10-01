@@ -82,8 +82,8 @@
 		   	<article class="media" v-for='user in users'>
 			    <div class="media-left">
 			      <figure class="image is-64x64">
-			        <img :src="user.photoURL" alt="Image" v-show="user.photoURL!=''"/>
-			        <img src="@/assets/profil_blank.png" alt="Image" v-show="user.photoURL==''"/>
+					<img :src="user.photoURL" alt="Image" v-show="user.photoURL!='' && user.photoURL!=null"/>
+			        <img src="@/assets/profil_blank.png" alt="Image" v-show="user.photoURL=='' || user.photoURL==null"/>
 			        </figure>
 			    </div>
 			    <div class="media-content" >
@@ -94,7 +94,7 @@
 			      </div>
 			      <nav class="level is-mobile" style="width:250px">
 			        <div class="level-left">
-			          <button class="button is-primary" disabled v-show="user.login">
+			          <button class="button is-success" disabled v-show="user.login">
 			          	<span class="icon">
 			          		<i class="fas fa-link"/>
 			          	</span>
@@ -161,13 +161,13 @@ import Vue from "vue"
 				user_api.api.getUsersByAgence(this.agence, this.users );
 			},
 			deleteUser(userId) {
-				user_api.api.deleteAgence(this.$store.getters.getUser.id, agence, this.$store.getters.getDocAgence, userId, () => {
+				user_api.api.deleteAgence(this.$store.getters.getUser.id, this.agence, userId, () => {
 					this.refresh();		
 				});
 			},
 			confirm(user) {
 				//currentAgence, docAgence, userASupprimer, fct)
-				user_api.api.confirm(this.$store.getters.getAgence, this.$store.getters.getDocAgence, user, ()=> {
+				user_api.api.confirm(this.agence, user, ()=> {
 					this.refresh();
 				});
 			},
@@ -193,7 +193,7 @@ import Vue from "vue"
 				var erreur = this.erreur.nom || this.erreur.email || this.erreur.format
 			
 				if (!erreur) {					
-					user_api.api.createWithoutAuth(this.$store.getters.getUser.id, this.$store.getters.getAgence, this.$store.getters.getDocAgence, this.user.displayName, this.user.email, 
+					user_api.api.createWithoutAuth(this.$store, this.$store.getters.getUser.id, this.agence, this.user.displayName, this.user.email, 
 						(error) =>{
 							if (typeof(error) == "undefined") {
 								this.addNewUser = "modal";

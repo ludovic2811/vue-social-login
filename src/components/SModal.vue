@@ -2,8 +2,8 @@
 <div :class="classModal">
 			<div class="modal-background"></div>
   			<div class="modal-card">
-	    		<header class="modal-card-head">
-				      <p class="modal-card-title">{{title}}</p>	
+	    		<header class="modal-card-head" >
+				      <p class="modal-card-subtitle" style="width:90%" >{{title}}</p>	
 				      <div style="float:rigth" v-if="close">
 				      	<s-button theme="" label="" icon="times-circle" @onclick="$emit('close')"/>
 				      </div>

@@ -1,22 +1,26 @@
 <template>
 	<div :class="classModal">
 		<div class="modal-background"></div>
-  		<div class="modal-card" style="width:90%">
-	    	<header class="modal-card-head">
-		      <p class="modal-card-title" v-if='article'>Paiements pour l'article<br/>{{article.numero}}</p>	
-		      <div style="float:rigth" >
-			      	<s-button theme="" label="" icon="times-circle" @onclick="close"/>
-		      </div>
+  		<div class="modal-card" >
+	    	<header class="modal-card-head" >
+		    <p class="modal-card-subtitle" v-if='article' style="width:90%">Paiements pour le véhicule : <b>{{article.numero}}</b>
+			<div style="float:rigth" >
+			  	<s-button theme="" label="" icon="times-circle" @onclick="close"/>
+		    </div>
+			  </p>	
+		      
 			</header>
 			<section class="modal-card-body">
 				<div class="listHistorique" >
 					<div v-for="paiement in arrayPaiements"  >
 						<div class="itemYear">
 							<s-button theme=" is-small" :icon="(showYear == paiement.year) ? 'caret-down' : 'caret-up'" label="" @onclick="showHisto(paiement.year)"/> 
-							&nbsp; {{paiement.year}} : Reçu {{paiement.total}} €  sur 
+							&nbsp; 
+							{{paiement.year}} :<br/>
+							<span class="yearHeader"> Reçu {{paiement.total}} €  sur </span>
 							<span class="control has-icons-right"  style="width:100px">
 								<input type="number" class="input is-primary is-rounded is-small" 
-									style="width:80px" v-model="paiement.estimate_price" 
+									style="width:60px" v-model="paiement.estimate_price" 
 									@change="verifConfirm(paiement)"/>
 								<span class="icon is-right">
 									<i class="fas fa-euro-sign"></i>
@@ -39,12 +43,13 @@
 							<br/>
 							<span>
 								{{$store.getters.getAgence.typePaiements[echeance.typePaiement].nom}} 
-								reçu par {{echeance.user}}
+								<br/>reçu par {{echeance.user}}
 							</span>
-							
+							<div style="float:right">
 								<s-button theme="is-danger is-small" icon="trash" 
 								@onclick="deleteEcheance(paiement.year, index)" label="">
 								</s-button>
+							</div>
 						</div>
 						<br/>
 					</div>
@@ -62,7 +67,7 @@
 						Mauvaise année !!
 					</div>
 					<div class="montantEcheance">
-						<input style="width:300px" type="text" class="input is-primary is-rounded" 
+						<input style="width:240px" type="text" class="input is-primary is-rounded" 
 						placeholder="Mettre l'échéance" v-model="echeanceData.libelle"/>
 
 					</div>
@@ -74,7 +79,7 @@
 				</div>
 				<div class="ligneMontant">
 					<span class="control has-icons-right"  style="width:100px">
-						<input type="number" class="input is-primary is-rounded" style="width:100px" v-model="echeanceData.prix"/>
+						<input type="number" class="input is-primary is-rounded  is-small" style="width:100px" v-model="echeanceData.prix"/>
 						<span class="icon is-right">
 							<i class="fas fa-euro-sign"></i>
 						</span>
@@ -85,7 +90,7 @@
 							</div>
 						&nbsp;
 						en 
-						<div class="select is-primary is-rounded ">
+						<div class="select is-primary is-rounded is-small ">
 							<select v-model="echeanceData.typePaiement" >
 								<option disabled="">Mode paiement</option>				
 								<option v-for="typePaiement in $store.getters.getAgence.typePaiements" :value="typePaiement.id">
@@ -264,11 +269,17 @@
 		margin-right: 0px;	
 		font-weight: bolder;
 	}
+	.yearHeader {
+		font-size: 12px;
+		padding-left: 50px;
+	}
 	.itemHistorique {
 		width: 100%;
 		padding-left: 50px;
 		text-align: left;
 		padding-bottom: 5px;
+		vertical-align: top;
+		margin-top: 2px;
 	}
 	.itemHistorique:nth-child(even) {
 		background-color: #F6FFE5;
@@ -280,9 +291,9 @@
 	.listHistorique {
 		vertical-align: top;
 		overflow-y: scroll;
-		height: 250px;
+		height: 200px;
 		
-		padding: 5px;
+		padding: 0px;
 		border: thin solid silver;
 
 	}

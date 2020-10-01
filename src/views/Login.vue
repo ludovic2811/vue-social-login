@@ -159,7 +159,9 @@ export default {
         .signInWithPopup(provider)
         .then(() => {
           this.createUser();
-          this.$router.replace("client");
+          this.$router.replace("client").catch((err) => {
+              throw new Error();
+          });
         })
         .catch(err => {
           // TODO:

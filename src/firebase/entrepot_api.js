@@ -36,7 +36,10 @@ const const_entrepot = {
 	},
 	delete(agence, entrepot, fct) {
 		delete agence.entrepots[entrepot.id];
-		this.save (agence, entrepot, ()=>{
+		firebase.api.getDb().collection('agence').doc(agence.id).update({
+			entrepots: agence.entrepots
+		}).then(()=>{
+			
 			fct()
 		})
 	}
