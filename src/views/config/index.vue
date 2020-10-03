@@ -181,7 +181,7 @@
 				if (val.length != 0)
 					if (typeof(this.subscriptionBind.subscription) != "undefined") {
 						if (this.subscriptionBind.subscription.status != "test") {
-							console.log(this.subscriptionBind.subscription)
+							
 							this.subscriptionBind.productRef.get().then(product=>{
 								this.product = product.data();
 							})

@@ -1,7 +1,7 @@
 import firebase_api from "@/firebase/firebase_api"; 
 const subscription_api = {
 
-    publishableKey: "pk_test_kQiRzTlrywDt8BOeiBzUmAlQ00yblSzSdQ", 
+    publishableKey: firebase_api.api.getConfigStripe().pk,
     getSubscription (idUser, fct) {
         var db = firebase_api.api.getDb();
         db.collection("subscription").doc(idUser).get().then(doc=>{
@@ -33,7 +33,7 @@ const subscription_api = {
           .add({
             price: priceId,
             allow_promotion_codes: false,
-            tax_rates: ["txr_1HS421JfciPMt21YRL05Z30z"],
+            tax_rates: [firebase_api.api.getConfigStripe().tax_id],
             success_url: success_url,
             cancel_url: cancel_url
           }).then(docRef=>{

@@ -135,28 +135,46 @@ export default {
               data.user.updateProfile({
                   displayName: this.nom
               }).then(error=>{
-                  
+                  var user = firebase.auth().currentUser;
+
+                  user.sendEmailVerification().then(()=> {
+                    console.log("SEND EMAIL");
+                    this.error.exist = false;
+                    this.infoSendMail = true;
+                    firebase.auth().signOut();
+                  }).catch(function(error) {
+                    // An error happened.
+                  });
               })
           
-                firebase.auth().onAuthStateChanged(firebaseUser => {
+               
+              }).catch(error=> {
+                if (error.code =="auth/email-already-in-use")
+                    this.error.exist = true;
+                });
+          /*firebase.auth().onAuthStateChanged(firebaseUser => {
                       if (firebaseUser) {
                           firebaseUser.sendEmailVerification().then(()=> {
-                              this.error.exist = false;
-                              this.infoSendMail = true;
+                              console.log("SEND EMAIL VERIFICATION !!");
+                              
+                          });
+                      }
+                      })
+                      */
+           /*firebase.auth().onAuthStateChanged(firebaseUser => {
+                      if (firebaseUser) {
+                          firebaseUser.sendEmailVerification().then(()=> {
+                              
 
                           }, function(error) {
+                              console.log(error);
                               console.log('not send Verification');
                           });
                       } else {
                           console.log('not logged in');
                           
                       }
-                })
-              }).catch(error=> {
-                
-                if (error.code =="auth/email-already-in-use")
-                    this.error.exist = true;
-                });
+                })*/
           }
           
       }
