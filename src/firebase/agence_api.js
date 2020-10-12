@@ -40,7 +40,9 @@ const const_agence = {
 		});
 	},
 	createAgenceByModel (store, fct) {
+		console.log("bah alots");
 		firebase.api.getDb().collection("agence").doc("modele").get().then(agence=>{
+			console.log("create");
 			var agenceData = agence.data();
 			agenceData.id = -1;
 			this.save(store, agenceData, fct);

@@ -226,7 +226,7 @@
 				this.openHistoPaiement = true;
 			},
 			openModalInOut(article) {
-				console.log("openHisto")
+				
 				this.article = article;			
 				this.openInOut = true;
 			},

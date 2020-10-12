@@ -51,14 +51,14 @@ export default {
         sendVerif() {
             var user = firebase.auth().currentUser;
             user.sendEmailVerification().then(()=> {
-                    console.log("SEND EMAIL");
+                    
                     this.infoSendMail = true;
                     
             }).catch(function(error) {})
         }
     },
     mounted() {
-        console.log(this.$store.getters.getUser)
+      
     }
 }
 </script>

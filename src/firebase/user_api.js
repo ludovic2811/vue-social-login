@@ -59,7 +59,7 @@ const const_user = {
 							firebase_api.api.getDb().collection("user").doc(idUser).delete().then(()=>{
 								fct();
 							}).catch(()=>{
-									console.log("EERROR");
+								
 									fct("error")
 							})
 						}
@@ -72,7 +72,7 @@ const const_user = {
 							}).then(()=>{
 								fct();
 							}).catch(()=>{
-								console.log("EERROR");
+								
 								fct("error")
 							})
 						}
@@ -81,12 +81,7 @@ const const_user = {
 			}).then(()=>{
 				fct()
 			})
-			/*
-			.catch(()=>{
-				console.log("EERROR");
-				fct("error")
-			})
-			*/
+			
 			
 		});
 	},
@@ -125,7 +120,7 @@ const const_user = {
 		html += '<a href="'+window.location.origin+'/login">Cliquez ici pour vous connecter dans l\'agence</a>';
 		html += "<br/><br/>"
 		html += "<i>L'équipe Guarding Manager</i>" 
-		console.log(html);
+		
 	
 		firebase_api.api.getDb().collection('mail').add({
 			to: user.email,
@@ -185,7 +180,7 @@ const const_user = {
 							var user= {
 								email : email
 							};
-							console.log(user);
+							
 							this.sendMailAddAgence(currentAgence, store.getters.getUser, user);
 							fct();
 						})

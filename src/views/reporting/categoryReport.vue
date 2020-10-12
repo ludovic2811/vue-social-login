@@ -77,7 +77,7 @@ export default {
              if (index == Object.keys(this.$store.getters.getAgence.categories).length)
                 this.chartOptions = this.initChart;
         }
-        console.log(this.series);
+        
     }
 }
 </script>

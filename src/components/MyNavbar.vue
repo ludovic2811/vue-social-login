@@ -51,9 +51,13 @@
                   <a class="navbar-item"  v-on:click="logout()">
                     <i class="fas fa-sign-out-alt"></i><div class="s-item-menu">Se déconnecter</div>
                   </a>
+                  <a class="navbar-item" v-if="existUser()" v-on:click="rout('/contact')">
+                  <i class="fas fa-paper-plane"></i><div class="s-item-menu">Contactez moi</div>
+                  </a>
               </div>
+             
             </div>
-           
+            
         
      
     </div>

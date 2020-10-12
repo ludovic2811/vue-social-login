@@ -1,4 +1,4 @@
-
+import firebase from "firebase"
 const const_util = {
 		order(jsonParam) {
 				var arrayReturn = []
@@ -65,9 +65,35 @@ const const_util = {
 			else {
 				return "Non défini"
 			}
+		},
+		sendRecaptcha(reloadCaptcha, recaptcha, fct) {
+		
+			if (window.location.hostname == "localhost") {
+				var result= {
+					data: {
+						data: {
+							success: true
+						}
+					}
+				}
+				fct(result);
+			}
+			else {
+				reloadCaptcha.then(()=>{
+					recaptcha.then(token=> {
+							var sendRecaptcha = firebase.app().functions('europe-west1').httpsCallable('sendRecaptcha');
+							sendRecaptcha({token: token}).then((result)=> {
+							// Read result of the Cloud Function.
+								fct(result);
+							})
+							.catch(err=>{
+								fct(err);
+							})
+						})
+				})
+			}
+			
 		}
-		
-		
 }
 
 

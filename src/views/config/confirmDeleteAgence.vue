@@ -34,11 +34,11 @@ export default {
     },
     mounted() {
         if (typeof(this.$route.params.idAgence) != "undefined") {
-            console.log(this.$route.params.idAgence);
+            
             firebase_api.api.getDb().collection("agence").doc(this.$route.params.idAgence).get().then(agence=>{
                     this.agence = agence.data();
                     this.agence.id = agence.id;
-                    console.log(this.agence);
+               
                     this.openModalSup = true;
             })
         }

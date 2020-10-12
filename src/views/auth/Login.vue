@@ -50,9 +50,23 @@
                 <div>
                   <a href="#" v-on:click="resetPwd()"> mot de passe oublié</a>   &nbsp;   &nbsp;
                     <s-button theme="is-success" icon="sign-in-alt" label="Se loguer" @onclick="login"/>
-                  <div class="sendMail" v-show="sendEmail">
-                      Un mail vous a été envoyé pour réinitialiser votre mot de passe
+                  <div :class="sendEmail ? 'modal is-active':'modal'">
+                  <div class="modal-background"></div>
+                  <div class="modal-card">
+                  <section class="modal-card-body">
+                    Un mail a été envoyé à votre adresse.<br/>
+                    Veuillez cliquer sur le lien transmis pour réinitialiser votre mot de passe
+                  </section>
+                  <footer class="modal-card-foot">
+                    <div style="width:100%">
+                      <div style="float:right">
+                      <s-button label="J'ai compris" icon="thumbs-up" @onclick="sendEmail=false" theme="is-success"/>
+                      </div>
+                    </div>
+                  </footer>
                   </div>
+                </div>
+                 
                 </div>
                
               </div>
@@ -116,6 +130,7 @@ export default {
     resetPwd() { 
       this.sendEmail = false;
       this.errorEmail = false;
+      
       firebase.auth().sendPasswordResetEmail (this.email).then(()=>{
           this.sendEmail = true;
          
@@ -129,6 +144,9 @@ export default {
       this.rout("/register");
     },
     rout(nav) {
+      const recaptcha = this.$recaptchaInstance
+      if (recaptcha)
+        recaptcha.hideBadge();
       this.$router.push(nav).catch(
         (error)=>{
 
@@ -137,20 +155,27 @@ export default {
     login () {
       this.errorEmail = false;
       this.errorPwd = false;
-      firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-      .then(()=>{
-        this.createUser();
-        this.rout("/client");
+       this.$sendRecaptcha( this.$recaptchaLoaded(), this.$recaptcha('login'), result=>{
+         
+         if (result.data.data.success) {
+         
+              firebase.auth().signInWithEmailAndPassword(this.email, this.password)
+              .then(()=>{
+                this.createUser();
+                
+                this.rout("/client");
+              })
+              .catch((error)=> {
+                  // Handle Errors here.
+                  console.log(error.code);
+                  if (error.code == "auth/invalid-email")
+                    this.errorEmail = true;
+                  if (error.code == "auth/wrong-password")
+                    this.errorPwd = true;
+                  
+                });
+         }
       })
-      .catch((error)=> {
-          // Handle Errors here.
-          console.log(error.code);
-          if (error.code == "auth/invalid-email")
-            this.errorEmail = true;
-          if (error.code == "auth/wrong-password")
-            this.errorPwd = true;
-          
-        });
     },
     loginWithGoogle() {
       const provider = new firebase.auth.GoogleAuthProvider();
@@ -158,9 +183,12 @@ export default {
         .auth()
         .signInWithPopup(provider)
         .then(() => {
+           const recaptcha = this.$recaptchaInstance
+            if (recaptcha)
+              recaptcha.hideBadge();
           this.createUser();
           this.$router.replace("client").catch((err) => {
-              throw new Error();
+              
           });
         })
         .catch(err => {
@@ -175,6 +203,11 @@ export default {
         });
       });
     }
+  },
+   mounted() {
+    const recaptcha = this.$recaptchaInstance
+    if (recaptcha)
+		  recaptcha.showBadge();
   }
 };
 </script>

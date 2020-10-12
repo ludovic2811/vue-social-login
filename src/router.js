@@ -16,15 +16,18 @@ import Impaye from '@/views/impaye/index.vue'
 import confirmDeleteAgence from '@/views/config/confirmDeleteAgence.vue'
 
 import Reporting from '@/views/reporting/index.vue'
-import Login from '@/views/Login.vue'
-import Register from '@/views/register.vue'
+import Login from '@/views/auth/Login.vue'
+import Register from '@/views/auth/register.vue'
 import Index from '@/views/Index.vue'
-
+import Verify from '@/views/auth/verify.vue'
+import ResetPwd from '@/views/auth/ResetPwd.vue'
 import InstagramAuth from '@/views/InstagramAuth.vue'
+
+import contact from '@/views/contact/contact.vue'
 
 import term from '@/views/terms/term.vue'
 import privacy from '@/views/terms/privacy.vue'
-import notverified from '@/views/notverified.vue'
+import notverified from '@/views/auth/notverified.vue'
 Vue.use(Router)
 
 const router = new Router({
@@ -45,7 +48,7 @@ const router = new Router({
       name: "term",
       component: term
     },
-    {
+    {   
       path: "/privacy",
       name: "privacy",
       component: privacy
@@ -53,13 +56,13 @@ const router = new Router({
     {
       path: '/',
       redirect: '/index'
-    },
-
+    },  
     {
       path: '/index',
       name: 'index',
       component: Index
     },
+    
     {
       path: '/login',
       name: 'login',
@@ -71,11 +74,28 @@ const router = new Router({
       component: Register
     },
     {
+      path: '/verify',
+      name: 'verify',
+      component: Verify
+    },
+    {
+      path: '/ResetPwd',
+      name: 'ResetPwd',
+      component: ResetPwd
+    },
+    {
       path: '/instagramauth',
       name: 'instagramauth',
       component: InstagramAuth
     },
-    
+    {
+      path:'/contact',
+      name:'contact',
+      component: contact,
+      meta: {
+        requiresAuth: true
+      }
+    },
     {
       path: '/client',
       name: 'Client',
@@ -138,14 +158,21 @@ router.beforeEach((to, from, next) => {
   
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
   const requireAgence = to.matched.some((record) => record.meta.requireAgence);
- 
+  
+  if (to.name == "index" && to.query.mode == "verifyEmail")
+    next({name: "verify", query: to.query});
+  else if (to.name == "index" && to.query.mode == "resetPassword")
+    next({name: "ResetPwd", query: to.query});
+  else
   if (requiresAuth && !currentUser) {
-    next('index');
+    next('login');
   }
    else {
+
      if (requiresAuth) {
-        
+      
         if (!currentUser.emailVerified) {
+         
             if (to.name =="notverified" || to.name == "login")
                 next();
             else
@@ -154,7 +181,6 @@ router.beforeEach((to, from, next) => {
         else
         if (requireAgence) {
          
-
           if (typeof(vuefire.store.getters.getAgence.id) == "undefined") {
              
               next('config');
@@ -172,11 +198,15 @@ router.beforeEach((to, from, next) => {
               next();
           }
         }
-        else
+        else {
+        
           next();
+        }
+          
         
     }
     else {
+    
       next();
     }
   }

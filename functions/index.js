@@ -1,5 +1,12 @@
-const functions = require('firebase-functions');
+/**
+ * Responds to any HTTP request.
+ *
+ * @param {!express:Request} req HTTP request context.
+ * @param {!express:Response} res HTTP response context.
+ */
 
+const functions = require('firebase-functions');
+const axios = require('axios');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
@@ -155,3 +162,21 @@ exports.deleteAgence =
             })
         })
     
+/**
+Firebase Function to verify user response with Google recaptcha v3
+**/
+
+exports.sendRecaptcha = functions.region('europe-west1').https.onCall((data, context) => {
+    const token = data.token;
+    const secret = "6Lfsy9MZAAAAAEE-ocMXeIYiIfo5DPIo8miqM1wV";
+    return axios.get(`https://recaptcha.google.com/recaptcha/api/siteverify?secret=${secret}&response=${token}`)
+        .then(response=>{           
+            return {
+                data: response.data
+            }
+        })
+        .catch(err=>{
+            console.log(err);
+            return err;
+        })
+  });

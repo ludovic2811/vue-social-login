@@ -20,6 +20,12 @@ import MyNavbarFooter 	from "@/components/MyNavbarFooter.vue";
 
 import VCalendar 		from 'v-calendar';
 import SDraggable 		from "@/components/SDraggable"
+
+import { VueReCaptcha } from "vue-recaptcha-v3";
+Vue.use(VueReCaptcha, { siteKey: "6Lfsy9MZAAAAAFOC5jNz5W3SIVhYu6FHn_IxsGM8",
+    autoHideBadge: true
+});
+
 import UUID from "vue-uuid";
 const { v4: uuidv4 } = require('uuid');
 
@@ -46,6 +52,9 @@ Vue.prototype.$uuid = ()=> {
 Vue.prototype.$util = function() {
 	return util.util;
 }
+Vue.prototype.$sendRecaptcha = function(reloadCaptcha, recaptcha, fct) {
+	return util.util.sendRecaptcha(reloadCaptcha, recaptcha, fct);
+}
 Vue.prototype.$convertDateToString = function(date) {
 	return util.util.convertDateToString(date);
 }
@@ -68,8 +77,11 @@ firebase.auth().onAuthStateChanged(auth => {
 			app = new Vue({
 				router,
 				store: storeInst,
-				render: h => h(App)
-				
+				render: h => h(App), 
+				aftermounted() {
+					
+				}
+
 			}).$mount('#app');
 		}
 	})

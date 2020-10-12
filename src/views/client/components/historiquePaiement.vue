@@ -20,7 +20,7 @@
 							<span class="yearHeader"> Reçu {{paiement.total}} €  sur </span>
 							<span class="control has-icons-right"  style="width:100px">
 								<input type="number" class="input is-primary is-rounded is-small" 
-									style="width:60px" v-model="paiement.estimate_price" 
+									style="width:80px" v-model="paiement.estimate_price" 
 									@change="verifConfirm(paiement)"/>
 								<span class="icon is-right">
 									<i class="fas fa-euro-sign"></i>

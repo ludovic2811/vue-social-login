@@ -277,10 +277,10 @@
 					firebase_api.api.getDb().collection("subscription").doc(idUser).get().then(doc=>{
 
 						if (doc.exists) {
-							console.log("bingind");
+							
 							this.$binding("subscriptionBind", firebase_api.api.getDb().collection("subscription").doc(idUser))
 							.then(doc=>{
-								console.log(doc);
+							
 							})
 						}
 							

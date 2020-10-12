@@ -23,7 +23,9 @@ const keys = {
     stripe_test: {
         pk: "",
         tax_id: ""
-    }
+    },
+    //siteKeyCaptcha: "6Lfsy9MZAAAAAFOC5jNz5W3SIVhYu6FHn_IxsGM8"
+    siteKeyCaptcha: "6LfV2dMZAAAAAKDRZJOkOUF19RwpTl0HJsSIHroY"
 }
 
 export default {

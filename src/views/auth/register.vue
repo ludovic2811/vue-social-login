@@ -18,7 +18,7 @@
         <div v-show="error.nom" class="danger">
             Le nom est obligatoire
         </div>
-        <br/>
+        <br/><br/>
          <label class="label">
           Email  :
         </label>
@@ -66,9 +66,12 @@
                   </footer>
                   </div>
                 </div>
+       
         <div class="buttons">
-          <s-button label="Enregistrer" icon="save" theme="is-success" @onclick="save()"/>
+          
           <s-button label="Annuler" icon="save" theme="is-warning" @onclick="rout('/index')"/>
+          &nbsp;&nbsp;&nbsp;
+          <s-button label="Enregistrer" icon="save" theme="is-success" @onclick="save()"/>
         </div>
         </div>
     </div>
@@ -89,10 +92,13 @@
     font-size: smaller;
     color: red;
   }
+  
 </style>
 <script>
 import firebase from "firebase";
+
 export default {
+    
     data:function() {
     return {
       email: "",
@@ -109,6 +115,9 @@ export default {
   },
   methods: {
       rout(nav) {
+        const recaptcha = this.$recaptchaInstance
+        if (recaptcha)
+          recaptcha.hideBadge();
         this.$router.push(nav).catch(error=>{})
       },
       save() {
@@ -127,58 +136,51 @@ export default {
                     this.password.match(/[a-z]/g)) && 
                     this.password.length >= 6)
           }
-
+ 
           if (!this.error.nom || !this.error.pwd || !this.error.email) {
+            // Execute reCAPTCHA with action "login".
+            console.log("REGISTER")
+            this.$sendRecaptcha( this.$recaptchaLoaded(), this.$recaptcha('register'), result=>{
+              console.log("REGISTER 2")
+              if (result.data.data.success) {
+                console.log("SUCESS")
+                firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
+                .then(data=> {
+                    data.user.updateProfile({
+                        displayName: this.nom
+                    }).then(error=>{
+                        var user = firebase.auth().currentUser;
 
-          firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-          .then(data=> {
-              data.user.updateProfile({
-                  displayName: this.nom
-              }).then(error=>{
-                  var user = firebase.auth().currentUser;
-
-                  user.sendEmailVerification().then(()=> {
-                    console.log("SEND EMAIL");
-                    this.error.exist = false;
-                    this.infoSendMail = true;
-                    firebase.auth().signOut();
-                  }).catch(function(error) {
-                    // An error happened.
-                  });
-              })
-          
-               
-              }).catch(error=> {
-                if (error.code =="auth/email-already-in-use")
-                    this.error.exist = true;
-                });
-          /*firebase.auth().onAuthStateChanged(firebaseUser => {
-                      if (firebaseUser) {
-                          firebaseUser.sendEmailVerification().then(()=> {
-                              console.log("SEND EMAIL VERIFICATION !!");
-                              
-                          });
-                      }
-                      })
-                      */
-           /*firebase.auth().onAuthStateChanged(firebaseUser => {
-                      if (firebaseUser) {
-                          firebaseUser.sendEmailVerification().then(()=> {
-                              
-
-                          }, function(error) {
-                              console.log(error);
-                              console.log('not send Verification');
-                          });
-                      } else {
-                          console.log('not logged in');
+                        user.sendEmailVerification().then(()=> {
                           
-                      }
-                })*/
-          }
-          
-      }
-  }
+                          this.error.exist = false;
+                          this.infoSendMail = true;
+                          firebase.auth().signOut();
+                        }).catch(function(error) {
+                          // An error happened.
+                        });
+                    })
+                    .catch(error=> {
+                      if (error.code =="auth/email-already-in-use")
+                          this.error.exist = true;
+                      });
+                });
+              }
+              else {
+                console.log("Probleme : captcha non valide !")
+                console.log(result);
+              }
+          })
+                  
+        } // en if
+      } // save
 
+  }// methods
+  ,
+  mounted() {
+    const recaptcha = this.$recaptchaInstance
+     if (recaptcha)
+      recaptcha.showBadge();
+  }
 }
 </script>
